@@ -14,48 +14,44 @@ function artifactDesc(a){return t(a.descriptionKey)}
 function perksText(a){return t(a.perkKey)}
 function matches(a,q){const all=[artifactName(a),a.id,artifactDesc(a),perksText(a),...a.stats.map(s=>s.label+" "+s.value)].join(" ").toLowerCase();return !q||all.includes(q)}
 function filtered(){const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,sort=$("#sort").value;let out=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));return out.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:a.tier-b.tier||artifactName(a).localeCompare(artifactName(b)))}
+function purposeFor(a){
+ const positive=a.stats.filter(s=>Number(s.numeric)>0);
+ const protections=positive.filter(s=>s.group==="Protection").sort((x,y)=>y.numeric-x.numeric);
+ if(protections.length)return {key:"protection",label:"Protection",detail:protections[0].label,stat:protections[0]};
+ const recovery=positive.filter(s=>s.group==="Recovery").sort((x,y)=>y.numeric-x.numeric);
+ if(recovery.length)return {key:"recovery",label:"Healing & recovery",detail:recovery[0].label,stat:recovery[0]};
+ const utility=positive.filter(s=>s.group==="Utility").sort((x,y)=>y.numeric-x.numeric);
+ if(utility.length)return {key:"utility",label:"Carry & utility",detail:utility[0].label,stat:utility[0]};
+ const mobility=positive.filter(s=>s.group==="Mobility").sort((x,y)=>y.numeric-x.numeric);
+ if(mobility.length)return {key:"mobility",label:"Mobility",detail:mobility[0].label,stat:mobility[0]};
+ return {key:"other",label:"Other / mixed",detail:"No positive core modifier",stat:null};
+}
 function renderMatrix(){
- const q=$("#search").value.trim().toLowerCase();
- const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!$("#tier").value||String(a.tier)===$("#tier").value)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const recipeById=new Map(recipes.map(r=>[r.id,r]));
- const recipeByName=new Map(recipes.map(r=>[r.name.toLowerCase(),r]));
- const artifactById=new Map(artifacts.map(a=>[a.id,a]));
- const alias={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert"};
- const recipeInputs=new Map();
- for(const r of recipes){
-   const deps=[];
-   for(const ing of r.ingredients){
-     const key=ing.name.toLowerCase();
-     const linked=recipeByName.get(key);
-     const id=linked?.id||alias[key];
-     if(id&&artifactById.has(id)&&items.some(a=>a.id===id)) deps.push({id,name:ing.name,amount:ing.amount});
-   }
-   recipeInputs.set(r.id,deps);
- }
- const depthMemo=new Map();
- function depth(id,stack=new Set()){
-   if(depthMemo.has(id))return depthMemo.get(id);
-   if(stack.has(id))return 0;
-   const next=new Set(stack);next.add(id);
-   const deps=recipeInputs.get(id)||[];
-   const value=deps.length?1+Math.max(...deps.map(d=>depth(d.id,next))):0;
-   depthMemo.set(id,value);return value;
- }
- const stages=new Map();
- for(const a of items){const d=depth(a.id);if(!stages.has(d))stages.set(d,[]);stages.get(d).push(a);}
- const ordered=[...stages.keys()].sort((a,b)=>a-b);
- const stageHtml=ordered.map((d,index)=>{
-   const cards=stages.get(d).sort((a,b)=>artifactName(a).localeCompare(artifactName(b))).map(a=>{
-     const recipe=recipeById.get(a.id),deps=recipeInputs.get(a.id)||[];
-     const ingredients=recipe?'<div class="craft-inputs"><small>CRAFTED FROM</small>'+recipe.ingredients.map(i=>'<span>'+esc(i.amount)+' '+esc(i.name)+'</span>').join('')+'</div>':'<div class="craft-inputs natural"><small>PROGRESSION</small><span>Found / acquired in the Zone</span></div>';
-     const effects=a.stats.length?a.stats.map(s=>'<i>'+esc(s.label)+' <strong class="'+(s.numeric<0?'neg':'')+'">'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</strong></i>').join(''):'<i>No listed modifiers</i>';
-     return '<button class="progression-node '+(d===0?'base-node':'crafted-node')+'" data-id="'+esc(a.id)+'"><span class="node-top"><b>'+esc(artifactName(a))+'</b><em>TIER '+a.tier+'</em></span><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="node-effects">'+effects+'</span>'+ingredients+'</button>';
-   }).join('');
-   return '<section class="progression-stage"><header><span>STAGE '+String(index+1).padStart(2,'0')+'</span><h3>'+(d===0?'Base artefacts':'Crafting step '+d)+'</h3><small>'+cards.length+' ARTEFACTS</small></header><div class="progression-nodes">'+cards+'</div></section>';
- }).join('');
+ const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"";
+ const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
+ const recipesById=new Map(recipes.map(r=>[r.id,r]));
+ const nameToId=new Map();
+ for(const a of artifacts){nameToId.set(artifactName(a).trim().toLowerCase(),a.id);nameToId.set(a.id.toLowerCase(),a.id)}
+ const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood"};
+ for(const [n,id] of Object.entries(aliases))nameToId.set(n,id);
+ const groups=[{key:"protection",title:"Protection",desc:"Artefacts with positive resistance modifiers."},{key:"recovery",title:"Healing & recovery",desc:"Health, wound, stamina, radiation and satiety effects."},{key:"utility",title:"Carry & utility",desc:"Extra carrying capacity and other practical bonuses."},{key:"mobility",title:"Mobility",desc:"Jump-height bonuses when no stronger core benefit is present."},{key:"other",title:"Other / mixed",desc:"No positive core modifier in the exported stats."}];
+ const cardsFor=a=>{
+  const p=purposeFor(a),recipe=recipesById.get(a.id);
+  const positives=a.stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>{const rank=s=>s.group==="Protection"?0:s.group==="Recovery"?1:s.group==="Utility"?2:3;return rank(x)-rank(y)||y.numeric-x.numeric}).slice(0,3);
+  const negatives=a.stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(y.numeric)-Math.abs(x.numeric)).slice(0,1);
+  const tags=[...positives,...negatives].map(s=>'<span class="effect-tag '+(s.numeric<0?'negative':'positive')+'">'+esc(s.label)+' <b>'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("");
+  let route="";
+  if(recipe){
+   const ingredients=recipe.ingredients.map(i=>{const id=nameToId.get(i.name.trim().toLowerCase());return id&&artifacts.some(a=>a.id===id)?'<button class="route-chip" data-id="'+esc(id)+'">'+esc(i.name)+' '+esc(i.amount)+'</button>':'<span class="route-chip raw">'+esc(i.name)+' '+esc(i.amount)+'</span>'}).join('<span class="route-join">+</span>');
+   route='<div class="route-path"><small>CRAFTING INPUTS</small><div class="route-inputs">'+ingredients+'</div></div>';
+  }
+  return '<article class="purpose-card"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b><small>TIER '+a.tier+' · '+esc(p.detail)+'</small><span class="effect-tags">'+(tags||'<span class="effect-tag">No listed modifiers</span>')+'</span></span><em>VIEW ↗</em></button>'+route+'</article>';
+ };
+ const markup=groups.filter(g=>!purpose||g.key===purpose).map(g=>{const list=items.filter(a=>purposeFor(a).key===g.key).sort((a,b)=>{const pa=purposeFor(a).stat?.numeric||0,pb=purposeFor(b).stat?.numeric||0;return pb-pa||artifactName(a).localeCompare(artifactName(b))});if(!list.length)return "";return '<section class="purpose-group purpose-'+g.key+'"><header><div><h3>'+g.title+'</h3><p>'+g.desc+'</p></div><b>'+list.length+' ARTEFACTS</b></header><div class="purpose-grid">'+list.map(cardsFor).join("")+'</div></section>'}).join("");
  $("#matrix-count").textContent=items.length+' ARTEFACTS';
- $("#perk-matrix").innerHTML=stageHtml||'<div class="empty">NO MATCHES FOUND.</div>';
- $("#perk-matrix").querySelectorAll(".progression-node").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
+ $("#perk-matrix").innerHTML=markup||'<div class="empty">NO ARTEFACTS MATCH THESE FILTERS.</div>';
+ $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
+ $("#perk-matrix").querySelectorAll(".route-chip[data-id]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
@@ -66,4 +62,4 @@ function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(c
 function renderCompare(){const section=$("#compare");if(compareIds.size===0){section.hidden=true;return}section.hidden=false;const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);$("#compare-content").innerHTML='<div class="compare-grid">'+items.map(a=>'<div class="compare-item"><h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>'+a.stats.map(s=>'<div class="compare-row"><span>'+esc(s.label)+'</span><b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></div>').join("")+'<div class="compare-row"><span>Weight</span><b>'+fmt(a.weight)+' kg</b></div><div class="compare-row"><span>Cost</span><b>'+fmt(a.cost)+' RU</b></div></div>').join("")+'</div>'}
 const recipeName=r=>t(r.name)||r.name;
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
-$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));init();
+$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));init();
