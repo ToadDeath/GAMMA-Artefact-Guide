@@ -50,19 +50,45 @@ function drawRecipeLinks(){
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const categories=[{key:"physical",title:"Physical resistance"},{key:"anomaly",title:"Anomaly resistance"},{key:"recovery",title:"Healing & recovery"},{key:"utility",title:"Utility & mobility"},{key:"perks",title:"Special perks"},{key:"other",title:"Other / special"}];
- const cardsFor=a=>{
+ const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, regeneration and recovery effects"},{key:"utility",title:"Utility & mobility",note:"Carry weight, movement and practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities and effects"},{key:"other",title:"Other / special",note:"Effects that do not fit another primary purpose"}];
+ const byId=new Map(artifacts.map(a=>[a.id,a]));
+ const ingredientAliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
+ const ingredientIds=new Map();
+ for(const a of artifacts){ingredientIds.set(artifactName(a).trim().toLowerCase(),a.id);ingredientIds.set(a.id.toLowerCase(),a.id)}
+ for(const [name,id] of Object.entries(ingredientAliases))ingredientIds.set(name,id);
+ const outputsByInput=new Map();
+ for(const recipe of recipes){
+  const output=byId.get(recipe.id);if(!output)continue;
+  for(const ingredient of recipe.ingredients||[]){
+   const inputId=ingredientIds.get(String(ingredient.name).trim().toLowerCase());
+   if(!inputId)continue;
+   if(!outputsByInput.has(inputId))outputsByInput.set(inputId,new Map());
+   outputsByInput.get(inputId).set(output.id,output);
+  }
+ }
+ const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
+ const card=a=>{
   const stats=a.stats.filter(s=>Number(s.numeric)!==0).map(s=>'<span class="effect-tag '+(s.numeric<0?'negative':'positive')+'">'+esc(s.label)+' <b>'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("");
   const perk=a.perkTitle?'<span class="perk-card"><b>PERK: '+esc(a.perkTitle)+'</b><span>'+esc((perksText(a).split(/\n+/).map(x=>x.replace(/^•\s*/,'').trim()).filter(Boolean)[0]||'Unique artefact effect'))+'</span></span>':'';
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+perk+'<span class="effect-tags">'+(stats||'<span class="effect-tag">No listed modifiers</span>')+'</span></span><em>VIEW ↗</em></button></article>';
+  const outputs=[...(outputsByInput.get(a.id)?.values()||[])];
+  const routes=outputs.length?'<div class="route-path"><small>CRAFTING OUTPUT'+(outputs.length===1?'':'S')+'</small><div class="route-inputs">'+outputs.map(o=>'<button class="route-chip" data-route-id="'+esc(o.id)+'">'+esc(artifactName(o))+' <span aria-hidden="true">↗</span></button>').join("")+'</div></div>':'';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+perk+'<span class="effect-tags">'+(stats||'<span class="effect-tag">No listed modifiers</span>')+'</span></span></button>'+routes+'</article>';
  };
- const columns=[0,1,2,3,4].map(t=>{const tierItems=items.filter(a=>Number(a.tier)===t);const sections=categories.map(c=>{const list=tierItems.filter(a=>purposeFor(a).key===c.key).sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));if(!list.length)return "";return '<section class="tier-category"><h4>'+c.title+' <span>'+list.length+'</span></h4>'+list.map(cardsFor).join("")+'</section>'}).join("");return '<section class="tier-column"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+tierItems.length+' ARTEFACTS</span></header>'+(sections||'<p class="tier-empty">No matching artefacts</p>')+'</section>'}).join("");
+ const tierCounts=[0,1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
+ const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[0,1,2,3,4].map((t)=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[t]+' ARTEFACTS</span></div>').join("");
+ const rows=categories.map(c=>{
+  const cells=[0,1,2,3,4].map(t=>{
+   const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
+   return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">-</span>')+'</div>';
+  }).join("");
+  const count=items.filter(a=>purposeFor(a).key===c.key).length;
+  return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
+ }).join("");
  $("#matrix-count").textContent=items.length+' ARTEFACTS';
- $("#perk-matrix").innerHTML='<div class="tier-board"><svg class="recipe-links" aria-hidden="true"></svg>'+columns+'</div>';
+ $("#perk-matrix").innerHTML='<div class="tier-board">'+header+rows+'</div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
- requestAnimationFrame(drawRecipeLinks);
+ $("#perk-matrix").querySelectorAll(".route-chip").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const a=artifacts.find(x=>x.id===b.dataset.routeId);if(a)openProfile(a)}));
 }
-window.addEventListener("resize",()=>requestAnimationFrame(drawRecipeLinks));
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"],["Resistance caps","Resistance caps"]];
