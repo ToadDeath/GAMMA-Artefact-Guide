@@ -14,69 +14,77 @@ function artifactDesc(a){return t(a.descriptionKey).replace(/\\n/g,"\n").replace
 function perksText(a){return a.perkDescription||t(a.perkKey)}
 function matches(a,q){const all=[artifactName(a),a.id,artifactDesc(a),perksText(a),...a.stats.map(s=>s.label+" "+s.value)].join(" ").toLowerCase();return !q||all.includes(q)}
 function purposeFor(a){
- if(a.perk)return {key:'perks',label:'Special perks',stats:[]};
+ if(a.perk)return {key:"perks",label:"Special perks",stats:[]};
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
  const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
+ const caps=positive.filter(s=>s.group==="Resistance caps");
  const recovery=positive.filter(s=>s.group==="Recovery");
- const utility=positive.filter(s=>s.group==="Utility"||s.group==="Mobility");
- const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"utility",label:"Utility & mobility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+Math.abs(Number(s.numeric)||0),0)})).filter(x=>x.stats.length);
+ const mobility=positive.filter(s=>s.group==="Mobility");
+ const utility=positive.filter(s=>s.group==="Utility");
+ const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"caps",label:"Resistance caps",stats:caps},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobility",label:"Mobility",stats:mobility},{key:"utility",label:"Utility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+Math.abs(Number(s.numeric)||0),0)})).filter(x=>x.stats.length);
  scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
- return scores[0]||{key:"other",label:"Other / special",stats:[],score:0};
+ return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
 }
-function drawRecipeLinks(){
+function ingredientArtifactId(name){
+ const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
+ const key=String(name||"").trim().toLowerCase();
+ const direct=artifacts.find(x=>x.id.toLowerCase()===key);
+ if(direct)return direct.id;
+ const named=artifacts.find(x=>artifactName(x).trim().toLowerCase()===key);
+ return named?.id||aliases[key]||null;
+}
+function recipeEdges(){
+ const edges=[];
+ for(const recipe of recipes)for(const ingredient of recipe.ingredients||[]){
+  const input=ingredientArtifactId(ingredient.name);
+  if(input&&input!==recipe.id)edges.push({from:input,to:recipe.id});
+ }
+ return edges;
+}
+function drawRecipeLinks(activeId){
  const board=$("#perk-matrix .tier-board");if(!board)return;
  const svg=board.querySelector(".recipe-links");if(!svg)return;
- const width=board.scrollWidth,height=board.scrollHeight;
- svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=board.getBoundingClientRect(),paths=[];
- const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
- const names=new Map();
- for(const a of artifacts){names.set(artifactName(a).trim().toLowerCase(),a.id);names.set(a.id.toLowerCase(),a.id)}
- for(const [n,id] of Object.entries(aliases))names.set(n,id);
- for(const recipe of recipes){
-  const target=board.querySelector('[data-artifact-id="'+CSS.escape(recipe.id)+'"]');if(!target)continue;
-  const tr=target.getBoundingClientRect(),tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
-  for(const ingredient of recipe.ingredients){
-   const id=names.get(ingredient.name.trim().toLowerCase());if(!id)continue;
-   const source=board.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!source)continue;
-   const sr=source.getBoundingClientRect(),sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2;
-   const bend=Math.max(34,Math.abs(tx-sx)*.42);
-   paths.push('<path d="M '+sx+' '+sy+' C '+(sx+bend)+' '+sy+', '+(tx-bend)+' '+ty+', '+tx+' '+ty+'"/>');
-  }
+ const edges=recipeEdges().filter(e=>!activeId||e.from===activeId||e.to===activeId);
+ const base=board.getBoundingClientRect(),paths=[],related=new Set();
+ const unique=new Set();
+ for(const edge of edges){
+  const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
+  const source=board.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]');
+  const target=board.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
+  if(!source||!target)continue;
+  const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
+  const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2;
+  const tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
+  const bend=Math.max(28,Math.abs(tx-sx)*.38);
+  const d="M "+sx+" "+sy+" C "+(sx+bend)+" "+sy+", "+(tx-bend)+" "+ty+", "+tx+" "+ty;
+  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="'+d+'"/>');
+  related.add(edge.from);related.add(edge.to);
  }
- svg.innerHTML='<defs><marker id="recipe-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#b4c47a"/></marker></defs>'+paths.join("");
+ board.querySelectorAll(".artifact-node").forEach(node=>{
+  const id=node.dataset.artifactId;
+  node.classList.toggle("route-active",id===activeId);
+  node.classList.toggle("route-related",!!activeId&&related.has(id)&&id!==activeId);
+ });
+ svg.innerHTML='<defs><marker id="recipe-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#d6c879"/></marker></defs>'+paths.join("");
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, regeneration and recovery effects"},{key:"utility",title:"Utility & mobility",note:"Carry weight, movement and practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities and effects"},{key:"other",title:"Other / special",note:"Effects that do not fit another primary purpose"}];
- const byId=new Map(artifacts.map(a=>[a.id,a]));
- const ingredientAliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
- const ingredientIds=new Map();
- for(const a of artifacts){ingredientIds.set(artifactName(a).trim().toLowerCase(),a.id);ingredientIds.set(a.id.toLowerCase(),a.id)}
- for(const [name,id] of Object.entries(ingredientAliases))ingredientIds.set(name,id);
- const outputsByInput=new Map();
- for(const recipe of recipes){
-  const output=byId.get(recipe.id);if(!output)continue;
-  for(const ingredient of recipe.ingredients||[]){
-   const inputId=ingredientIds.get(String(ingredient.name).trim().toLowerCase());
-   if(!inputId)continue;
-   if(!outputsByInput.has(inputId))outputsByInput.set(inputId,new Map());
-   outputsByInput.get(inputId).set(output.id,output);
-  }
- }
+ const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"caps",title:"Resistance caps",note:"Maximum resistance limits, separate from resistance itself"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobility",title:"Mobility",note:"Movement and jump-height effects"},{key:"utility",title:"Utility",note:"Carry weight and other practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities - click to read the full effect"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
+ const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
+ const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
  const card=a=>{
-  const stats=a.stats.filter(s=>Number(s.numeric)!==0).map(s=>'<span class="effect-tag '+(s.numeric<0?'negative':'positive')+'">'+esc(s.label)+' <b>'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("");
-  const perk=a.perkTitle?'<span class="perk-card"><b>PERK: '+esc(a.perkTitle)+'</b><span>'+esc((perksText(a).split(/\n+/).map(x=>x.replace(/^•\s*/,'').trim()).filter(Boolean)[0]||'Unique artefact effect'))+'</span></span>':'';
-  const outputs=[...(outputsByInput.get(a.id)?.values()||[])];
-  const routes=outputs.length?'<div class="route-path"><small>CRAFTING OUTPUT'+(outputs.length===1?'':'S')+'</small><div class="route-inputs">'+outputs.map(o=>'<button class="route-chip" data-route-id="'+esc(o.id)+'">'+esc(artifactName(o))+' <span aria-hidden="true">↗</span></button>').join("")+'</div></div>':'';
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+perk+'<span class="effect-tags">'+(stats||'<span class="effect-tag">No listed modifiers</span>')+'</span></span></button>'+routes+'</article>';
+  const stats=a.stats.filter(s=>Number(s.numeric)!==0);
+  const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
+  const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
+  const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+perk+(positives.length?'<span class="effect-heading">POSITIVE</span>'+effectMarkup(positives):"")+(negatives.length?'<span class="effect-heading negative-heading">NEGATIVE</span>'+effectMarkup(negatives):"")+'</span></button></article>';
  };
  const tierCounts=[0,1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
- const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[0,1,2,3,4].map((t)=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[t]+' ARTEFACTS</span></div>').join("");
- const rows=categories.map(c=>{
+ const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[0,1,2,3,4].map(t=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[t]+' ARTEFACTS</span></div>').join("");
+ const rows=visibleCategories.map(c=>{
   const cells=[0,1,2,3,4].map(t=>{
    const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
    return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">-</span>')+'</div>';
@@ -84,16 +92,36 @@ function renderMatrix(){
   const count=items.filter(a=>purposeFor(a).key===c.key).length;
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
- $("#matrix-count").textContent=items.length+' ARTEFACTS';
- $("#perk-matrix").innerHTML='<div class="tier-board">'+header+rows+'</div>';
- $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
- $("#perk-matrix").querySelectorAll(".route-chip").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const a=artifacts.find(x=>x.id===b.dataset.routeId);if(a)openProfile(a)}));
+ $("#matrix-count").textContent=items.length+" ARTEFACTS";
+ $("#perk-matrix").innerHTML='<div class="tier-board">'+header+rows+'<svg class="recipe-links" aria-hidden="true"></svg></div><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK IT TO SEE ALL REQUIRED MATERIALS</p>';
+ $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
+  b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
+  b.addEventListener("mouseenter",()=>drawRecipeLinks(b.dataset.id));
+  b.addEventListener("focus",()=>drawRecipeLinks(b.dataset.id));
+  b.addEventListener("mouseleave",()=>drawRecipeLinks(""));
+  b.addEventListener("blur",()=>drawRecipeLinks(""));
+ });
+ drawRecipeLinks("");
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"],["Resistance caps","Resistance caps"]];
-function statGroupMarkup(a){return groups.map(([title,...g])=>{const stats=a.stats.filter(s=>g.includes(s.group));if(!stats.length)return "";return '<div class="profile-section"><h3>'+title+'</h3><div class="stat-list">'+stats.map(s=>'<div class="stat-line"><span class="name">'+esc(s.label)+'</span><strong class="value '+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></div>').join("")+'</div></div>'}).join("")}
-function openProfile(a){const dialog=$("#artifact-dialog");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+(a.junk?" · JUNK":"")+(a.craftable?" · CRAFTABLE":"")+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>SPECIAL PERK: '+esc(a.perkTitle||'')+'</b><div class="perk-description">'+esc(perksText(a))+'</div></div></div>':'')+statGroupMarkup(a)+'<div class="profile-section"><h3>Field data</h3><div class="stat-list"><div class="stat-line"><span class="name">Jump height</span><strong class="value">'+fmt(a.jumpHeight)+'</strong></div><div class="stat-line"><span class="name">Used in crafting</span><strong class="value">'+(a.usedInCrafting?"YES":"NO")+'</strong></div><div class="stat-line"><span class="name">Can be crafted</span><strong class="value">'+(a.craftable?"YES":"NO")+'</strong></div></div></div><div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});if(!dialog.open)dialog.showModal()}
+function statGroupMarkup(a){
+ const stats=a.stats.filter(s=>Number(s.numeric)!==0);
+ const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
+ const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
+ const lines=list=>list.map(s=>'<div class="stat-line"><span class="name">'+esc(s.label)+'</span><strong class="value '+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></div>').join("");
+ return (positives.length?'<div class="profile-section"><h3>Positive traits</h3><div class="stat-list">'+lines(positives)+'</div></div>':"")+(negatives.length?'<div class="profile-section"><h3>Negative traits</h3><div class="stat-list">'+lines(negatives)+'</div></div>':"");
+}
+function craftingProfileMarkup(a){
+ const required=recipes.find(r=>r.id===a.id);
+ const outputs=recipes.filter(r=>(r.ingredients||[]).some(i=>ingredientArtifactId(i.name)===a.id));
+ if(!required&&!outputs.length)return "";
+ const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>'<div class="craft-material"><span>'+esc(t(i.name)||i.name)+'</span><b>'+esc(i.amount)+'</b></div>').join("")+'</div></div>':"";
+ const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>'<div class="craft-material"><span>'+esc(recipeName(r))+'</span><b>OUTPUT</b></div>').join("")+'</div></div>':"";
+ return '<div class="profile-section"><h3>Crafting</h3>'+requiredMarkup+outputMarkup+'</div>';
+}
+function openProfile(a){const dialog=$("#artifact-dialog");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+(a.junk?" · JUNK":"")+(a.craftable?" · CRAFTABLE":"")+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div></div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-section"><h3>Field data</h3><div class="stat-list"><div class="stat-line"><span class="name">Jump height</span><strong class="value">'+fmt(a.jumpHeight)+'</strong></div><div class="stat-line"><span class="name">Used in crafting</span><strong class="value">'+(a.usedInCrafting?"YES":"NO")+'</strong></div><div class="stat-line"><span class="name">Can be crafted</span><strong class="value">'+(a.craftable?"YES":"NO")+'</strong></div></div></div><div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});if(!dialog.open)dialog.showModal()}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){const section=$("#compare");if(compareIds.size===0){section.hidden=true;return}section.hidden=false;const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);$("#compare-content").innerHTML='<div class="compare-grid">'+items.map(a=>'<div class="compare-item"><h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>'+a.stats.map(s=>'<div class="compare-row"><span>'+esc(s.label)+'</span><b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></div>').join("")+'<div class="compare-row"><span>Weight</span><b>'+fmt(a.weight)+' kg</b></div><div class="compare-row"><span>Cost</span><b>'+fmt(a.cost)+' RU</b></div></div>').join("")+'</div>'}
 const recipeName=r=>t(r.name)||r.name;
