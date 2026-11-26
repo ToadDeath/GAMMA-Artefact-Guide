@@ -3008,7 +3008,38 @@
       },
       "customTier": null,
       "perkTitle": "WILL TO LIVE",
-      "perkDescription": "• +6% BR Class damage mitigation\n\n• Grants health regen while under 25% health\n\n• Regen effect increases the closer to you are to death\n\n• Multiple Artefacts Stack?: YES\n\n• Diminishing Returns?: NO"
+      "perkDescription": "• +6% BR Class damage mitigation\\n\\n• Grants health regeneration while below the low-health threshold\\n\\n• Regeneration increases the closer you are to death\\n\\n• Multiple Artefacts Stack?: YES\\n\\n• Diminishing Returns?: NO",
+      "perkDetails": {
+        "heading": "LOW-HEALTH REGENERATION",
+        "thresholds": [
+          {
+            "level": 1,
+            "threshold": "25%"
+          },
+          {
+            "level": 2,
+            "threshold": "28%"
+          },
+          {
+            "level": 3,
+            "threshold": "31%"
+          },
+          {
+            "level": 4,
+            "threshold": "34%"
+          },
+          {
+            "level": 5,
+            "threshold": "37%"
+          }
+        ],
+        "notes": [
+          "Emergency regeneration activates below the applicable low-health threshold.",
+          "Healing per tick is proportional to how far below the threshold your health has fallen and scales with belt count.",
+          "The database associates this threshold progression with Lucifer.",
+          "If Lucifer is at 0% condition, the healing effect is reduced to approximately 34%."
+        ]
+      }
     },
     {
       "id": "af_electra_flash",
