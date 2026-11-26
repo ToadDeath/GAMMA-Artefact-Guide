@@ -308,3 +308,9 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .matrix-layout .route-pin:hover,
 .matrix-layout .route-pin.is-pinned{background:transparent;border:0;color:inherit;filter:brightness(1.25)}
 .matrix-layout .purpose-main>img{transform:translateY(6px)}
+
+
+/* Slightly larger, unobtrusive pin control with clear space around the artefact icon. */
+.matrix-layout .route-pin{width:19px;height:19px;top:3px;left:3px;padding:1px}
+.matrix-layout .route-pin svg{width:15px;height:15px}
+.matrix-layout .purpose-main>img{transform:translate(5px,6px)}
