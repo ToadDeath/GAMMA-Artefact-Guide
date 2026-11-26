@@ -407,3 +407,23 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
  overflow-wrap:anywhere;
  min-width:0;
 }
+
+/* Improve readability of the perk title inside the opened artefact profile. */
+.profile-perk>b{
+ font-size:13px;
+ line-height:1.4;
+ letter-spacing:.045em;
+ margin-bottom:8px;
+}
+
+/* Beacon and other long perk names must wrap within the Tier 0 card width. */
+.tier0-grid .perk-card{
+ display:block;
+ box-sizing:border-box;
+ width:100%;
+ max-width:100%;
+ min-width:0;
+ white-space:normal;
+ overflow-wrap:anywhere;
+ word-break:normal;
+}
