@@ -187,3 +187,13 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links{visibility:hidden;opacity:0;transition:opacity .12s ease}
 .recipe-links.is-visible{visibility:visible;opacity:1}
 .artifact-node{transition:border-color .12s,filter .12s}
+
+
+/* Compact board values and simplified crafting connectors */
+.tier-board{grid-template-columns:minmax(160px,.78fr) repeat(5,minmax(0,1fr))}
+.effect-tag{justify-content:flex-start;gap:6px}
+.effect-tag b{margin-left:0;white-space:nowrap}
+.artifact-value{display:block;color:#a9b58e;font:600 9px 'IBM Plex Mono';letter-spacing:.025em;line-height:1.2}
+.recipe-links path{marker-end:none;filter:none;stroke-width:1.6;opacity:.72}
+.recipe-links path.is-source,.recipe-links path.is-target{stroke-width:2;opacity:.9}
+@media(max-width:1120px){.tier-board{grid-template-columns:minmax(145px,.78fr) repeat(5,minmax(0,1fr))}}
