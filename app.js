@@ -64,7 +64,7 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
-let pinnedRouteId="",routeVisible=false,lastHoveredRouteId="";
+let pinnedRouteId="",routeVisible=false,lastHoveredRouteId="",routePointerListenerInstalled=false;
 function drawRecipeLinks(activeId){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
@@ -137,6 +137,15 @@ function renderMatrix(){
   b.addEventListener("mouseleave",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
   b.addEventListener("blur",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
  });
+ if(!routePointerListenerInstalled){
+  const clearUnpinnedRoute=e=>{
+   if(pinnedRouteId||e.target.closest?.("#perk-matrix .purpose-main, #route-lock"))return;
+   if(routeVisible||lastHoveredRouteId){routeVisible=false;lastHoveredRouteId="";drawRecipeLinks("");}
+  };
+  document.addEventListener("pointermove",clearUnpinnedRoute);
+  document.addEventListener("click",clearUnpinnedRoute);
+  routePointerListenerInstalled=true;
+ }
  $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId||lastHoveredRouteId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
  $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(pinnedRouteId)requestAnimationFrame(()=>drawRecipeLinks(pinnedRouteId))});
  routeVisible=!!pinnedRouteId;
