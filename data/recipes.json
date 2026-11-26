@@ -1,0 +1,665 @@
+{
+  "version": "GAMMA 0.9.5",
+  "recipes": [
+    {
+      "id": "af_baloon",
+      "name": "Baloon",
+      "ingredients": [
+        {
+          "name": "Bracelet",
+          "amount": "x1"
+        },
+        {
+          "name": "Cristall",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Chimera Cogot",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_black_spray",
+      "name": "Black Spray",
+      "ingredients": [
+        {
+          "name": "Dummy Dummy",
+          "amount": "x1"
+        },
+        {
+          "name": "Sponge",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Part Controller Brain Tissue",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Burer Hand",
+          "amount": "x3"
+        }
+      ]
+    },
+    {
+      "id": "af_blood",
+      "name": "Blood",
+      "ingredients": [
+        {
+          "name": "Sandstone",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Psevdodog Meat",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Zombi Hand",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_bracelet",
+      "name": "Bracelet",
+      "ingredients": [
+        {
+          "name": "Blood",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Krovosos Meat",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_compass",
+      "name": "Compass",
+      "ingredients": [
+        {
+          "name": "Full Empty",
+          "amount": "x1"
+        },
+        {
+          "name": "Black Spray",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Part Controller Brain Tissue",
+          "amount": "x4"
+        },
+        {
+          "name": "Mutant Heart Chimera",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_cristall",
+      "name": "Cristall",
+      "ingredients": [
+        {
+          "name": "Dummy Glassbeads",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Fang Psevdodog",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Zombi Hand",
+          "amount": "x2"
+        }
+      ]
+    },
+    {
+      "id": "af_cristall_flower",
+      "name": "Cristall Flower",
+      "ingredients": [
+        {
+          "name": "Black Angel",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Heart",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Snork Leg",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_dummy_battery",
+      "name": "Dummy Battery",
+      "ingredients": [
+        {
+          "name": "Generator",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Cat Tail",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Liver",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_dummy_dummy",
+      "name": "Dummy Dummy",
+      "ingredients": [
+        {
+          "name": "Dummy Battery",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Brain Burer",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_dummy_glassbeads",
+      "name": "Dummy Glassbeads",
+      "ingredients": [
+        {
+          "name": "Sun",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Cat Tail",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Tusk Boar",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_electra_flash",
+      "name": "Electra Flash",
+      "ingredients": [
+        {
+          "name": "Ring",
+          "amount": "x1"
+        },
+        {
+          "name": "Electra Moonlight",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Controller Hand",
+          "amount": "x3"
+        }
+      ]
+    },
+    {
+      "id": "af_electra_moonlight",
+      "name": "Electra Moonlight",
+      "ingredients": [
+        {
+          "name": "Dummy Battery",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Psysucker Hand",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Psevdodog Tail",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_electra_sparkler",
+      "name": "Electra Sparkler",
+      "ingredients": [
+        {
+          "name": "Fonar",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Cat Thyroid",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Cat Claw",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_empty",
+      "name": "Empty",
+      "ingredients": [
+        {
+          "name": "Medusa",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Fang Psevdodog",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Snork Mask",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_eye",
+      "name": "Eye",
+      "ingredients": [
+        {
+          "name": "Blood",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Lurker Eye",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Flesh Eye",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_fire",
+      "name": "Fire",
+      "ingredients": [
+        {
+          "name": "Pin",
+          "amount": "x1"
+        },
+        {
+          "name": "Eye",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Chimera Claw",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Chimera Cogot",
+          "amount": "x3"
+        }
+      ]
+    },
+    {
+      "id": "af_fire_loop",
+      "name": "Fire Loop",
+      "ingredients": [
+        {
+          "name": "Fire",
+          "amount": "x1"
+        },
+        {
+          "name": "Fireball",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Heart Chimera",
+          "amount": "x6"
+        },
+        {
+          "name": "Mutant Controller Hand",
+          "amount": "x6"
+        }
+      ]
+    },
+    {
+      "id": "af_fireball",
+      "name": "Fireball",
+      "ingredients": [
+        {
+          "name": "Cristall",
+          "amount": "x1"
+        },
+        {
+          "name": "Lobster Eyes",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Pseudogigant Eye",
+          "amount": "x3"
+        }
+      ]
+    },
+    {
+      "id": "af_full_empty",
+      "name": "Full Empty",
+      "ingredients": [
+        {
+          "name": "Empty",
+          "amount": "x1"
+        },
+        {
+          "name": "Vyvert",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Pseudogigant Hand",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_fuzz_kolobok",
+      "name": "Fuzz Kolobok",
+      "ingredients": [
+        {
+          "name": "Soul",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Krovosos Meat",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_glass",
+      "name": "Glass",
+      "ingredients": [
+        {
+          "name": "Fuzz Kolobok",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Chimera Meat",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_gold_fish",
+      "name": "Gold Fish",
+      "ingredients": [
+        {
+          "name": "Gravi",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Burer Hand",
+          "amount": "x3"
+        },
+        {
+          "name": "Mutant Controller Hand",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Chimera Claw",
+          "amount": "x2"
+        }
+      ]
+    },
+    {
+      "id": "af_gravi",
+      "name": "Gravi",
+      "ingredients": [
+        {
+          "name": "Night Star",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Snork Hand",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Zombi Hand",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Fracture Hand",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_ice",
+      "name": "Ice",
+      "ingredients": [
+        {
+          "name": "Ring",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Krovosos Jaw",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Chimera Claw",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Part Controller Brain Tissue",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_itcher",
+      "name": "Itcher",
+      "ingredients": [
+        {
+          "name": "Zhelch",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Cat Thyroid",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Heart",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_lobster_eyes",
+      "name": "Lobster Eyes",
+      "ingredients": [
+        {
+          "name": "Cristall Flower",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Flesh Eye",
+          "amount": "x2"
+        }
+      ]
+    },
+    {
+      "id": "af_medusa",
+      "name": "Medusa",
+      "ingredients": [
+        {
+          "name": "Spaika",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Tail",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Cat Claw",
+          "amount": "x2"
+        }
+      ]
+    },
+    {
+      "id": "af_mincer_meat",
+      "name": "Mincer Meat",
+      "ingredients": [
+        {
+          "name": "Skull Miser",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Flesh Meat",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Meat",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_monolith",
+      "name": "Monolith",
+      "ingredients": [
+        {
+          "name": "Electra Flash",
+          "amount": "x1"
+        },
+        {
+          "name": "Baloon",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Pseudogigant Hand",
+          "amount": "x4"
+        },
+        {
+          "name": "Mutant Pseudogigant Eye",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_night_star",
+      "name": "Night Star",
+      "ingredients": [
+        {
+          "name": "Signet",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Boar Leg",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Liver",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_oasis_heart",
+      "name": "Oasis Heart",
+      "ingredients": [
+        {
+          "name": "Ice",
+          "amount": "x1"
+        },
+        {
+          "name": "Glass",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Heart Bloodsucker",
+          "amount": "x6"
+        },
+        {
+          "name": "Mutant Heart Chimera",
+          "amount": "x4"
+        }
+      ]
+    },
+    {
+      "id": "af_pin",
+      "name": "Pin",
+      "ingredients": [
+        {
+          "name": "Itcher",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Snork Leg",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Boar Leg",
+          "amount": "x2"
+        }
+      ]
+    },
+    {
+      "id": "af_ring",
+      "name": "Ring",
+      "ingredients": [
+        {
+          "name": "Electra Sparkler",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Lurker Tail",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Krovosos Meat",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_soul",
+      "name": "Soul",
+      "ingredients": [
+        {
+          "name": "Ear",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Dog Meat",
+          "amount": "x3"
+        }
+      ]
+    },
+    {
+      "id": "af_sponge",
+      "name": "Sponge",
+      "ingredients": [
+        {
+          "name": "Itcher",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Snork Mask",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Tusk Boar",
+          "amount": "x1"
+        }
+      ]
+    },
+    {
+      "id": "af_vyvert",
+      "name": "Vyvert",
+      "ingredients": [
+        {
+          "name": "Mincer Meat",
+          "amount": "x1"
+        },
+        {
+          "name": "Mutant Lurker Tail",
+          "amount": "x2"
+        },
+        {
+          "name": "Mutant Fracture Hand",
+          "amount": "x1"
+        }
+      ]
+    }
+  ]
+}
