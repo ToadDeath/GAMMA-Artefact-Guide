@@ -64,8 +64,9 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
+let activeRouteId="";
 let routeVisible=false;
-function drawRecipeLinks(activeId){
+function drawRecipeLinks(activeId=activeRouteId){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
  const routeId=activeId;
@@ -74,14 +75,22 @@ function drawRecipeLinks(activeId){
  const edges=recipeAdjacency.get(routeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
+ const anchorFor=id=>{
+  const node=layout.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!node)return null;
+  const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open);
+  const anchor=collapsed?tier0.querySelector(":scope > summary"):node;
+  if(!anchor)return null;
+  const rect=anchor.getBoundingClientRect();
+  if(!rect.width||!rect.height)return null;
+  return {node,anchor,rect,tier0:!!tier0,collapsed};
+ };
  for(const edge of edges){
   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
-  const source=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]'),target=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
-  if(!source||!target)continue;
-  const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
+  const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
+  const sr=source.rect,tr=target.rect;
   const sx0=sr.left-base.left+layout.scrollLeft,sy0=sr.top-base.top+layout.scrollTop;
   const tx0=tr.left-base.left+layout.scrollLeft,ty0=tr.top-base.top+layout.scrollTop;
-  const sourceTier0=!!source.closest(".tier0-area"),targetTier0=!!target.closest(".tier0-area");
+  const sourceTier0=source.tier0,targetTier0=target.tier0;
   let sx,sy,tx,ty,points;
   if(sourceTier0){sx=sx0+sr.width/2;sy=sy0+sr.height;}
   else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;}
@@ -89,12 +98,10 @@ function drawRecipeLinks(activeId){
   else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;}
   if(sourceTier0&&!targetTier0){
    const targetOnRight=tx0+tr.width/2>=sx0+sr.width/2;
-   const approachX=tx+(targetOnRight?-18:18);
-   const midY=sy+20;
+   const approachX=tx+(targetOnRight?-18:18),midY=sy+20;
    points=[[sx,sy],[sx,midY],[approachX,midY],[approachX,ty],[tx,ty]];
   }else if(targetTier0){
-   const midY=ty+20;
-   points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];
+   const midY=ty+20;points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];
   }else{
    const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];
   }
@@ -102,7 +109,14 @@ function drawRecipeLinks(activeId){
   related.add(edge.from);related.add(edge.to);
  }
  layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===routeId);node.classList.toggle("route-related",related.has(id)&&id!==routeId)});
- svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",routeVisible||!!activeId);
+ svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!routeId);
+}
+function selectRoute(id){activeRouteId=id||"";routeVisible=!!activeRouteId;drawRecipeLinks(activeRouteId)}
+let routeRedrawPending=false;
+function scheduleRouteRedraw(){
+ if(!activeRouteId||routeRedrawPending)return;
+ routeRedrawPending=true;
+ requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRouteId)drawRecipeLinks(activeRouteId)});
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
@@ -135,16 +149,16 @@ function renderMatrix(){
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
  $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK TO OPEN FULL DETAILS AND CRAFTING</p></div>';
- $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
+ const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
+ matrix.querySelectorAll(".purpose-main").forEach(b=>{
   b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
-  b.addEventListener("mouseenter",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
-  b.addEventListener("focus",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
-  b.addEventListener("mouseleave",()=>{routeVisible=false;drawRecipeLinks("")});
-  b.addEventListener("blur",()=>{routeVisible=false;drawRecipeLinks("")});
+  b.addEventListener("mouseenter",()=>selectRoute(b.dataset.id));
+  b.addEventListener("focus",()=>selectRoute(b.dataset.id));
  });
- $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(routeVisible)requestAnimationFrame(()=>drawRecipeLinks($("#perk-matrix .route-active")?.dataset.artifactId||""))});
- routeVisible=false;
- drawRecipeLinks("");
+ layout.addEventListener("click",event=>{if(!event.target.closest(".artifact-node"))selectRoute("")});
+ matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
+ routeVisible=!!activeRouteId;
+ drawRecipeLinks(activeRouteId);
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
@@ -169,4 +183,4 @@ function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(c
 function renderCompare(){const section=$("#compare");if(compareIds.size===0){section.hidden=true;return}section.hidden=false;const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);$("#compare-content").innerHTML='<div class="compare-grid">'+items.map(a=>'<div class="compare-item"><h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>'+a.stats.map(s=>'<div class="compare-row"><span>'+esc(s.label)+'</span><b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></div>').join("")+'<div class="compare-row"><span>Weight</span><b>'+fmt(a.weight)+' kg</b></div><div class="compare-row"><span>Cost</span><b>'+fmt(a.cost)+' RU</b></div></div>').join("")+'</div>'}
 const recipeName=r=>t(r.name)||r.name;
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
-$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));init();
+$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));window.addEventListener("scroll",scheduleRouteRedraw,{passive:true});\nwindow.addEventListener("resize",scheduleRouteRedraw);\ninit();
