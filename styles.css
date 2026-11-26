@@ -314,3 +314,15 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .matrix-layout .route-pin{width:19px;height:19px;top:3px;left:3px;padding:1px}
 .matrix-layout .route-pin svg{width:15px;height:15px}
 .matrix-layout .purpose-main>img{transform:translate(5px,6px)}
+
+/* Shared-row comparison table keeps every stat and metric aligned across artefacts. */
+.compare-grid{display:block}
+.compare-table{display:grid;grid-template-columns:minmax(150px,1.2fr) repeat(var(--compare-count),minmax(0,1fr));gap:0;margin-top:15px;background:#20291f;padding:12px 16px}
+.compare-headings{display:contents}
+.compare-headings>span,.compare-headings>h4{padding:10px 8px;border-bottom:1px solid var(--line)}
+.compare-headings h4{font:600 20px 'Barlow Condensed';margin:0}
+.compare-category{grid-column:1/-1;padding:12px 8px 5px;color:var(--acid);font:10px 'IBM Plex Mono';text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #ffffff18}
+.compare-row{display:grid;grid-template-columns:subgrid;grid-column:1/-1;gap:8px;padding:7px 8px;border-bottom:1px solid #ffffff0c;font:9px 'IBM Plex Mono'}
+.compare-row b{color:var(--acid);font-weight:500;text-align:right}
+.compare-metric{background:#ffffff06}
+@media(max-width:700px){.compare-table{grid-template-columns:minmax(120px,1.1fr) repeat(var(--compare-count),minmax(110px,1fr));overflow-x:auto}}
