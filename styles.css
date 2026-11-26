@@ -79,3 +79,7 @@
 button.route-chip:hover{border-color:#b8b17a;color:#fff}.route-chip.raw{color:#8e9582;background:transparent;border-style:dashed}.route-join{color:#9a9d82;font:11px monospace;padding:0 2px}
 .purpose-protection{border-top-color:rgba(190,150,105,.35)}.purpose-recovery{border-top-color:rgba(125,175,130,.35)}.purpose-utility{border-top-color:rgba(130,160,190,.35)}.purpose-mobility{border-top-color:rgba(180,170,120,.35)}
 @media(max-width:600px){.purpose-main{grid-template-columns:46px minmax(0,1fr) auto;gap:9px;padding:10px}.purpose-main>img{width:44px;height:44px}.route-path{padding-left:10px}.purpose-group>header{align-items:start}}
+
+.route-arrow{display:inline-block;position:relative;width:24px;height:1px;background:#92977c;margin:0 5px;flex:none}
+.route-arrow:after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid #92977c;border-right:1px solid #92977c;transform:rotate(45deg)}
+.route-output{font:600 10px monospace;color:#e5dfbd;padding:4px 6px;border:1px solid rgba(184,177,122,.4);background:rgba(184,177,122,.08);border-radius:2px}
