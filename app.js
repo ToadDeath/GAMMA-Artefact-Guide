@@ -186,7 +186,7 @@ function drawRecipeLinks(){
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=2.25;
  const sharedLanes={x:[],y:[],dividers:[]};
- layout.querySelectorAll(".purpose-cell").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
+ layout.querySelectorAll(".purpose-cell:not(:nth-child(5n))").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
  sharedLanes.x.push(...sharedLanes.dividers);
  layout.querySelectorAll(".artifact-node").forEach(node=>{
@@ -223,7 +223,10 @@ function drawRecipeLinks(){
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
     endLead=[tx+(right?-6:6),ty];
    }
-   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,existingSegments);
+   const snapDivider=x=>{let nearest=null,distance=Infinity;for(const divider of sharedLanes.dividers){const delta=Math.abs(divider-x);if(delta<distance){distance=delta;nearest=divider}}return nearest!==null&&distance<=2.5?nearest:x};
+   const routedStart=[source.tier0?startLead[0]:snapDivider(startLead[0]),startLead[1]];
+   const routedEnd=[target.tier0?endLead[0]:snapDivider(endLead[0]),endLead[1]];
+   const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,existingSegments);
    if(!middle)continue;
    const points=[[sx,sy],...middle,[tx,ty]];
    for(let i=1;i<points.length;i++)existingSegments.push({a:points[i-1],b:points[i]});
