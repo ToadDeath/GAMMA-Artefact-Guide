@@ -275,3 +275,22 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
   footer{width:94%;margin-left:auto;margin-right:auto;padding-left:0;padding-right:0}
   .tier-board{width:100%;margin-left:0;margin-right:0}
 }
+
+
+/* Per-card crafting route pin. It appears on hover and stays visible when pinned. */
+.matrix-layout .purpose-card{position:relative}
+.matrix-layout .route-pin{
+ position:absolute;top:5px;left:5px;z-index:6;
+ display:grid;place-items:center;width:25px;height:25px;padding:4px;
+ border:1px solid #73805c;border-radius:3px;background:#182016;color:#d6dcae;
+ opacity:0;pointer-events:none;cursor:pointer;
+ transition:opacity .12s,background .12s,border-color .12s,color .12s;
+}
+.matrix-layout .purpose-card:hover .route-pin,
+.matrix-layout .purpose-card:focus-within .route-pin,
+.matrix-layout .route-pin.is-pinned{opacity:1;pointer-events:auto}
+.matrix-layout .route-pin svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.matrix-layout .route-pin:hover,
+.matrix-layout .route-pin.is-pinned{background:#38432b;border-color:#c5d18e;color:#e4efb6}
+.matrix-layout .route-pin:focus-visible{outline:2px solid #d6c879;outline-offset:2px}
+.matrix-layout .purpose-card:hover .purpose-main{border-color:#87966a}
