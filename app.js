@@ -1,13 +1,13 @@
 const $=s=>document.querySelector(s);let artifacts=[],recipes=[],translations={},activeFilter="all",compareIds=new Set(),selectedTier="";
 const TIER_NAMES={0:["Atom","Ball","Bat","Beacon","Black Angel","Cell","Chain","Claw","Cocoon","Dragon's Eye","Electron","Fountain","Generator","Grapes","Heart","Knot","Lamp","Lucifer","Medal","Miser's Skull","Moon","Moss","Phantom Star","Sandstone","Scar","Seraphim","Signet","Sourpuss","Spike","Sun","Tapeworm","Thistle"],1:["Battery","Itcher","Jellyfish","Lost Soul","Mama's Beads","Meat Chunk","Nightstar","Soul","Sparkler","Stone Blood","Stone Flower"],2:["Bracelet","Crystal","Empty","Eye","Gravi","Kolobok","Lobster Eyes","Moonlight","Pin","Ring","Shell","Sponge","Wretched"],3:["Black Spray","Bubble","Fireball","Firefly","Flame","Flash","Full Empty","Goldfish","Prometheus","Snowflake"],4:["Compass","Death Lamp","Heart of the Oasis","Volat Emerald"]};
-function applyUserTiers(){const byName=new Map();for(const [tier,names] of Object.entries(TIER_NAMES))for(const name of names)byName.set(name.toLowerCase(),Number(tier));for(const a of artifacts){const name=artifactName(a).trim().toLowerCase();a.tier=byName.has(name)?byName.get(name):null;}const ids=new Set(),duplicates=[];for(const a of artifacts){if(ids.has(a.id))duplicates.push(a.id);ids.add(a.id)}const names=new Map();for(const a of artifacts){const n=artifactName(a).trim().toLowerCase();if(n){if(!names.has(n))names.set(n,[]);names.get(n).push(a)}}window.artifactAudit={total:artifacts.length,classified:artifacts.filter(a=>a.tier!==null).length,unclassified:artifacts.filter(a=>a.tier===null),duplicateIds:duplicates,duplicateNames:[...names.values()].filter(group=>group.length>1)};}
+function applyUserTiers(){const byName=new Map();for(const [tier,names] of Object.entries(TIER_NAMES))for(const name of names)byName.set(name.toLowerCase(),Number(tier));for(const a of artifacts){const name=artifactName(a).trim().toLowerCase();a.customTier=byName.has(name)?byName.get(name):null;a.tier=a.customTier;}const ids=new Set(),duplicates=[];for(const a of artifacts){if(ids.has(a.id))duplicates.push(a.id);ids.add(a.id)}const names=new Map();for(const a of artifacts){const n=artifactName(a).trim().toLowerCase();if(n){if(!names.has(n))names.set(n,[]);names.get(n).push(a)}}window.artifactAudit={total:artifacts.length,classified:artifacts.filter(a=>a.tier!==null).length,unclassified:artifacts.filter(a=>a.tier===null),duplicateIds:duplicates,duplicateNames:[...names.values()].filter(group=>group.length>1)};}
 const SOURCE_ICONS="https://raw.githubusercontent.com/simonwdev/stalker-anomaly-gamma-db/main/site/public/img/icons/";
 const fmt=n=>{const v=Number(n);return Number.isFinite(v)?(Math.abs(v)>=10?Number(v.toFixed(1)).toString():Number(v.toFixed(2)).toString()):String(n??"0")};
 const t=k=>k?(translations.en?.[String(k).toLowerCase()]||k):"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val=a=>a.raw||{};
-async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;artifacts.forEach(a=>a.tier=null);recipes=r.recipes||[];$("#count-total").textContent=artifacts.length;$("#tier-total").textContent="0-4 + ?";renderTierSummary();render();renderRecipes();loadTranslations()}catch(e){$("#artifact-grid").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
-async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();const known=artifacts.filter(a=>a.tier!==null);$("#count-total").textContent=known.length;$("#tier-total").textContent="5";renderTierSummary();render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
+async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;artifacts.forEach(a=>a.tier=a.customTier??null);recipes=r.recipes||[];renderTierSummary();render();renderRecipes();loadTranslations()}catch(e){$("#artifact-grid").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
+async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();const known=artifacts.filter(a=>a.tier!==null);renderTierSummary();render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
 function renderTierSummary(){const counts=artifacts.filter(a=>a.tier!==null).reduce((m,a)=>(m[a.tier]=(m[a.tier]||0)+1,m),{});const order=["0","1","2","3","4"];$("#tier-summary").innerHTML='<button class="tier-pill active" data-tier="">ALL TIERS <b>'+Object.values(counts).reduce((a,b)=>a+b,0)+'</b></button>'+order.filter(k=>counts[k]).map(k=>'<button class="tier-pill" data-tier="'+k+'">'+(k==="unclassified"?"UNCLASSIFIED":"TIER "+k)+' <b>'+counts[k]+'</b></button>').join("");document.querySelectorAll(".tier-pill").forEach(b=>b.addEventListener("click",()=>{$("#tier").value=b.dataset.tier;selectedTier=b.dataset.tier;document.querySelectorAll(".tier-pill").forEach(x=>x.classList.toggle("active",x===b));render()}))}
 function artifactName(a){return t(a.nameKey)}
 function artifactDesc(a){return t(a.descriptionKey)}
@@ -15,12 +15,47 @@ function perksText(a){return t(a.perkKey)}
 function matches(a,q){const all=[artifactName(a),a.id,artifactDesc(a),perksText(a),...a.stats.map(s=>s.label+" "+s.value)].join(" ").toLowerCase();return !q||all.includes(q)}
 function filtered(){const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,sort=$("#sort").value;let out=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));return out.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:a.tier-b.tier||artifactName(a).localeCompare(artifactName(b)))}
 function renderMatrix(){
- const q=$("#search").value.trim().toLowerCase(), groups=["Protection","Recovery","Mobility","Utility","Resistance caps"];
- const lanes=new Map(groups.map(g=>[g,[]])),items=artifacts.filter(a=>a.tier!==null&&matches(a,q));
- for(const a of items){const first=a.stats.find(s=>s.numeric!==0),lane=first?.group||"Utility";(lanes.get(lane)||lanes.get("Utility")).push(a);}
- const laneMarkup=groups.map(group=>{const cards=lanes.get(group);if(!cards.length)return "";const columns=[0,1,2,3,4].map(tier=>'<div class="tree-column">'+cards.filter(a=>a.tier===tier).sort((a,b)=>artifactName(a).localeCompare(artifactName(b))).map(a=>'<button class="tree-node '+(a.tier<=1?"early-tier":"")+'" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="tree-node-copy"><b>'+esc(artifactName(a))+'</b><small>'+("TIER "+a.tier)+'</small><span class="tree-effects">'+(a.stats.length?a.stats.map(s=>'<i>'+esc(s.label)+' <strong class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></i>').join(""):'<i>NO MODIFIERS</i>')+'</span></span></button>').join("")+'</div>').join("");return '<section class="tree-lane"><h4>'+esc(group)+'</h4><div class="tree-lane-content">'+columns+'</div></section>'}).join("");
- $("#matrix-count").textContent=items.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="tree-view"><div class="tree-tier-rail">'+["TIER 0","TIER 1","TIER 2","TIER 3","TIER 4"].map(label=>'<span>'+label+'</span>').join("")+'</div>'+laneMarkup+'</div>'; $("#perk-matrix").querySelectorAll(".tree-node").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
+ const q=$("#search").value.trim().toLowerCase();
+ const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!$("#tier").value||String(a.tier)===$("#tier").value)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
+ const recipeById=new Map(recipes.map(r=>[r.id,r]));
+ const recipeByName=new Map(recipes.map(r=>[r.name.toLowerCase(),r]));
+ const artifactById=new Map(artifacts.map(a=>[a.id,a]));
+ const alias={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert"};
+ const recipeInputs=new Map();
+ for(const r of recipes){
+   const deps=[];
+   for(const ing of r.ingredients){
+     const key=ing.name.toLowerCase();
+     const linked=recipeByName.get(key);
+     const id=linked?.id||alias[key];
+     if(id&&artifactById.has(id)&&items.some(a=>a.id===id)) deps.push({id,name:ing.name,amount:ing.amount});
+   }
+   recipeInputs.set(r.id,deps);
+ }
+ const depthMemo=new Map();
+ function depth(id,stack=new Set()){
+   if(depthMemo.has(id))return depthMemo.get(id);
+   if(stack.has(id))return 0;
+   const next=new Set(stack);next.add(id);
+   const deps=recipeInputs.get(id)||[];
+   const value=deps.length?1+Math.max(...deps.map(d=>depth(d.id,next))):0;
+   depthMemo.set(id,value);return value;
+ }
+ const stages=new Map();
+ for(const a of items){const d=depth(a.id);if(!stages.has(d))stages.set(d,[]);stages.get(d).push(a);}
+ const ordered=[...stages.keys()].sort((a,b)=>a-b);
+ const stageHtml=ordered.map((d,index)=>{
+   const cards=stages.get(d).sort((a,b)=>artifactName(a).localeCompare(artifactName(b))).map(a=>{
+     const recipe=recipeById.get(a.id),deps=recipeInputs.get(a.id)||[];
+     const ingredients=recipe?'<div class="craft-inputs"><small>CRAFTED FROM</small>'+recipe.ingredients.map(i=>'<span>'+esc(i.amount)+' '+esc(i.name)+'</span>').join('')+'</div>':'<div class="craft-inputs natural"><small>PROGRESSION</small><span>Found / acquired in the Zone</span></div>';
+     const effects=a.stats.length?a.stats.map(s=>'<i>'+esc(s.label)+' <strong class="'+(s.numeric<0?'neg':'')+'">'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</strong></i>').join(''):'<i>No listed modifiers</i>';
+     return '<button class="progression-node '+(d===0?'base-node':'crafted-node')+'" data-id="'+esc(a.id)+'"><span class="node-top"><b>'+esc(artifactName(a))+'</b><em>TIER '+a.tier+'</em></span><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="node-effects">'+effects+'</span>'+ingredients+'</button>';
+   }).join('');
+   return '<section class="progression-stage"><header><span>STAGE '+String(index+1).padStart(2,'0')+'</span><h3>'+(d===0?'Base artefacts':'Crafting step '+d)+'</h3><small>'+cards.length+' ARTEFACTS</small></header><div class="progression-nodes">'+cards+'</div></section>';
+ }).join('');
+ $("#matrix-count").textContent=items.length+' ARTEFACTS';
+ $("#perk-matrix").innerHTML=stageHtml||'<div class="empty">NO MATCHES FOUND.</div>';
+ $("#perk-matrix").querySelectorAll(".progression-node").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();const list=filtered();$("#result-count").textContent=list.length;$("#artifact-grid").innerHTML=list.map(a=>{const keyStats=a.stats.slice().sort((x,y)=>Math.abs(y.numeric)-Math.abs(x.numeric)).slice(0,3);const selected=compareIds.has(a.id);return '<article class="artifact-card" tabindex="0" role="button" aria-label="Open '+esc(artifactName(a))+' profile" data-id="'+esc(a.id)+'"><div class="card-image"><span class="tier-label">'+("TIER "+a.tier)+'</span><span class="card-index">'+esc(a.id.toUpperCase())+'</span><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.hidden=false"><span class="image-fallback" hidden>☢</span></div><div class="card-body"><h3>'+esc(artifactName(a))+'</h3><div class="card-sub">'+fmt(a.weight)+' KG / '+fmt(a.cost)+' RU</div><span class="perk-flag '+(a.perk?"":"empty")+'">'+(a.perk?"SPECIAL PERK":"NO SPECIAL PERK")+'</span><div class="mini-stats">'+(keyStats.length?keyStats.map(statBar).join(""):'<div class="card-sub">No non-zero modifiers</div>')+'</div><div class="card-foot"><span>'+a.stats.length+' MODIFIERS</span><b>'+(selected?"IN COMPARISON ✓":"OPEN PROFILE ↗")+'</b></div></div></article>'}).join("")||'<div class="empty">NO MATCHES FOUND. CHANGE YOUR FILTERS OR SEARCH TERMS.</div>';document.querySelectorAll(".artifact-card").forEach(card=>{const open=()=>{const a=artifacts.find(x=>x.id===card.dataset.id);if(a)openProfile(a)};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}})});renderCompare()}
