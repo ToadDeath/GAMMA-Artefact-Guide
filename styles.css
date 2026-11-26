@@ -19,3 +19,6 @@
 @media(max-width:900px){.tree-view{min-width:900px}.tree-node{flex-direction:column}.tree-node img{width:36px;height:36px}}
 
 .tier-audit{margin-top:10px;border:1px solid var(--line);background:#141a14;padding:11px 14px;color:var(--muted);font:10px "IBM Plex Mono"}.tier-audit summary{cursor:pointer;color:var(--acid)}.tier-audit p{line-height:1.7;margin:8px 0}.tier-audit b{color:#cbd5c0}
+
+/* Keep the tier headings in their own normal-flow row above the tree. */
+.tree-view{display:block;min-width:900px;overflow-x:auto;padding:14px}.tree-tier-rail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 14px;position:relative}.tree-tier-rail span{position:static;display:block;grid-row:auto;grid-column:auto;background:#263123;color:var(--acid);padding:10px 8px;text-align:center;font:9px "IBM Plex Mono";letter-spacing:.08em;border-bottom:1px solid #657747}.tree-lane{display:block;padding:7px 0;border-bottom:1px solid #293329}.tree-lane-content{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start}.tree-column{display:flex;flex-direction:column;gap:7px;min-width:0}.tree-node.unclassified{display:none}
