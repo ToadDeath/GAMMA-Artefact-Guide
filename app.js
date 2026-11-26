@@ -128,7 +128,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
   return first;
  };
  const sharesChannel=(a,b)=>{
-  const vertical=Math.abs(a[0]-b[0])<.5&&Math.abs(a[0]-b[0])<.5;
+  const vertical=Math.abs(a[0]-b[0])<.5;
   if(vertical){
    const lo=Math.min(a[1],b[1]),hi=Math.max(a[1],b[1]);
    return existingSegments.some(s=>Math.abs(s.a[0]-a[0])<.5&&Math.abs(s.b[0]-a[0])<.5&&Math.min(Math.max(s.a[1],s.b[1]),hi)-Math.max(Math.min(s.a[1],s.b[1]),lo)>.5);
