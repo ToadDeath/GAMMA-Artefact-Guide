@@ -64,11 +64,11 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
-let pinnedRouteId="",routeVisible=false,lastHoveredRouteId="",routePointerListenerInstalled=false;
+let routeVisible=false;
 function drawRecipeLinks(activeId){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
- const routeId=activeId||pinnedRouteId;
+ const routeId=activeId;
  if(!routeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
  const edges=recipeAdjacency.get(routeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
@@ -87,8 +87,13 @@ function drawRecipeLinks(activeId){
   else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;}
   if(targetTier0){tx=tx0+tr.width/2;ty=ty0+tr.height;}
   else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;}
-  if(sourceTier0||targetTier0){
-   const midY=sourceTier0&&targetTier0?Math.max(sy,ty)+24:(sourceTier0?sy+18:ty+18);
+  if(sourceTier0&&!targetTier0){
+   const targetOnRight=tx0+tr.width/2>=sx0+sr.width/2;
+   const approachX=tx+(targetOnRight?-18:18);
+   const midY=sy+20;
+   points=[[sx,sy],[sx,midY],[approachX,midY],[approachX,ty],[tx,ty]];
+  }else if(targetTier0){
+   const midY=ty+20;
    points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];
   }else{
    const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];
@@ -97,7 +102,7 @@ function drawRecipeLinks(activeId){
   related.add(edge.from);related.add(edge.to);
  }
  layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===routeId);node.classList.toggle("route-related",related.has(id)&&id!==routeId)});
- svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",routeVisible||!!activeId||!!pinnedRouteId);
+ svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",routeVisible||!!activeId);
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
@@ -129,28 +134,17 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK TO OPEN FULL DETAILS AND CRAFTING</p><button type="button" id="route-lock" class="route-lock">KEEP CONNECTIONS VISIBLE</button></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK TO OPEN FULL DETAILS AND CRAFTING</p></div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
   b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
-  b.addEventListener("mouseenter",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
-  b.addEventListener("focus",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
-  b.addEventListener("mouseleave",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
-  b.addEventListener("blur",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
+  b.addEventListener("mouseenter",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("focus",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("mouseleave",()=>{routeVisible=false;drawRecipeLinks("")});
+  b.addEventListener("blur",()=>{routeVisible=false;drawRecipeLinks("")});
  });
- if(!routePointerListenerInstalled){
-  const clearUnpinnedRoute=e=>{
-   if(pinnedRouteId||e.target.closest?.("#perk-matrix .purpose-main, #route-lock"))return;
-   if(routeVisible||lastHoveredRouteId){routeVisible=false;lastHoveredRouteId="";drawRecipeLinks("");}
-  };
-  document.addEventListener("pointermove",clearUnpinnedRoute);
-  document.addEventListener("click",clearUnpinnedRoute);
-  routePointerListenerInstalled=true;
- }
- $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId||lastHoveredRouteId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
- $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(pinnedRouteId)requestAnimationFrame(()=>drawRecipeLinks(pinnedRouteId))});
- routeVisible=!!pinnedRouteId;
- if(pinnedRouteId)$("#route-lock").classList.add("active");
- drawRecipeLinks(pinnedRouteId);
+ $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(routeVisible)requestAnimationFrame(()=>drawRecipeLinks($("#perk-matrix .route-active")?.dataset.artifactId||""))});
+ routeVisible=false;
+ drawRecipeLinks("");
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
