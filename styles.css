@@ -465,3 +465,73 @@ dialog:has(.profile){width:min(900px,calc(100% - 24px))}
  .profile-perk,.perk-description{font-size:13px}
  .craft-material{font-size:12px}
 }
+
+
+/* Main catalogue and progression board typography: improve readability at desktop scale. */
+.eyebrow,.section-kicker{font-size:11px}
+.topbar nav a{font-size:11px}
+.build{font-size:10px}
+.hero-copy{font-size:15px}
+.jump-link{font-size:11px}
+.hero-stats span{font-size:10px}
+.section-head p,.craft-head p{font-size:13px}
+.catalog-count span{font-size:10px}
+input,select{font-size:12px}
+.chip{font-size:10.5px}
+.hint{font-size:10px}
+.tier-pill{font-size:10.5px}
+.card-sub{font-size:10.5px}
+.perk-flag{font-size:9px}
+.mini-stat{font-size:10.5px;line-height:1.35}
+.card-foot{font-size:9px}
+.text-button{font-size:10.5px}
+.compare-row{font-size:11px;line-height:1.4}
+.recipe small,.ingredient{font-size:9.5px}
+.about p{font-size:13px}
+footer{font-size:9px}
+
+/* Main artefact board */
+.matrix-heading p{font-size:12px}
+.matrix-count{font-size:10px}
+.tier-column-head span{font-size:11px}
+.tier-category h4{font-size:12px}
+.tier-category h4 span{font-size:10.5px}
+.purpose-row-label>b{font-size:14px}
+.purpose-row-label>small{font-size:10.5px;line-height:1.5}
+.purpose-row-label>em{font-size:9.5px}
+.purpose-copy>b,.tier0-grid .purpose-copy>b{font-size:15px}
+.purpose-copy>small{font-size:10.5px}
+.effect-tag{font-size:10.5px;line-height:1.4;padding:4px 5px}
+.effect-heading{font-size:9px}
+.artifact-value{font-size:10.5px}
+.perk-card{font-size:11.5px;line-height:1.4}
+.perk-card>b{font-size:10.5px}
+.perk-card>span{font-size:10.5px;line-height:1.45}
+.tier0-area>summary b,.tier0-area>header b{font-size:14px}
+.tier0-area>summary small,.tier0-area>summary>span:last-child,.tier0-area>header small,.tier0-area>header>span{font-size:10px}
+.route-path>small{font-size:9.5px}
+.route-chip{font-size:10.5px;padding:5px 6px}
+.crafting-hint{font-size:10.5px}
+.card-crafting>b{font-size:10px}
+.card-recipe-list>span{font-size:10.5px;line-height:1.4}
+.card-crafting>small{font-size:9.5px;line-height:1.5}
+.card-details{font-size:9.5px;padding:7px 9px}
+.all-artifacts>summary{font-size:11px}
+.compare-category{font-size:11px}
+.compare-row{font-size:11px}
+@media(max-width:1120px){
+ .purpose-copy>b,.tier0-grid .purpose-copy>b{font-size:14px}
+ .effect-tag{font-size:10px}
+ .perk-card{font-size:11px}
+}
+@media(max-width:700px){
+ .mini-stat{font-size:9px}
+ .card-foot{font-size:8px}
+ .effect-tag{font-size:9.5px}
+ .purpose-copy>b,.tier0-grid .purpose-copy>b{font-size:13px}
+ .purpose-row-label>b{font-size:12px}
+ .purpose-row-label>small{font-size:9px}
+ .artifact-value{font-size:9.5px}
+ .perk-card{font-size:10.5px}
+ .card-recipe-list>span{font-size:9.5px}
+}
