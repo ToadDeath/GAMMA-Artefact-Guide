@@ -284,7 +284,7 @@ function renderMatrix(){
  });
  matrix.querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
- matrix.addEventListener("scroll",scheduleRouteRedraw,{passive:true});
+ // Connector paths are positioned in board coordinates and move with the board. Do not reroute on scroll.
  matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  drawRecipeLinks();
