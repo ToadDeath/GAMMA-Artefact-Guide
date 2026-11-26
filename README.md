@@ -6,7 +6,7 @@ A crafting-first, independent field reference for GAMMA 0.9.5 artefacts, modifie
 
 The guide uses a custom classification supplied by the project owner. It contains exactly five groups: Tier 0, Tier 1, Tier 2, Tier 3, and Tier 4. These are **not** the game's exported tier values. Source tiers remain preserved in each record's original `tier` and `raw` data; the guide's `customTier` field is the project's classification.
 
-The authoritative lists are maintained in `app.js` under `TIER_NAMES`. The app resolves translated display names and assigns the matching `customTier` value at runtime. Unlisted artefacts remain unclassified and are not shown in the progression guide. This avoids silently assigning a source-game tier to the custom system.
+The authoritative lists are stored in `data/artifacts.json` under `customTiers`. The app resolves translated display names and assigns the matching `customTier` value at runtime. Unlisted artefacts remain unclassified and are not shown in the progression guide. This avoids silently assigning a source-game tier to the custom system.
 
 ## Crafting progression
 
