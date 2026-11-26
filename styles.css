@@ -102,7 +102,7 @@ button.route-chip:hover{border-color:#b8b17a;color:#fff}.route-chip.raw{color:#8
 .purpose-main>em{display:none}
 .effect-tags{gap:3px}
 .effect-tag{font-size:9px;padding:3px 4px}
-.recipe-links{position:absolute;inset:0;z-index:0;overflow:visible;pointer-events:none}
+.recipe-links{position:absolute;inset:0;z-index:2;overflow:visible;pointer-events:none}.artifact-node{position:relative;z-index:3}
 .recipe-links path{fill:none;stroke:#b4c47a;stroke-width:1.5;opacity:.52;marker-end:url(#recipe-arrow)}
 .tier-empty{font:10px 'IBM Plex Mono';color:var(--muted);padding:12px 4px}
 @media(max-width:700px){.tier-board{min-width:1320px}.tier-column{padding-left:7px;padding-right:7px}}
