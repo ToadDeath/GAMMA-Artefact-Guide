@@ -204,7 +204,7 @@ function drawRecipeLinks(){
    let sx,sy,tx,ty,startLead,endLead;
    if(source.tier0){
     sx=sx0+sr.width/2;sy=sy0+sr.height;
-    startLead=[sx,sy+14];
+    startLead=[sx,sy+40];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
@@ -212,7 +212,7 @@ function drawRecipeLinks(){
    }
    if(target.tier0){
     tx=tx0+tr.width/2;ty=ty0+tr.height;
-    endLead=[tx,ty+14];
+    endLead=[tx,ty+40];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
