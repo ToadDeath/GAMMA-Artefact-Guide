@@ -25,11 +25,9 @@ function purposeFor(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
  const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
- const caps=positive.filter(s=>s.group==="Resistance caps");
  const recovery=positive.filter(s=>s.group==="Recovery");
- const mobility=positive.filter(s=>s.group==="Mobility");
- const utility=positive.filter(s=>s.group==="Utility");
- const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"caps",label:"Resistance caps",stats:caps},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobility",label:"Mobility",stats:mobility},{key:"utility",label:"Utility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
+ const mobilityUtility=positive.filter(s=>s.group==="Mobility"||s.group==="Utility");
+ const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobilityUtility",label:"Mobility & utility",stats:mobilityUtility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
  scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
  return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
 }
@@ -75,13 +73,13 @@ function drawRecipeLinks(activeId){
   related.add(edge.from);related.add(edge.to);
  }
  board.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
- svg.innerHTML='<defs><marker id="recipe-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#d6c879"/></marker></defs>'+paths.join("");
+ svg.innerHTML=paths.join("");
  svg.classList.add("is-visible");
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"caps",title:"Resistance caps",note:"Maximum resistance limits, separate from resistance itself"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobility",title:"Mobility",note:"Movement and jump-height effects"},{key:"utility",title:"Utility",note:"Carry weight and other practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities - click to read the full effect"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
+ const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobilityUtility",title:"Mobility & utility",note:"Movement, jump height, carry weight and practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities - click to read the full effect"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
  const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
@@ -90,7 +88,8 @@ function renderMatrix(){
   const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+perk+(positives.length?'<span class="effect-heading">POSITIVE</span>'+effectMarkup(positives):"")+(negatives.length?'<span class="effect-heading negative-heading">NEGATIVE</span>'+effectMarkup(negatives):"")+'</span></button></article>';
+  const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+value+perk+(positives.length?'<span class="effect-heading">POSITIVE</span>'+effectMarkup(positives):"")+(negatives.length?'<span class="effect-heading negative-heading">NEGATIVE</span>'+effectMarkup(negatives):"")+'</span></button></article>';
  };
  const tierCounts=[0,1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
  const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[0,1,2,3,4].map(t=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[t]+' ARTEFACTS</span></div>').join("");
@@ -115,7 +114,7 @@ function renderMatrix(){
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
-const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"],["Resistance caps","Resistance caps"]];
+const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"]];
 function statGroupMarkup(a){
  const stats=a.stats.filter(s=>Number(s.numeric)!==0);
  const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
