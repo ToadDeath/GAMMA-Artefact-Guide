@@ -9,20 +9,20 @@
 <body>
 <header class="topbar compact-topbar">
  <a class="brand" href="#"><span class="brand-mark">☢</span><span><b>THE ZONE ARCHIVE</b><small>GAMMA 0.9.5 / ARTEFACT FIELD GUIDE</small></span></a>
- <nav><a class="active" href="#catalog">PURPOSES</a><a href="#about">SOURCE</a></nav>
+ <nav><a class="active" href="#catalog">PURPOSES</a></nav>
 </header>
 <main>
  <section class="catalog" id="catalog">
-  <div class="compact-intro"><div><div class="section-kicker">FIELD GUIDE / GAMMA 0.9.5</div><h1>Know what it <em>does.</em></h1><p>Tier 0 artefacts have their own special area. Browse Tiers 1-4 by purpose down the left. Artefacts used in crafting show their resulting artefacts directly on the card.</p></div><span id="matrix-count" class="matrix-count">LOADING</span></div>
+  <div class="compact-intro"><div><div class="section-kicker">FIELD GUIDE / GAMMA 0.9.5</div><h1>Know what it <em>does.</em></h1></div><span id="matrix-count" class="matrix-count">LOADING</span></div>
   <div class="toolbar"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search artefact, modifier, perk..." autocomplete="off"></label><select id="purpose"><option value="">All purposes</option><option value="physical">Physical resistance</option><option value="anomaly">Anomaly resistance</option><option value="recovery">Healing &amp; recovery</option><option value="mobilityUtility">Mobility &amp; utility</option><option value="other">Other effects</option></select><select id="tier"><option value="">All custom tiers</option><option value="0">Tier 0</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option></select><select id="sort"><option value="tier">Sort: Tier</option><option value="name">Sort: Name</option><option value="weight">Sort: Weight</option><option value="cost">Sort: Cost</option></select></div>
   <div class="filter-row"><button class="chip active" data-filter="all">ALL</button><button class="chip" data-filter="perk">SPECIAL PERKS</button><button class="chip" data-filter="craftable">CRAFTABLE</button><button class="chip" data-filter="junk">JUNK</button><span class="hint">SELECT AN ARTEFACT TO OPEN ITS FULL PROFILE</span></div>
-  <div class="matrix-heading"><div><div class="section-kicker">PRIMARY PURPOSE / CUSTOM TIERS 1-4</div><h2>What is it <em>good for?</em></h2><p>Purposes run down the left; custom tiers run across the top. Each artefact appears once, with its modifiers and any crafting outputs shown on its card.</p></div></div>
+  <div class="matrix-heading"><div><div class="section-kicker">PRIMARY PURPOSE / CUSTOM TIERS 1-4</div><h2>What is it <em>good for?</em></h2></div></div>
   <div id="perk-matrix" class="progression-map" aria-live="polite"><div class="loading">LOADING ARTEFACTS...</div></div>
   <section class="compare" id="compare" hidden><div class="compare-head"><div><div class="section-kicker">FIELD ANALYSIS</div><h3>Artefact <em>comparison.</em></h3></div><button id="clear-compare" class="text-button">CLEAR SELECTION ×</button></div><div id="compare-content"></div></section>
  </section>
- <section class="about" id="about"><div class="section-kicker">ARCHIVE NOTES</div><h2>Sources and <em>method.</em></h2><p>Unofficial community field guide for S.T.A.L.K.E.R. GAMMA 0.9.5. Not affiliated with or endorsed by GSC Game World, the Anomaly team, or the GAMMA team.</p><p>Artefact statistics, identifiers, perk keys and crafting recipes are derived from the <a href="https://github.com/simonwdev/stalker-anomaly-gamma-db" target="_blank" rel="noreferrer">Stalker GAMMA Item Database</a>. This guide uses an independent interface and visual presentation.</p><p class="muted">Resistance values and resistance caps are separate mechanics. Exported values are shown as-is without an overall artefact score.</p></section>
+
 </main>
-<footer><span>THE ZONE ARCHIVE / ARTEFACT FIELD GUIDE</span><span>UNOFFICIAL COMMUNITY REFERENCE</span></footer>
+<footer><span>UNOFFICIAL COMMUNITY REFERENCE</span><span>DATA: <a href="https://github.com/simonwdev/stalker-anomaly-gamma-db" target="_blank" rel="noreferrer">STALKER GAMMA ITEM DATABASE</a></span></footer>
 <dialog id="artifact-dialog"><button class="dialog-close" aria-label="Close details">×</button><div id="dialog-content"></div></dialog>
 <script src="app.js"></script>
 </body></html>
