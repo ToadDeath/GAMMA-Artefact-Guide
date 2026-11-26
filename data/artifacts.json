@@ -3008,38 +3008,44 @@
       },
       "customTier": null,
       "perkTitle": "WILL TO LIVE",
-      "perkDescription": "• +6% BR Class damage mitigation\\n\\n• Grants health regeneration while below the low-health threshold\\n\\n• Regeneration increases the closer you are to death\\n\\n• Multiple Artefacts Stack?: YES\\n\\n• Diminishing Returns?: NO",
+      "perkDescription": "+6% BR Class damage mitigation. Grants emergency health regeneration when your health falls below the activation threshold. Healing increases as your health drops farther below that threshold.",
       "perkDetails": {
-        "heading": "LOW-HEALTH REGENERATION",
+        "heading": "HEALTH REGENERATION",
         "thresholds": [
           {
-            "level": 1,
+            "count": 1,
             "threshold": "25%"
           },
           {
-            "level": 2,
+            "count": 2,
             "threshold": "28%"
           },
           {
-            "level": 3,
+            "count": 3,
             "threshold": "31%"
           },
           {
-            "level": 4,
+            "count": 4,
             "threshold": "34%"
           },
           {
-            "level": 5,
+            "count": 5,
             "threshold": "37%"
           }
         ],
-        "notes": [
-          "Emergency regeneration activates below the applicable low-health threshold.",
-          "Healing per tick is proportional to how far below the threshold your health has fallen and scales with belt count.",
-          "The database associates this threshold progression with Lucifer.",
-          "If Lucifer is at 0% condition, the healing effect is reduced to approximately 34%."
-        ]
-      }
+        "stacking": {
+          "label": "Multiple Hearts stack",
+          "value": "Yes"
+        },
+        "diminishingReturns": {
+          "label": "Diminishing returns",
+          "value": "No"
+        },
+        "healingNote": "Healing per tick scales with the number of Hearts equipped and how far your health is below the activation threshold.",
+        "luciferNote": "If Lucifer is equipped, its condition affects Heart's healing strength. At 0% condition, Heart restores approximately 34% of its normal healing.",
+        "relatedArtifactId": "af_lucifer"
+      },
+      "descriptionOverride": "Artefact with a bizarre shape. Within its core, a small structure shaped like a human body is visible. It grants the user an indomitable will to live, allowing survival and recovery from otherwise fatal injuries or blood loss."
     },
     {
       "id": "af_electra_flash",
