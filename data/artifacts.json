@@ -7838,5 +7838,87 @@
       },
       "customTier": null
     }
-  ]
+  ],
+  "customTiers": {
+    "0": [
+      "Atom",
+      "Ball",
+      "Bat",
+      "Beacon",
+      "Black Angel",
+      "Cell",
+      "Chain",
+      "Claw",
+      "Cocoon",
+      "Dragon's Eye",
+      "Electron",
+      "Fountain",
+      "Generator",
+      "Grapes",
+      "Heart",
+      "Knot",
+      "Lamp",
+      "Lucifer",
+      "Medal",
+      "Miser's Skull",
+      "Moon",
+      "Moss",
+      "Phantom Star",
+      "Sandstone",
+      "Scar",
+      "Seraphim",
+      "Signet",
+      "Sourpuss",
+      "Spike",
+      "Sun",
+      "Tapeworm",
+      "Thistle"
+    ],
+    "1": [
+      "Battery",
+      "Itcher",
+      "Jellyfish",
+      "Lost Soul",
+      "Mama's Beads",
+      "Meat Chunk",
+      "Nightstar",
+      "Soul",
+      "Sparkler",
+      "Stone Blood",
+      "Stone Flower"
+    ],
+    "2": [
+      "Bracelet",
+      "Crystal",
+      "Empty",
+      "Eye",
+      "Gravi",
+      "Kolobok",
+      "Lobster Eyes",
+      "Moonlight",
+      "Pin",
+      "Ring",
+      "Shell",
+      "Sponge",
+      "Wretched"
+    ],
+    "3": [
+      "Black Spray",
+      "Bubble",
+      "Fireball",
+      "Firefly",
+      "Flame",
+      "Flash",
+      "Full Empty",
+      "Goldfish",
+      "Prometheus",
+      "Snowflake"
+    ],
+    "4": [
+      "Compass",
+      "Death Lamp",
+      "Heart of the Oasis",
+      "Volat Emerald"
+    ]
+  }
 }
