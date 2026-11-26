@@ -33,4 +33,4 @@ Unofficial community project. Not affiliated with or endorsed by GSC Game World,
 
 ## Purpose categories
 
-The main guide groups each classified artefact exactly once by its strongest positive core modifier. Positive protection modifiers take priority, followed by recovery, utility, and mobility. The card highlights the primary modifier and a short list of other positive effects plus a negative trade-off where present. Resistance caps remain separate from resistance values in the detailed profile. This is a browsing aid, not a hidden overall score: the full profile remains the place to inspect every modifier.
+The main guide groups each classified artefact exactly once by broad purpose: physical resistance, anomaly resistance, healing and recovery, utility and mobility, special perks, or other/special. All 32 perk artefacts have their full English perk text stored locally in the data file, so perk details do not depend on the live translation request. Cards show the perk name and a short preview; opening a profile reveals the full effect description. Resistance caps remain separate from resistance values in the detailed profile.
