@@ -92,7 +92,7 @@ function clearRouteSegment(a,b,obstacles){
 }
 function findClearRoute(start,end,sourceNode,targetNode,layout,base){
  const obstacles=[...layout.querySelectorAll(".artifact-node")].filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
-  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-5,right:r.right-base.left+5,top:r.top-base.top-5,bottom:r.bottom-base.top+5}:null;
+  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-10,right:r.right-base.left+10,top:r.top-base.top-10,bottom:r.bottom-base.top+10}:null;
  }).filter(Boolean);
  const cells=[...layout.querySelectorAll(".purpose-cell")].map(n=>n.getBoundingClientRect()).filter(r=>r.width&&r.height);
  const xs=[...cells.flatMap(r=>[r.left-base.left,r.right-base.left]),...obstacles.flatMap(r=>[r.left-5,r.right+5]),start[0],end[0]];
@@ -136,12 +136,26 @@ function drawRecipeLinks(){
    const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
    const sr=source.rect,tr=target.rect,sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
    let sx,sy,tx,ty,points;
-   if(source.tier0){sx=sx0+sr.width/2;sy=sy0+sr.height}
-   else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2}
-   if(target.tier0){tx=tx0+tr.width/2;ty=ty0+tr.height}
-   else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2}
-   points=findClearRoute([sx,sy],[tx,ty],source.node,target.node,layout,base);
-   if(!points)continue;
+   let startLead,endLead;
+   if(source.tier0){
+    sx=sx0+sr.width/2;sy=sy0+sr.height;
+    startLead=[sx,sy+6];
+   }else{
+    const right=tx0+tr.width/2>=sx0+sr.width/2;
+    sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
+    startLead=[sx+(right?12:-12),sy];
+   }
+   if(target.tier0){
+    tx=tx0+tr.width/2;ty=ty0+tr.height;
+    endLead=[tx,ty+6];
+   }else{
+    const right=tx0+tr.width/2>=sx0+sr.width/2;
+    tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
+    endLead=[tx+(right?-12:12),ty];
+   }
+   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base);
+   if(!middle)continue;
+   points=[[sx,sy],startLead,...middle.slice(1,-1),endLead,[tx,ty]];
    paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
    related.add(edge.from);related.add(edge.to);
   }
