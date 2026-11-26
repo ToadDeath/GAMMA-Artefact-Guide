@@ -294,3 +294,17 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .matrix-layout .route-pin.is-pinned{background:#38432b;border-color:#c5d18e;color:#e4efb6}
 .matrix-layout .route-pin:focus-visible{outline:2px solid #d6c879;outline-offset:2px}
 .matrix-layout .purpose-card:hover .purpose-main{border-color:#87966a}
+
+
+/* Pinned crafting routes take priority over hover previews. Keep hover feedback subtle. */
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):hover,
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):focus-within{opacity:.62;filter:brightness(1.12)}
+.matrix-layout .route-pin{
+ width:16px;height:16px;padding:1px;top:3px;left:3px;
+ border:0;border-radius:0;background:transparent;color:inherit;
+}
+.matrix-layout .route-pin svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.9}
+.matrix-layout .route-pin:hover,
+.matrix-layout .route-pin.is-pinned{background:transparent;border:0;color:inherit;filter:brightness(1.25)}
+.matrix-layout .purpose-main>img{transform:translateY(6px)}
