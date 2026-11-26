@@ -68,8 +68,7 @@ function drawRecipeLinks(activeId){
   if(!source||!target)continue;
   const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
   const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2,tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
-  const direction=tx>=sx?1:-1,bend=Math.max(28,Math.abs(tx-sx)*.38);
-  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="M '+sx+' '+sy+' C '+(sx+bend*direction)+' '+sy+', '+(tx-bend*direction)+' '+ty+', '+tx+' '+ty+'"/>');
+  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="M '+sx+' '+sy+' L '+tx+' '+ty+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
  board.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
