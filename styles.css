@@ -227,3 +227,27 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .stat-list.negative-list{margin-top:10px}
 @media(max-width:1120px){.tier-board{grid-template-columns:minmax(145px,.78fr) repeat(4,minmax(0,1fr))}}
 @media(max-width:900px){.tier0-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}}
+
+/* Card expansion, collapsible Tier 0 and persistent recipe routes */
+.tier0-area{padding:0}
+.tier0-area>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:14px 14px;border-bottom:1px solid rgba(190,190,150,.2)}
+.tier0-area>summary::-webkit-details-marker{display:none}
+.tier0-area>summary:before{content:"+";color:var(--acid);font:700 17px 'IBM Plex Mono';margin-right:4px}
+.tier0-area[open]>summary:before{content:"−"}
+.tier0-area>summary>span:first-of-type{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.tier0-area>summary b{font:700 13px 'IBM Plex Mono';letter-spacing:.08em;color:var(--acid)}
+.tier0-area>summary small,.tier0-area>summary>span:last-child{font:9px 'IBM Plex Mono';color:var(--muted)}
+.tier0-grid{padding:12px}
+.purpose-card.is-expanded{border-color:#a9b77d;box-shadow:0 0 0 1px #a9b77d33}
+.card-crafting{display:none;padding:9px 11px 11px;border-top:1px solid rgba(190,190,150,.2);background:rgba(8,13,8,.38)}
+.purpose-card.is-expanded .card-crafting{display:block}
+.card-crafting>b{display:block;margin-bottom:7px;color:var(--acid);font:600 9px 'IBM Plex Mono';letter-spacing:.1em}
+.card-recipe-list{display:flex;flex-direction:column;gap:5px}
+.card-recipe-list>span{display:flex;justify-content:space-between;gap:10px;color:#cbd4c2;font:9px 'IBM Plex Mono'}
+.card-recipe-list strong{color:#d8c987;white-space:nowrap}
+.card-crafting>small{display:block;margin-top:7px;color:#9ca88e;font:8px/1.5 'IBM Plex Mono'}
+.card-details{margin-top:9px;padding:6px 8px;border:1px solid #586545;background:#283323;color:#dce4d2;font:8px 'IBM Plex Mono';cursor:pointer}
+.crafting-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.route-lock{margin-top:8px;padding:7px 10px;border:1px solid #586545;background:#20291f;color:#aebc91;font:8px 'IBM Plex Mono';letter-spacing:.07em;cursor:pointer}
+.route-lock.active{border-color:#b9df82;color:#d8e9b7;background:#2b3926}
+.recipe-links path{marker-end:none}
