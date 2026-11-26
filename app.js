@@ -94,13 +94,15 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
  const clearance=2.25;
  const allNodes=[...layout.querySelectorAll(".artifact-node")];
  const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
-  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+clearance}:null;
+  const r=n.getBoundingClientRect(),tier0=!!n.closest(".tier0-area");return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+(tier0?8:clearance)}:null;
  }).filter(Boolean);
  if(!clearRouteSegment(startAnchor,start,obstacles)||!clearRouteSegment(end,endAnchor,obstacles))return null;
  const round=n=>Math.round(n*100)/100;
  const unique=values=>[...new Set(values.map(round))].sort((a,b)=>a-b);
  const width=layout.scrollWidth,height=layout.scrollHeight;
- const xs=unique([...(sharedLanes?.x||[]),start[0],end[0],3,width-3]);
+ const rawXs=unique([...(sharedLanes?.x||[]),start[0],end[0],3,width-3]);
+ const dividers=sharedLanes?.dividers||[];
+ const xs=rawXs.filter(x=>!dividers.some(d=>Math.abs(x-d)>0.05&&Math.abs(x-d)<=2.5));
  const ys=unique([...(sharedLanes?.y||[]),start[1],end[1],3,height-3]);
  const nx=xs.length,ny=ys.length,total=nx*ny;
  const blocked=new Uint8Array(total);
@@ -183,8 +185,10 @@ function drawRecipeLinks(){
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=2.25;
- const sharedLanes={x:[],y:[]};
- layout.querySelectorAll(".purpose-cell").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.x.push(r.right-base.left-.5)});
+ const sharedLanes={x:[],y:[],dividers:[]};
+ layout.querySelectorAll(".purpose-cell").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
+ sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
+ sharedLanes.x.push(...sharedLanes.dividers);
  layout.querySelectorAll(".artifact-node").forEach(node=>{
   const r=node.getBoundingClientRect();if(!r.width||!r.height)return;
   sharedLanes.x.push(r.left-base.left-clearance,r.right-base.left+clearance);
