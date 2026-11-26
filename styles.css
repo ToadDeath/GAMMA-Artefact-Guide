@@ -167,7 +167,7 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links path.is-target{stroke:#d8b27b;stroke-width:2.7}
 .artifact-node{position:relative;z-index:3;transition:opacity .15s,border-color .15s,filter .15s}
 .artifact-node.route-active{border-color:#e0d18a;box-shadow:0 0 0 1px #e0d18a66,0 0 16px #d4c16a20}
-.artifact-node.route-related{border-color:#b9c987}
+.artifact-node.route-related{border-color:#858b82}
 .tier-board:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
 .crafting-hint{margin:9px 0 0;color:#98a18c;font:9px 'Inter';letter-spacing:.07em}
 .stat-list{display:flex;flex-direction:column;gap:5px}
@@ -219,7 +219,7 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links.is-visible{visibility:visible;opacity:1}
 .recipe-links path{fill:none;stroke:#d6c879;stroke-width:1.7;opacity:.78;marker-end:none;filter:none}
 .recipe-links path.is-source{stroke:#b9df82;stroke-width:2.2}
-.recipe-links path.is-target{stroke:#aeb3aa;stroke-width:2.2}
+.recipe-links path.is-target{stroke:#858b82;stroke-width:2.2}
 .matrix-layout .artifact-node{position:relative;z-index:3}
 .matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
 .tier-board{position:relative;z-index:1;grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr));min-width:980px}
