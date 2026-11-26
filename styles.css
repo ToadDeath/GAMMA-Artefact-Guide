@@ -349,11 +349,19 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 }
 
 /* Perks are presented as warm modifier chips, distinct from ordinary stat text. */
-.artifact-flags{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 2px}
-.artifact-flag{display:inline-flex;align-items:center;padding:2px 5px;border-radius:3px;font:600 8px/1.25 'Inter';letter-spacing:.045em}
-.artifact-flag.junk{color:#c4c8b6;background:#343a2d;border:1px solid #596047}
-.artifact-flag.craft-mat{color:#d9bd91;background:#493b2b;border:1px solid #806344}
 .perk-card{display:inline-flex;align-self:flex-start;max-width:100%;padding:4px 7px;margin:1px 0 3px;border:1px solid #93623e;border-radius:5px;background:#59402d;color:#f0c28d;font:600 10.5px/1.3 'Inter';letter-spacing:.025em}
 .profile-perk{border:1px solid #93623e;border-left:3px solid #b77a48;border-radius:6px;background:#493727;padding:13px 15px;color:#ead8c1}
 .profile-perk b{color:#f0bd83;font-size:9.5px}
 .perk-description{color:#ead8c1}
+
+
+/* Additional perk mechanics are shown in the profile, not on catalogue cards. */
+.perk-description{white-space:pre-line}
+.perk-detail{margin-top:14px;padding-top:12px;border-top:1px solid #93623e55}
+.perk-detail h4{margin:0 0 9px;color:#f0bd83;font:600 10px 'Inter';letter-spacing:.09em}
+.perk-thresholds{width:100%;border-collapse:collapse;font:11px 'Inter';margin:0 0 10px}
+.perk-thresholds th,.perk-thresholds td{text-align:left;padding:7px 9px;border-bottom:1px solid #ffffff12}
+.perk-thresholds th{color:#c5b69e;font-size:9px;font-weight:600;letter-spacing:.06em}
+.perk-thresholds td{color:#ead8c1}
+.perk-detail ul{margin:9px 0 0;padding-left:18px;color:#d7c8b3;font:11px/1.6 'Inter'}
+.perk-detail li+li{margin-top:5px}
