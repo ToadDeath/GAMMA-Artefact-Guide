@@ -536,3 +536,8 @@ footer{font-size:9px}
  .perk-card{font-size:10.5px}
  .card-recipe-list>span{font-size:9.5px}
 }
+
+body.dialog-open{overflow:hidden}
+dialog{overscroll-behavior:contain}
+.matrix-layout .artifact-node.route-ingredient{border-color:#858b82;box-shadow:0 0 0 1px #858b8240}
+.matrix-layout .artifact-node.route-upgrade{border-color:#9dbb70;box-shadow:0 0 0 1px #9dbb7040}
