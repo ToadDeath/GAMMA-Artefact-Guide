@@ -1120,7 +1120,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "ARSZI'S BLESSING\\n",
+      "perkDescription": "• Radiation illness grants a stamina boost and slight radiation removal\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_ball",
@@ -1189,7 +1191,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "THE NUTCRACKER\\n",
+      "perkDescription": "• Amplifies player's mighty foot and allows him to kick more mutants, resulting in instant death.\\n\n• Each artefact on the belt allows kicking more monsters.\\n\n• Has a cooldown of 2 seconds with 1 artefact, increases with more artefacts on belt by 1 second with each artefact.\\n\n• Press USE key when near a mutant and in line of sight to perform a kick\\n \\n Mutant tiers: \\n  - 1 artefact: Cats, Dogs, Tushkano, Rats, Zombies.\\n  - 2 artefacts: Boars, Flesh, Pseudodogs, Snorks, Lurkers, Fractures.\\n  - 3 artefacts: Karliks, Bloodsuckers, Psysuckers, Psy-dogs, Poltergeists.\\n  - 4 artefacts: Burers, Controllers.\\n  - 5 artefacts: Chimeras, Pseudogiants."
     },
     {
       "id": "af_baloon",
@@ -1375,7 +1379,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "ZONE ALCHEMY\\n",
+      "perkDescription": "• Grants the ability to transmutate artefacts\\n\n• Artefacts can be upgraded to a better tier (Night Star -> Gravi -> Gold Fish), or \"mutated\" to a different artifact of the same tier (Night Star -> Stone Blood -> Jellyfish)\\n\n• Perk/Top-tier artefacts can only be mutated\\n\n• Each transmutation will consume one 'Bat' artefact\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_black",
@@ -1513,7 +1519,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "DODGE THIS\\n",
+      "perkDescription": "• 20% chance to reflect 35% of bullet damage recived back to the attacker\\n\n• Reflections nullify damage\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_black_spray",
@@ -1941,7 +1949,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "DISINTEGRATOR\\n",
+      "perkDescription": "• -15% bullet damage received\\n\n• Reduced damage is converted to radiation\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_chelust",
@@ -2010,7 +2020,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "WEIGHT OF DEVOTION\\n",
+      "perkDescription": "• Passive small health and stamina regen\\n\n• Members of Sin are granted triple the effect with the addition of psy health regeneration\\n\n• Sin companions receive health regen.\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_cocoon",
@@ -2079,7 +2091,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "STONE SKIN\\n",
+      "perkDescription": "• Passive +15% melee damage protection\\n\n• Receiving melee damage grants a stack of 'Stone Skin'\\n\n• +15% melee damage protection/-10% movement speed per 'Stone Skin' stack\\n\n• Maximum 10 stacks\\n\n• At 10 stacks, +75% melee damage reduction but become completely immobilized\\n\n• Effect lasts 10 seconds, after which all stacks are removed\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_compass",
@@ -2609,7 +2623,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "ULTRA-VIOLENCE\\n",
+      "perkDescription": "• 5% chance that shots will be explosive\\n\n• There is a chance that an npc or mutant killed with an explosive shot will also violently explode\\n\n• Effect stacks with multiple artefacts (chance of an explosion)\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_dummy_battery",
@@ -2990,7 +3006,9 @@
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "WILL TO LIVE\\n",
+      "perkDescription": "• +6% BR Class damage mitigation\\n\n• Grants health regen while under 25% health\\n\n• Regen effect increases the closer to you are to death\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_electra_flash",
@@ -3394,7 +3412,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "HIGH VOLTAGE\\n",
+      "perkDescription": "• Stepping on an Electra anomaly will recharge batteries and active devices.\\n\n• Stepping on an Electra anomaly also allows infinite sprint for a short period of time.\\n\n• Having 5 copies allows recharging Exoskeleton batteries.\\n\n• Multiple Artefacts Stack?: YES & NO\\n"
     },
     {
       "id": "af_empty",
@@ -3830,7 +3850,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "DEAL WITH THE DEVIL\\n",
+      "perkDescription": "• Moving the artefact to the belt will sign the 'Pact with the Zone'\\n\\n\n• Highly recommended to save before activation."
     },
     {
       "id": "af_fireball",
@@ -4016,7 +4038,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "KLEPTOMANIA\\n",
+      "perkDescription": "• Stashes and items give off a dim light\\n\n• Stashes emit signal to RF-Receiver\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_fountain",
@@ -4085,7 +4109,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "LETYSHOPS TIME\\n",
+      "perkDescription": "• Receive 4% cashback on each purchase\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_full_empty",
@@ -4458,7 +4484,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "CHARGER\\n",
+      "perkDescription": "• Restores batteries while sprinting\\n\n• Will not restore dead batteries or devices with no batteries\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_gimlet",
@@ -4848,7 +4876,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "NECESSARY GLUTTONY\\n",
+      "perkDescription": "• Provides health bonus on food consumption based on calories\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_gravi",
@@ -5229,7 +5259,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "CALORIC COAGULATION\\n",
+      "perkDescription": "• Drains hunger to cure bleeding\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_kogot",
@@ -5307,7 +5339,9 @@
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "BERZERK\\n",
+      "perkDescription": "• +6% BR Class damage mitigation\\n\n• Passive +10% melee damage\\n\n• Passive +10% melee damage\\n\n• 3.5% of melee damage is converted to health\\n\n• Upon killing certain mutants, there is a chance that raw meat will spawn in the vicinity\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_lighthouse",
@@ -5376,7 +5410,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "THE UNORTHODOX WAY OF TRAVELLING\\n",
+      "perkDescription": "• Killing anyone will teleport you to the location of their death\\n\n• Dangerous if used on airborne targets\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_lobster_eyes",
@@ -5562,7 +5598,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "THE UNLUCKY CHARM\\n",
+      "perkDescription": "• 35% chance that incoming bullet damage will be fully redirected to your companion\\n\n• May make some companions suspicious...\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_medusa",
@@ -5841,7 +5879,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "CULINARY HYPERVERSITY\\n",
+      "perkDescription": "• Convert energy of raw mutant meat into special abilities\\n\n• Lasts for 1 minute. Eating different mutant meat will override current effect and restart buff timer\\n\\n Table of effects:\\n  - Flesh meat: 1%/sec health regen, 33% bullet damage penalty\\n  - Boar meat: 25% melee damage reduction\\n  - Dog meat: slight bleeding recovery, 1%/sec psy regen\\n  - Pseudodog: 2%/sec psy regen, 25% psy damage reduction\\n  - Bloodsucker: become invisible until a hostile action is performed, moderate bleeding recovery\\n  - Psysucker: become invisible until performing a hostile action, 5%/sec psy regen\\n  - Snork: 50% radiation damage reduction, 5%/sec stamina regen, 5msv/sec radiation cure, large hunger decrease\\n  - Chimera: 2%/sec health regen, 10%/sec stamina regen, 33% radiation damage reduction\\n  - Lurker: 33% chem/fire/electric anomaly damage reduction\\n  - Tushkano: 20% speed increase, 20% melee damage penalty\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_monolith",
@@ -6303,7 +6343,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "NIGHT OWL\\n",
+      "perkDescription": "• Bleeding recovery and movement speed increase from dusk till dawn\\n\n• Decreases sleepiness at night but increases sleepiness during the day\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_pin",
@@ -6481,7 +6523,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "MINOR LACERATIONS\\n",
+      "perkDescription": "• Your weapon loses 50% damage output but gains the ability to cause bleeding damage.\\n\n• Bleeding damage is proportional to weapon damage.\\n\n• Increases the chance for enemies to surrender.\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_ring",
@@ -6660,7 +6704,9 @@
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "LETHAL TEMPO\\n",
+      "perkDescription": "• Killing stalkers or mutants infuses you with great power for 5 seconds.\\n\n• +25% Damage received.\\n  ---  1 COPY: Increased movement speed.\\n  ---  2 COPIES: Health regeneration.\\n  ---  3 COPIES: Slightly recovers a random body part.\\n  ---  4 COPIES: Slightly recovers a random body part.\\n  ---  5 COPIES: +25% damage received debuff removed.\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: YES"
     },
     {
       "id": "af_serofim",
@@ -6729,7 +6775,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "RAIN OF REVIVAL\\n",
+      "perkDescription": "• Upon receiving a fatal blow, the artefact is destroyed and the player is revived\\n\n• 50% of health is restored, all debuffs are removed and 5 seconds of damage immunity are granted upon revival\\n\n• Upon revival, the current weapon is dropped and vision is negatively effected\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_signet",
@@ -6798,7 +6846,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "LIGHT OF TRANQUILITY\\n",
+      "perkDescription": "• Restores health and psy health while near campfires\\n\n• Amplifies psy recovery artefacts while near campfires\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_skull_miser",
@@ -6867,7 +6917,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "CRACK THE JACKPOT\\n",
+      "perkDescription": "• Upon a lethal headshot, extra money is dropped\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_soul",
@@ -7029,7 +7081,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "CRITICAL ASCENSI0N\\n",
+      "perkDescription": "• Passive +10% critical hit damage bonus\\n\n• Consecutive hits grant stacks of 'Critical Ascensi0n'\\n\n• Each stack of 'Critical Ascensi0n' grants +5% damage to next shot\\n\n• Missing a shot removes all stacks and gives psy damage proportional to the amount of stacks removed\\n\n• Bonus can be stacked infinitely as long as you don't miss\\n\n• Unequipping all 'Spike' artefacts will remove stacks without penalty\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_sponge",
@@ -7207,7 +7261,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "PHANTOM PACIFIST\\n",
+      "perkDescription": "• Makes you completely invisible\\n\n• 1.5 minute total duration\\n\n• During invisibility you may not draw a weapon, talk or 'interact'\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_sun",
@@ -7276,7 +7332,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "SOLAR POWERED\\n",
+      "perkDescription": "• Grants stat modifiers depending on the current weather:\\n  --- Clear: health and stamina boost\\n  --- Partly Clear: small stamina boost\\n  --- Other: stamina penalty\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_tapeworm",
@@ -7345,7 +7403,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "STUNNER\\n",
+      "perkDescription": "• Chance to stun mutant if within 2 meters\\n\n• Getting hit by a melee attack will stun the attacker for 3 seconds\\n\n• While stunned, the enemy is unable to attack\\n\n• Self harm (i.e. fall damage) will result in artefact discharge\\n\n• Multiple Artefacts Stack?: YES\\n\n• Diminishing Returns?: NO"
     },
     {
       "id": "af_tlf_lost_soul",
@@ -7778,7 +7838,9 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "INSANITY\\n",
+      "perkDescription": "• Passive strong psy resistance\\n\n• Drains psy health to restore health\\n\n• When health is full, restores psy health\\n\n• There is a chance you will become possessed and perform an uncontrollable action\\n\n• The lower your psy health, the higher the chance and severity of the action\\n\n• Multiple Artefacts Stack?: NO"
     },
     {
       "id": "af_lucifer",
@@ -7836,7 +7898,9 @@
         "hasStashDrop": false,
         "hasDisassemble": false
       },
-      "customTier": null
+      "customTier": null,
+      "perkTitle": "The Lucifer Effect\\n",
+      "perkDescription": "• 100% - 51% CONDITION:\\n  - Damage Reduction: 15%\\n  - Speed Increase: 35%\\n  - Health Regen: 1%/sec\\n  - Psy Regen: 3%/sec\\n  - Carry Weight: +50kg\\n\n• 50% - 40% CONDITION:\\n  -  NO Positive Buffs\\n  -  Stamina Loss\\n\n• 39% - 0% CONDITION:\\n  -  NO Positive Buffs\\n  -  Health & Stamina Loss\\n \\n\n• Sacrifice Artefacts\\n  - Tier 1 Artefact: 3%-5%\\n  - Tier 2 Artefact: 6%-9%\\n  - Tier 3 Artefact: 10%13%\\n  - Knot Artefact: 20%-30%\\n  - Death Lamp Artefact: Overcharges artefact to +100%\\n  - Seraphim Artefact: Cannot be sacrificed\\n \\n\n• NOTE: Lucifer will work from the backpack\\n \\n LUCIFER CANNOT BE DISPOSED OF BY ANY MEANS\\n"
     }
   ],
   "customTiers": {
