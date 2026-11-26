@@ -53,26 +53,40 @@ function recipeEdges(){
  }
  return edges;
 }
+function roundedOrthogonalPath(points,r=8){
+ let d="M "+points[0][0]+" "+points[0][1];
+ for(let i=1;i<points.length-1;i++){
+  const prev=points[i-1],cur=points[i],next=points[i+1];
+  const inLen=Math.hypot(cur[0]-prev[0],cur[1]-prev[1]),outLen=Math.hypot(next[0]-cur[0],next[1]-cur[1]),radius=Math.min(r,inLen/2,outLen/2);
+  const before=[cur[0]+(prev[0]-cur[0])*radius/(inLen||1),cur[1]+(prev[1]-cur[1])*radius/(inLen||1)];
+  const after=[cur[0]+(next[0]-cur[0])*radius/(outLen||1),cur[1]+(next[1]-cur[1])*radius/(outLen||1)];
+  d+=" L "+before[0]+" "+before[1]+" Q "+cur[0]+" "+cur[1]+" "+after[0]+" "+after[1];
+ }
+ const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
+}
 function drawRecipeLinks(activeId){
- const board=$("#perk-matrix .tier-board");if(!board)return;
- const svg=board.querySelector(".recipe-links");if(!svg)return;
- if(!activeId){svg.innerHTML="";svg.classList.remove("is-visible");board.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
+ const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
+ const svg=layout.querySelector(".recipe-links");if(!svg)return;
+ if(!activeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
- const edges=recipeAdjacency.get(activeId)||[],width=board.scrollWidth,height=board.scrollHeight;
+ const edges=recipeAdjacency.get(activeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=board.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
+ const base=layout.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
  for(const edge of edges){
   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
-  const source=board.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]'),target=board.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
+  const source=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]'),target=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
   if(!source||!target)continue;
   const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
-  const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2,tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
-  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="M '+sx+' '+sy+' L '+tx+' '+ty+'"/>');
+  const sx=sr.left-base.left+layout.scrollLeft+sr.width/2,sy=sr.top-base.top+layout.scrollTop+sr.height/2;
+  const tx=tr.left-base.left+layout.scrollLeft+tr.width/2,ty=tr.top-base.top+layout.scrollTop+tr.height/2;
+  let points;
+  if(Math.abs(ty-sy)>Math.abs(tx-sx)){const midY=(sy+ty)/2;points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];}
+  else{const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];}
+  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
- board.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
- svg.innerHTML=paths.join("");
- svg.classList.add("is-visible");
+ layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
+ svg.innerHTML=paths.join("");svg.classList.add("is-visible");
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
@@ -122,7 +136,7 @@ function statGroupMarkup(a){
  const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
  const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
  const lines=list=>list.map(s=>'<div class="stat-line"><span class="name">'+esc(s.label)+'</span><strong class="value '+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></div>').join("");
- return (positives.length?'<div class="profile-section"><h3>Positive traits</h3><div class="stat-list">'+lines(positives)+'</div></div>':"")+(negatives.length?'<div class="profile-section"><h3>Negative traits</h3><div class="stat-list">'+lines(negatives)+'</div></div>':"");
+ return (positives.length?'<div class="profile-section"><div class="stat-list positive-list">'+lines(positives)+'</div></div>':"")+(negatives.length?'<div class="profile-section"><div class="stat-list negative-list">'+lines(negatives)+'</div></div>':"");
 }
 function craftingProfileMarkup(a){
  const required=recipes.find(r=>r.id===a.id);
