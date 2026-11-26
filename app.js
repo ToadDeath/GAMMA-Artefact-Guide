@@ -5,6 +5,7 @@ const SOURCE_ICONS="https://raw.githubusercontent.com/simonwdev/stalker-anomaly-
 const LOCAL_ARTIFACT_ICONS=new Set(["atom","ball","bat","battery","beacon","black_angel","black_spray","bracelet","bubble","cell","chain","claw","cocoon","compass","crystal","death_lamp","dragon_eye","electron","empty","eye","fireball","firefly","flame","flash","fountain","full_empty","generator","goldfish","grapes","gravi","heart","heart_of_the_oasis","itcher","jellyfish","knot","kolobok","lamp","lobster_eyes","lost_soul","lucifer","mama_beads","meat_chunk","medal","miser_skull","moon","moonlight","moss","nightstar","phantom_star","pin","prometheus","ring","sandstone","scar","seraphim","shell","signet","snowflake","soul","sourpuss","sparkler","spike","sponge","stone_blood","stone_flower","sun","tapeworm","thistle","volat_emerald","wrenched"]);
 function artifactIcon(a){let slug=artifactName(a).toLowerCase().replace(/['’]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");slug=({dragons_eye:"dragon_eye",mamas_beads:"mama_beads",misers_skull:"miser_skull"})[slug]||slug;if(LOCAL_ARTIFACT_ICONS.has(slug))return "assets/artifacts/af_"+slug+".png";return SOURCE_ICONS+encodeURIComponent(a.id)+".png";}
 const fmt=n=>{const v=Number(n);return Number.isFinite(v)?(Math.abs(v)>=10?Number(v.toFixed(1)).toString():Number(v.toFixed(2)).toString()):String(n??"0")};
+const isVisibleStat=s=>!/jump/i.test(String(s.label||""));
 const t=k=>k?(translations.en?.[String(k).toLowerCase()]||k):"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val=a=>a.raw||{};
@@ -138,7 +139,7 @@ function renderMatrix(){
  const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
  const card=a=>{
-  const stats=a.stats.filter(s=>Number(s.numeric)!==0);
+  const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s));
   const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
    const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
@@ -178,7 +179,7 @@ function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*1
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"]];
 function statGroupMarkup(a){
- const stats=a.stats.filter(s=>Number(s.numeric)!==0);
+ const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s));
  const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
  const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
  const lines=list=>list.map(s=>'<div class="stat-line"><span class="name">'+esc(s.label)+'</span><strong class="value '+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></div>').join("");
@@ -210,7 +211,7 @@ function renderCompare(){
  const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);
  const groupOrder=["Protection","Resistance caps","Recovery","Mobility","Utility"];
  const statMap=new Map();
- items.forEach(a=>(a.stats||[]).filter(s=>Number(s.numeric)!==0).forEach(s=>{
+ items.forEach(a=>(a.stats||[]).filter(s=>Number(s.numeric)!==0&&isVisibleStat(s)).forEach(s=>{
   const key=s.label+"|"+s.unit;
   if(!statMap.has(key))statMap.set(key,{label:s.label,unit:s.unit,group:s.group||"Other"});
  }));
@@ -225,7 +226,7 @@ function renderCompare(){
   return '<div class="compare-category">'+esc(group.title)+'</div>'+list.map(s=>{
    const key=s.label+"|"+s.unit;
    return '<div class="compare-row"><span>'+esc(s.label)+'</span>'+items.map(a=>{
-    const found=(a.stats||[]).find(x=>x.label+"|"+x.unit===key&&Number(x.numeric)!==0);
+    const found=(a.stats||[]).find(x=>x.label+"|"+x.unit===key&&Number(x.numeric)!==0&&isVisibleStat(x));
     return '<b>'+(found?(found.numeric>0?"+":"")+fmt(found.numeric)+esc(found.unit):" - ")+'</b>';
    }).join("")+'</div>';
   }).join("");
