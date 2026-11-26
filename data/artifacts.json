@@ -3013,23 +3013,23 @@
         "heading": "HEALTH REGENERATION",
         "thresholds": [
           {
-            "count": 1,
+            "beltCount": 1,
             "threshold": "25%"
           },
           {
-            "count": 2,
+            "beltCount": 2,
             "threshold": "28%"
           },
           {
-            "count": 3,
+            "beltCount": 3,
             "threshold": "31%"
           },
           {
-            "count": 4,
+            "beltCount": 4,
             "threshold": "34%"
           },
           {
-            "count": 5,
+            "beltCount": 5,
             "threshold": "37%"
           }
         ],
@@ -3041,7 +3041,7 @@
           "label": "Diminishing returns",
           "value": "No"
         },
-        "healingNote": "Healing per tick scales with the number of Hearts equipped and how far your health is below the activation threshold.",
+        "healingNote": "Heal per tick is proportional to how far your health is below the low-health threshold and scales with belt count.",
         "luciferNote": "If Lucifer is equipped, its condition affects Heart's healing strength. At 0% condition, Heart restores approximately 34% of its normal healing.",
         "relatedArtifactId": "af_lucifer"
       },
