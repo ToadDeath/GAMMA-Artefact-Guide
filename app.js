@@ -64,12 +64,23 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
-let activeRouteId="";
-let routeVisible=false;
-function drawRecipeLinks(activeId=activeRouteId){
+let hoverRouteId="",pinnedRouteId="";
+function activeRoute(){return hoverRouteId||pinnedRouteId}
+function routeColumnBoundary(source,target,base){
+ const board=$("#perk-matrix .tier-board");if(!board)return (source.rect.right+target.rect.left)/2-base.left;
+ const sourceCell=source.node.closest(".purpose-cell"),sr=source.rect,tr=target.rect;
+ const sourceCenter=sr.left+sr.width/2,targetCenter=tr.left+tr.width/2;
+ const cells=[...board.querySelectorAll(".purpose-cell")].map(el=>el.getBoundingClientRect()).filter(r=>r.width);
+ const unique=[...new Set(cells.flatMap(r=>[r.left,r.right]).map(x=>Math.round(x*10)/10))];
+ if(Math.abs(sourceCenter-targetCenter)<8){const cell=sourceCell?.getBoundingClientRect()||sr;return (Math.abs(sr.left-cell.left)<Math.abs(cell.right-sr.right)?cell.left:cell.right)-base.left}
+ const lo=Math.min(sourceCenter,targetCenter),hi=Math.max(sourceCenter,targetCenter),mid=(lo+hi)/2;
+ const between=unique.filter(x=>x>lo&&x<hi),pool=between.length?between:unique;
+ return pool.sort((a,b)=>Math.abs(a-mid)-Math.abs(b-mid))[0]-base.left;
+}
+function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
- const routeId=activeId;
+ const routeId=activeRoute();
  if(!routeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
  const edges=recipeAdjacency.get(routeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
@@ -77,46 +88,46 @@ function drawRecipeLinks(activeId=activeRouteId){
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
  const anchorFor=id=>{
   const node=layout.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!node)return null;
-  const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open);
-  const anchor=collapsed?tier0.querySelector(":scope > summary"):node;
-  if(!anchor)return null;
-  const rect=anchor.getBoundingClientRect();
-  if(!rect.width||!rect.height)return null;
-  return {node,anchor,rect,tier0:!!tier0,collapsed};
+  const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open),anchor=collapsed?tier0.querySelector(":scope > summary"):node;
+  if(!anchor)return null;const rect=anchor.getBoundingClientRect();if(!rect.width||!rect.height)return null;
+  return {node,rect,tier0:!!tier0,collapsed};
  };
  for(const edge of edges){
   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
   const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
-  const sr=source.rect,tr=target.rect;
-  const sx0=sr.left-base.left+layout.scrollLeft,sy0=sr.top-base.top+layout.scrollTop;
-  const tx0=tr.left-base.left+layout.scrollLeft,ty0=tr.top-base.top+layout.scrollTop;
-  const sourceTier0=source.tier0,targetTier0=target.tier0;
+  const sr=source.rect,tr=target.rect,sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
   let sx,sy,tx,ty,points;
-  if(sourceTier0){sx=sx0+sr.width/2;sy=sy0+sr.height;}
-  else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;}
-  if(targetTier0){tx=tx0+tr.width/2;ty=ty0+tr.height;}
-  else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;}
-  if(sourceTier0&&!targetTier0){
-   const targetOnRight=tx0+tr.width/2>=sx0+sr.width/2;
-   const approachX=tx+(targetOnRight?-18:18),midY=sy+20;
-   points=[[sx,sy],[sx,midY],[approachX,midY],[approachX,ty],[tx,ty]];
-  }else if(targetTier0){
-   const midY=ty+20;points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];
-  }else{
-   const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];
-  }
+  if(source.tier0){sx=sx0+sr.width/2;sy=sy0+sr.height}
+  else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2}
+  if(target.tier0){tx=tx0+tr.width/2;ty=ty0+tr.height}
+  else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2}
+  const boundary=routeColumnBoundary(source,target,base);
+  if(source.tier0&&!source.collapsed){
+   const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]];
+  }else if(source.tier0){
+   const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]];
+  }else if(target.tier0){
+   const approach=ty+18;points=[[sx,sy],[boundary,sy],[boundary,approach],[tx,approach],[tx,ty]];
+  }else points=[[sx,sy],[boundary,sy],[boundary,ty],[tx,ty]];
   paths.push('<path class="'+(edge.from===routeId?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
  layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===routeId);node.classList.toggle("route-related",related.has(id)&&id!==routeId)});
  svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!routeId);
 }
-function selectRoute(id){activeRouteId=id||"";routeVisible=!!activeRouteId;drawRecipeLinks(activeRouteId)}
+function selectHoverRoute(id){hoverRouteId=id||"";drawRecipeLinks()}
+function togglePinnedRoute(id){
+ pinnedRouteId=pinnedRouteId===id?"":id;
+ $("#perk-matrix").querySelectorAll(".route-pin").forEach(button=>{
+  const pinned=button.dataset.pinId===pinnedRouteId;button.classList.toggle("is-pinned",pinned);
+  button.setAttribute("aria-pressed",String(pinned));button.title=pinned?"Unpin crafting connections":"Pin crafting connections";
+ });
+ drawRecipeLinks();
+}
 let routeRedrawPending=false;
 function scheduleRouteRedraw(){
- if(!activeRouteId||routeRedrawPending)return;
- routeRedrawPending=true;
- requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRouteId)drawRecipeLinks(activeRouteId)});
+ if(!activeRoute()||routeRedrawPending)return;routeRedrawPending=true;
+ requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRoute())drawRecipeLinks()});
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
@@ -134,7 +145,7 @@ function renderMatrix(){
   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
   const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button></article>';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3l5 5-4 1-4 4 1 4-2 2-4-6-5-5 2-2 4 1 4-4 3 0zM3 21l6-6"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button></article>';
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
  const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
@@ -148,18 +159,21 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE CRAFTING · CONNECTIONS STAY UNTIL ANOTHER ARTEFACT OR EMPTY-SPACE CLICK</p></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER TO PREVIEW CRAFTING · SELECT THE PIN TO KEEP CONNECTIONS VISIBLE</p></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
- matrix.querySelectorAll(".purpose-main").forEach(b=>{
-  b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
-  b.addEventListener("mouseenter",()=>selectRoute(b.dataset.id));
-  b.addEventListener("focus",()=>selectRoute(b.dataset.id));
+ matrix.querySelectorAll(".purpose-card").forEach(card=>{
+  const id=card.dataset.artifactId;
+  card.addEventListener("mouseenter",()=>selectHoverRoute(id));
+  card.addEventListener("mouseleave",()=>selectHoverRoute(""));
+  card.addEventListener("focusin",()=>selectHoverRoute(id));
+  card.addEventListener("focusout",event=>{if(!card.contains(event.relatedTarget))selectHoverRoute("")});
  });
- layout.addEventListener("click",event=>{if(!event.target.closest(".artifact-node")&&!event.target.closest(".tier0-area > summary"))selectRoute("")});
+ matrix.querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
+ matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
  matrix.addEventListener("scroll",scheduleRouteRedraw,{passive:true});
  matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
- routeVisible=!!activeRouteId;
- drawRecipeLinks(activeRouteId);
+ matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=button.dataset.pinId===pinnedRouteId;button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
+ drawRecipeLinks();
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
