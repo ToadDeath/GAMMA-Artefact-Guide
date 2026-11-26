@@ -21,7 +21,6 @@ function buildStatMaxima(){
  }
 }
 function purposeFor(a){
- if(a.perk)return {key:"perks",label:"Special perks",stats:[]};
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
  const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
@@ -77,8 +76,10 @@ function drawRecipeLinks(activeId){
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
- const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobilityUtility",title:"Mobility & utility",note:"Movement, jump height, carry weight and practical effects"},{key:"perks",title:"Special perks",note:"Unique artefact abilities - click to read the full effect"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
+ const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
+ const tier0=eligible.filter(a=>Number(a.tier)===0);
+ const items=eligible.filter(a=>Number(a.tier)>=1&&(!purpose||purposeFor(a).key===purpose));
+ const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobilityUtility",title:"Mobility & utility",note:"Movement, jump height, carry weight and practical effects"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
  const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
@@ -88,20 +89,22 @@ function renderMatrix(){
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
   const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b>'+value+perk+(positives.length?'<span class="effect-heading">POSITIVE</span>'+effectMarkup(positives):"")+(negatives.length?'<span class="effect-heading negative-heading">NEGATIVE</span>'+effectMarkup(negatives):"")+'</span></button></article>';
+  const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button></article>';
  };
- const tierCounts=[0,1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
- const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[0,1,2,3,4].map(t=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[t]+' ARTEFACTS</span></div>').join("");
+ const tier0Cards=sortItems([...tier0]).map(card).join("");
+ const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
+ const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
  const rows=visibleCategories.map(c=>{
-  const cells=[0,1,2,3,4].map(t=>{
+  const cells=[1,2,3,4].map(t=>{
    const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
    return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">-</span>')+'</div>';
   }).join("");
   const count=items.filter(a=>purposeFor(a).key===c.key).length;
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
- $("#matrix-count").textContent=items.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="tier-board">'+header+rows+'<svg class="recipe-links" aria-hidden="true"></svg></div><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK IT TO SEE ALL REQUIRED MATERIALS</p>';
+ $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><section class="tier0-area"><header><div><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></div><span>'+tier0.length+' ARTEFACTS</span></header><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></section><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK IT TO SEE ALL REQUIRED MATERIALS</p>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
   b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
   b.addEventListener("mouseenter",()=>drawRecipeLinks(b.dataset.id));
