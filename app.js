@@ -65,7 +65,7 @@ function roundedOrthogonalPath(points,r=8){
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
 let hoverRouteId="",pinnedRouteId="";
-function activeRoute(){return hoverRouteId||pinnedRouteId}
+function activeRoute(){return pinnedRouteId||hoverRouteId}
 function routeColumnBoundary(source,target,base){
  const board=$("#perk-matrix .tier-board");if(!board)return (source.rect.right+target.rect.left)/2-base.left;
  const sourceCell=source.node.closest(".purpose-cell"),sr=source.rect,tr=target.rect;
