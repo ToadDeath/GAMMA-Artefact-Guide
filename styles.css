@@ -365,3 +365,21 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .perk-thresholds td{color:#ead8c1}
 .perk-detail ul{margin:9px 0 0;padding-left:18px;color:#d7c8b3;font:11px/1.6 'Inter'}
 .perk-detail li+li{margin-top:5px}
+
+/* Heart profile mechanics: readable, compact data rather than raw database bullets. */
+.perk-detail{margin-top:15px;padding-top:13px;border-top:1px solid #93623e55}
+.perk-detail>h4,.perk-synergy>h4{margin:0 0 9px;color:#f0bd83;font:600 10px 'Inter';letter-spacing:.09em}
+.perk-thresholds{width:100%;border-collapse:collapse;font:11px 'Inter';margin:0 0 12px}
+.perk-thresholds th,.perk-thresholds td{text-align:left;padding:8px 10px;border-bottom:1px solid #ffffff12}
+.perk-thresholds th{color:#c5b69e;font-size:9px;font-weight:600;letter-spacing:.06em}
+.perk-thresholds td{color:#ead8c1}
+.perk-properties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.perk-properties>div{display:flex;justify-content:space-between;gap:10px;background:#ffffff08;padding:9px 10px;border-radius:4px;font-size:10px}
+.perk-properties span{color:#c8bba8}
+.perk-properties b{color:#f0bd83;font-weight:600}
+.perk-detail-note,.perk-synergy p{margin:10px 0 0;color:#dfd0bb;font:11px/1.6 'Inter'}
+.perk-synergy{margin-top:13px;padding-top:11px;border-top:1px solid #ffffff15}
+.perk-related{display:flex;align-items:center;gap:5px}
+.related-artifact-link{border:0;padding:0;background:none;color:#f0bd83;text-decoration:underline;text-underline-offset:2px;font:600 11px 'Inter';cursor:pointer}
+.related-artifact-link:hover{color:#fff0d7}
+@media(max-width:520px){.perk-properties{grid-template-columns:1fr}}
