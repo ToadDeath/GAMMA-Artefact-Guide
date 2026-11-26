@@ -115,9 +115,7 @@ function renderMatrix(){
   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
   const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
-  const recipe=recipes.find(r=>r.id===a.id),used=recipes.filter(r=>(r.ingredients||[]).some(i=>ingredientArtifactId(i.name)===a.id));
-  const recipePanel=(recipe||used.length)?'<div class="card-crafting"><b>CRAFTING RECIPE</b>'+(recipe?'<div class="card-recipe-list">'+recipe.ingredients.map(i=>'<span>'+esc(t(i.name)||i.name)+' <strong>× '+esc(i.amount)+'</strong></span>').join('')+'</div>':'<small>No recipe output for this artefact.</small>')+(used.length?'<small>USED IN: '+used.map(r=>esc(recipeName(r))).join(', ')+'</small>':'')+'<button type="button" class="card-details" data-details="'+esc(a.id)+'">FULL ARTEFACT DETAILS</button></div>':'<div class="card-crafting"><b>CRAFTING RECIPE</b><small>No artifact melter recipe listed.</small><button type="button" class="card-details" data-details="'+esc(a.id)+'">FULL ARTEFACT DETAILS</button></div>';
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'" aria-expanded="false"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button>'+recipePanel+'</article>';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button></article>';
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
  const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
@@ -131,15 +129,14 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · EXPAND A CARD TO SEE ITS RECIPE</p><button type="button" id="route-lock" class="route-lock">KEEP CONNECTIONS VISIBLE</button></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK TO OPEN FULL DETAILS AND CRAFTING</p><button type="button" id="route-lock" class="route-lock">KEEP CONNECTIONS VISIBLE</button></div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
-  b.addEventListener("click",()=>{const card=b.closest(".purpose-card"),expanded=card.classList.toggle("is-expanded");b.setAttribute("aria-expanded",String(expanded));});
+  b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
   b.addEventListener("mouseenter",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
   b.addEventListener("focus",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
   b.addEventListener("mouseleave",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
   b.addEventListener("blur",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
  });
- $("#perk-matrix").querySelectorAll(".card-details").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.details);if(a)openProfile(a)}));
  $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId||lastHoveredRouteId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
  $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(pinnedRouteId)requestAnimationFrame(()=>drawRecipeLinks(pinnedRouteId))});
  routeVisible=!!pinnedRouteId;
