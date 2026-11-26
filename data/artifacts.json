@@ -7769,7 +7769,8 @@
         "fireWoundImmunity": 0.097431,
         "fireWoundCap": 0
       },
-      "customTier": null
+      "customTier": 2,
+      "displayName": "Wrenched"
     },
     {
       "id": "af_zhelch",
