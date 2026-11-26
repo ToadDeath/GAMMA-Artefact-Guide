@@ -148,14 +148,15 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK TO OPEN FULL DETAILS AND CRAFTING</p></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE CRAFTING · CONNECTIONS STAY UNTIL ANOTHER ARTEFACT OR EMPTY-SPACE CLICK</p></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-main").forEach(b=>{
   b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
   b.addEventListener("mouseenter",()=>selectRoute(b.dataset.id));
   b.addEventListener("focus",()=>selectRoute(b.dataset.id));
  });
- layout.addEventListener("click",event=>{if(!event.target.closest(".artifact-node"))selectRoute("")});
+ layout.addEventListener("click",event=>{if(!event.target.closest(".artifact-node")&&!event.target.closest(".tier0-area > summary"))selectRoute("")});
+ matrix.addEventListener("scroll",scheduleRouteRedraw,{passive:true});
  matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
  routeVisible=!!activeRouteId;
  drawRecipeLinks(activeRouteId);
