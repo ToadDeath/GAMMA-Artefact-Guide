@@ -46,6 +46,8 @@ function drawRecipeLinks(activeId){
  const board=$("#perk-matrix .tier-board");if(!board)return;
  const svg=board.querySelector(".recipe-links");if(!svg)return;
  const edges=recipeEdges().filter(e=>!activeId||e.from===activeId||e.to===activeId);
+ const width=board.scrollWidth,height=board.scrollHeight;
+ svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=board.getBoundingClientRect(),paths=[],related=new Set();
  const unique=new Set();
  for(const edge of edges){
@@ -56,8 +58,8 @@ function drawRecipeLinks(activeId){
   const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
   const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2;
   const tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
-  const bend=Math.max(28,Math.abs(tx-sx)*.38);
-  const d="M "+sx+" "+sy+" C "+(sx+bend)+" "+sy+", "+(tx-bend)+" "+ty+", "+tx+" "+ty;
+  const forward=tx>=sx,bend=Math.max(28,Math.abs(tx-sx)*.38),direction=forward?1:-1;
+  const d="M "+sx+" "+sy+" C "+(sx+bend*direction)+" "+sy+", "+(tx-bend*direction)+" "+ty+", "+tx+" "+ty;
   paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="'+d+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
