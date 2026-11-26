@@ -70,7 +70,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_e2",
@@ -138,7 +139,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_f1",
@@ -230,7 +232,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_g1",
@@ -289,7 +292,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_g2",
@@ -357,7 +361,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_h1",
@@ -425,7 +430,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_h2",
@@ -493,7 +499,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_o1",
@@ -552,7 +559,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_o2",
@@ -620,7 +628,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_r1",
@@ -688,7 +697,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_r2",
@@ -756,7 +766,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_r3",
@@ -824,7 +835,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_r4",
@@ -892,7 +904,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_r5",
@@ -960,7 +973,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ah_s1",
@@ -1036,7 +1050,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_atom",
@@ -1104,7 +1119,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ball",
@@ -1172,7 +1188,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_baloon",
@@ -1288,7 +1305,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_bat",
@@ -1356,7 +1374,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_black",
@@ -1424,7 +1443,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_black_angel",
@@ -1492,7 +1512,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_black_spray",
@@ -1624,7 +1645,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_blood",
@@ -1724,7 +1746,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_bracelet",
@@ -1848,7 +1871,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_cell",
@@ -1916,7 +1940,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_chelust",
@@ -1984,7 +2009,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_cocoon",
@@ -2052,7 +2078,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_compass",
@@ -2208,7 +2235,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.52,
         "fireWoundCap": 0.15
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_cristall",
@@ -2300,7 +2328,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_cristall_flower",
@@ -2400,7 +2429,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_death_lamp",
@@ -2509,7 +2539,8 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 12
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_dragon_eye",
@@ -2577,7 +2608,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_dummy_battery",
@@ -2685,7 +2717,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_dummy_dummy",
@@ -2777,7 +2810,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_dummy_glassbeads",
@@ -2877,7 +2911,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ear",
@@ -2954,7 +2989,8 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_electra_flash",
@@ -3078,7 +3114,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_electra_moonlight",
@@ -3186,7 +3223,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_electra_sparkler",
@@ -3286,7 +3324,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_elektron",
@@ -3354,7 +3393,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_empty",
@@ -3478,7 +3518,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.194862,
         "fireWoundCap": 0.05
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_eye",
@@ -3586,7 +3627,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fire",
@@ -3718,7 +3760,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fire_loop",
@@ -3786,7 +3829,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fireball",
@@ -3902,7 +3946,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.194862,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fonar",
@@ -3970,7 +4015,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fountain",
@@ -4038,7 +4084,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_full_empty",
@@ -4162,7 +4209,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.4,
         "fireWoundCap": 0.05
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_fuzz_kolobok",
@@ -4271,7 +4319,8 @@
         "fireWoundImmunity": -0.125,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 3
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_geliy",
@@ -4339,7 +4388,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_generator",
@@ -4407,7 +4457,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_gimlet",
@@ -4475,7 +4526,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_glass",
@@ -4592,7 +4644,8 @@
         "fireWoundImmunity": -0.24,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 5
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_gold_fish",
@@ -4725,7 +4778,8 @@
         "fireWoundImmunity": 0.097431,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 8
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_grapes",
@@ -4793,7 +4847,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_gravi",
@@ -4918,7 +4973,8 @@
         "fireWoundImmunity": -0.125,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ice",
@@ -5010,7 +5066,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_itcher",
@@ -5102,7 +5159,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_kislushka",
@@ -5170,7 +5228,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_kogot",
@@ -5247,7 +5306,8 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_lighthouse",
@@ -5315,7 +5375,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_lobster_eyes",
@@ -5431,7 +5492,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_medallion",
@@ -5499,7 +5561,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_medusa",
@@ -5599,7 +5662,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.097431,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_mincer_meat",
@@ -5707,7 +5771,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.194862,
         "fireWoundCap": 0.05
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_moh",
@@ -5775,7 +5840,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_monolith",
@@ -5915,7 +5981,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_night_star",
@@ -6024,7 +6091,8 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 4
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_oasis_heart",
@@ -6165,7 +6233,8 @@
         "fireWoundImmunity": -0.35,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 8
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_peas",
@@ -6233,7 +6302,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_pin",
@@ -6341,7 +6411,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_repei",
@@ -6409,7 +6480,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_ring",
@@ -6509,7 +6581,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_sandstone",
@@ -6586,7 +6659,8 @@
         "fireWoundImmunity": 0,
         "fireWoundCap": 0,
         "st_data_export_belt_stopped_bonus": 6
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_serofim",
@@ -6654,7 +6728,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_signet",
@@ -6722,7 +6797,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_skull_miser",
@@ -6790,7 +6866,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_soul",
@@ -6882,7 +6959,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_spaika",
@@ -6950,7 +7028,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_sponge",
@@ -7058,7 +7137,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_star_phantom",
@@ -7126,7 +7206,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_sun",
@@ -7194,7 +7275,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_tapeworm",
@@ -7262,7 +7344,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_tlf_lost_soul",
@@ -7338,7 +7421,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_tlf_prometheus",
@@ -7438,7 +7522,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_vaselisk",
@@ -7506,7 +7591,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_vyvert",
@@ -7622,7 +7708,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0.097431,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_zhelch",
@@ -7690,7 +7777,8 @@
         "hasDisassemble": false,
         "fireWoundImmunity": 0,
         "fireWoundCap": 0
-      }
+      },
+      "customTier": null
     },
     {
       "id": "af_lucifer",
@@ -7747,7 +7835,8 @@
         "displayName": "st_af_lucifer_name",
         "hasStashDrop": false,
         "hasDisassemble": false
-      }
+      },
+      "customTier": null
     }
   ]
 }
