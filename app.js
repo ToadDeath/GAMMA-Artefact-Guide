@@ -64,7 +64,7 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
-let pinnedRouteId="",routeVisible=false;
+let pinnedRouteId="",routeVisible=false,lastHoveredRouteId="";
 function drawRecipeLinks(activeId){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
@@ -134,13 +134,13 @@ function renderMatrix(){
  $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · EXPAND A CARD TO SEE ITS RECIPE</p><button type="button" id="route-lock" class="route-lock">KEEP CONNECTIONS VISIBLE</button></div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
   b.addEventListener("click",()=>{const card=b.closest(".purpose-card"),expanded=card.classList.toggle("is-expanded");b.setAttribute("aria-expanded",String(expanded));});
-  b.addEventListener("mouseenter",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
-  b.addEventListener("focus",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("mouseenter",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("focus",()=>{lastHoveredRouteId=b.dataset.id;routeVisible=true;drawRecipeLinks(b.dataset.id)});
   b.addEventListener("mouseleave",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
   b.addEventListener("blur",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
  });
  $("#perk-matrix").querySelectorAll(".card-details").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.details);if(a)openProfile(a)}));
- $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
+ $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId||lastHoveredRouteId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
  $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(pinnedRouteId)requestAnimationFrame(()=>drawRecipeLinks(pinnedRouteId))});
  routeVisible=!!pinnedRouteId;
  if(pinnedRouteId)$("#route-lock").classList.add("active");
