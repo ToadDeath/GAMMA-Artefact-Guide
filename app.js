@@ -79,6 +79,42 @@ function routeColumnBoundary(source,target,base){
  const between=unique.filter(x=>x>lo&&x<hi),pool=between.length?between:unique;
  return pool.sort((a,b)=>Math.abs(a-mid)-Math.abs(b-mid))[0]-base.left;
 }
+function clearRouteSegment(a,b,obstacles){
+ if(Math.abs(a[0]-b[0])<.5){
+  const x=a[0],lo=Math.min(a[1],b[1]),hi=Math.max(a[1],b[1]);
+  return !obstacles.some(r=>x>r.left&&x<r.right&&hi>r.top&&lo<r.bottom);
+ }
+ if(Math.abs(a[1]-b[1])<.5){
+  const y=a[1],lo=Math.min(a[0],b[0]),hi=Math.max(a[0],b[0]);
+  return !obstacles.some(r=>y>r.top&&y<r.bottom&&hi>r.left&&lo<r.right);
+ }
+ return false;
+}
+function findClearRoute(start,end,sourceNode,targetNode,layout,base){
+ const obstacles=[...layout.querySelectorAll(".artifact-node")].filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
+  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-5,right:r.right-base.left+5,top:r.top-base.top-5,bottom:r.bottom-base.top+5}:null;
+ }).filter(Boolean);
+ const cells=[...layout.querySelectorAll(".purpose-cell")].map(n=>n.getBoundingClientRect()).filter(r=>r.width&&r.height);
+ const xs=[...cells.flatMap(r=>[r.left-base.left,r.right-base.left]),...obstacles.flatMap(r=>[r.left-5,r.right+5]),start[0],end[0]];
+ const ys=[...cells.flatMap(r=>[r.top-base.top,r.bottom-base.top]),...obstacles.flatMap(r=>[r.top-5,r.bottom+5]),start[1],end[1]];
+ const unique=v=>[...new Set(v.map(n=>Math.round(n*10)/10))];
+ const xLanes=unique(xs),yLanes=unique(ys);
+ let best=null,bestScore=Infinity;
+ const consider=points=>{
+  const compact=points.filter((p,i)=>!i||Math.abs(p[0]-points[i-1][0])>.5||Math.abs(p[1]-points[i-1][1])>.5);
+  for(let i=1;i<compact.length;i++)if(!clearRouteSegment(compact[i-1],compact[i],obstacles))return;
+  let length=0;for(let i=1;i<compact.length;i++)length+=Math.abs(compact[i][0]-compact[i-1][0])+Math.abs(compact[i][1]-compact[i-1][1]);
+  const score=length+Math.max(0,compact.length-2)*24;
+  if(score<bestScore){bestScore=score;best=compact}
+ };
+ for(const x of xLanes)consider([start,[x,start[1]],[x,end[1]],end]);
+ for(const y of yLanes)consider([start,[start[0],y],[end[0],y],end]);
+ for(const x of xLanes)for(const y of yLanes){
+  consider([start,[start[0],y],[x,y],[x,end[1]],end]);
+  consider([start,[x,start[1]],[x,y],[end[0],y],end]);
+ }
+ return best;
+}
 function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
@@ -104,10 +140,8 @@ function drawRecipeLinks(){
    else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2}
    if(target.tier0){tx=tx0+tr.width/2;ty=ty0+tr.height}
    else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2}
-   const boundary=routeColumnBoundary(source,target,base);
-   if(source.tier0){const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]]}
-   else if(target.tier0){const approach=ty+18;points=[[sx,sy],[boundary,sy],[boundary,approach],[tx,approach],[tx,ty]]}
-   else points=[[sx,sy],[boundary,sy],[boundary,ty],[tx,ty]];
+   points=findClearRoute([sx,sy],[tx,ty],source.node,target.node,layout,base);
+   if(!points)continue;
    paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
    related.add(edge.from);related.add(edge.to);
   }
