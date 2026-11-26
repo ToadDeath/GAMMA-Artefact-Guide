@@ -90,30 +90,74 @@ function clearRouteSegment(a,b,obstacles){
  }
  return false;
 }
-function findClearRoute(start,end,sourceNode,targetNode,layout,base){
+function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end){
+ const clearance=2.25;
  const obstacles=[...layout.querySelectorAll(".artifact-node")].filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
-  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-10,right:r.right-base.left+10,top:r.top-base.top-10,bottom:r.bottom-base.top+10}:null;
+  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+clearance}:null;
  }).filter(Boolean);
- const cells=[...layout.querySelectorAll(".purpose-cell")].map(n=>n.getBoundingClientRect()).filter(r=>r.width&&r.height);
- const xs=[...cells.flatMap(r=>[r.left-base.left,r.right-base.left]),...obstacles.flatMap(r=>[r.left-5,r.right+5]),start[0],end[0]];
- const ys=[...cells.flatMap(r=>[r.top-base.top,r.bottom-base.top]),...obstacles.flatMap(r=>[r.top-5,r.bottom+5]),start[1],end[1]];
- const unique=v=>[...new Set(v.map(n=>Math.round(n*10)/10))];
- const xLanes=unique(xs),yLanes=unique(ys);
- let best=null,bestScore=Infinity;
- const consider=points=>{
-  const compact=points.filter((p,i)=>!i||Math.abs(p[0]-points[i-1][0])>.5||Math.abs(p[1]-points[i-1][1])>.5);
-  for(let i=1;i<compact.length;i++)if(!clearRouteSegment(compact[i-1],compact[i],obstacles))return;
-  let length=0;for(let i=1;i<compact.length;i++)length+=Math.abs(compact[i][0]-compact[i-1][0])+Math.abs(compact[i][1]-compact[i-1][1]);
-  const score=length+Math.max(0,compact.length-2)*24;
-  if(score<bestScore){bestScore=score;best=compact}
- };
- for(const x of xLanes)consider([start,[x,start[1]],[x,end[1]],end]);
- for(const y of yLanes)consider([start,[start[0],y],[end[0],y],end]);
- for(const x of xLanes)for(const y of yLanes){
-  consider([start,[start[0],y],[x,y],[x,end[1]],end]);
-  consider([start,[x,start[1]],[x,y],[end[0],y],end]);
+ if(!clearRouteSegment(startAnchor,start,obstacles)||!clearRouteSegment(end,endAnchor,obstacles))return null;
+ const round=n=>Math.round(n*100)/100;
+ const unique=values=>[...new Set(values.map(round))].sort((a,b)=>a-b);
+ const width=layout.scrollWidth,height=layout.scrollHeight;
+ const xs=unique([start[0],end[0],3,width-3,...obstacles.flatMap(r=>[r.left,r.right])]);
+ const ys=unique([start[1],end[1],3,height-3,...obstacles.flatMap(r=>[r.top,r.bottom])]);
+ const nx=xs.length,ny=ys.length,total=nx*ny;
+ const blocked=new Uint8Array(total);
+ const inside=(x,y,r)=>x>r.left+.01&&x<r.right-.01&&y>r.top+.01&&y<r.bottom-.01;
+ for(let iy=0;iy<ny;iy++)for(let ix=0;ix<nx;ix++){
+  const x=xs[ix],y=ys[iy],id=iy*nx+ix;
+  if(obstacles.some(r=>inside(x,y,r)))blocked[id]=1;
  }
- return best;
+ const sx=xs.indexOf(round(start[0])),sy=ys.indexOf(round(start[1]));
+ const ex=xs.indexOf(round(end[0])),ey=ys.indexOf(round(end[1]));
+ if(sx<0||sy<0||ex<0||ey<0)return null;
+ const startNodeId=sy*nx+sx,endNodeId=ey*nx+ex;
+ if(blocked[startNodeId]||blocked[endNodeId])return null;
+ const states=total*3,dist=new Float64Array(states),previous=new Int32Array(states),visited=new Uint8Array(states);
+ dist.fill(Infinity);previous.fill(-1);
+ const heap=[];
+ const push=(state,cost)=>{
+  let i=heap.length;heap.push({state,cost});
+  while(i){const p=(i-1)>>1;if(heap[p].cost<=cost)break;heap[i]=heap[p];i=p}
+  heap[i]={state,cost};
+ };
+ const pop=()=>{
+  const first=heap[0],last=heap.pop();
+  if(heap.length){let i=0;while(true){let child=i*2+1;if(child>=heap.length)break;if(child+1<heap.length&&heap[child+1].cost<heap[child].cost)child++;if(heap[child].cost>=last.cost)break;heap[i]=heap[child];i=child}heap[i]=last}
+  return first;
+ };
+ const startState=startNodeId*3+2;dist[startState]=0;push(startState,0);
+ let finish=-1;
+ while(heap.length){
+  const item=pop(),state=item.state;
+  if(visited[state]||item.cost!==dist[state])continue;
+  visited[state]=1;
+  const nodeId=Math.floor(state/3),dir=state%3;
+  if(nodeId===endNodeId){finish=state;break}
+  const iy=Math.floor(nodeId/nx),ix=nodeId%nx,x=xs[ix],y=ys[iy];
+  const neighbors=[];
+  if(ix>0)neighbors.push([nodeId-1,0,x-xs[ix-1], [xs[ix-1],y]]);
+  if(ix+1<nx)neighbors.push([nodeId+1,0,xs[ix+1]-x,[xs[ix+1],y]]);
+  if(iy>0)neighbors.push([nodeId-nx,1,y-ys[iy-1],[x,ys[iy-1]]]);
+  if(iy+1<ny)neighbors.push([nodeId+nx,1,ys[iy+1]-y,[x,ys[iy+1]]]);
+  for(const [nextId,nextDir,length,nextPoint] of neighbors){
+   if(blocked[nextId]||!clearRouteSegment([x,y],nextPoint,obstacles))continue;
+   const nextState=nextId*3+nextDir;
+   if(visited[nextState])continue;
+   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0);
+   if(cost<dist[nextState]){dist[nextState]=cost;previous[nextState]=state;push(nextState,cost)}
+  }
+ }
+ if(finish<0)return null;
+ const route=[];
+ for(let state=finish;state>=0;state=previous[state]){
+  const nodeId=Math.floor(state/3),iy=Math.floor(nodeId/nx),ix=nodeId%nx;
+  route.push([xs[ix],ys[iy]]);
+  if(state===startState)break;
+ }
+ route.reverse();
+ const compact=route.filter((p,i)=>!i||Math.abs(p[0]-route[i-1][0])>.5||Math.abs(p[1]-route[i-1][1])>.5);
+ return compact;
 }
 function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
@@ -134,29 +178,29 @@ function drawRecipeLinks(){
   for(const edge of recipeAdjacency.get(routeId)||[]){
    const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
    const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
-   const sr=source.rect,tr=target.rect,sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
-   let sx,sy,tx,ty,points;
-   let startLead,endLead;
+   const sr=source.rect,tr=target.rect;
+   const sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
+   let sx,sy,tx,ty,startLead,endLead;
    if(source.tier0){
     sx=sx0+sr.width/2;sy=sy0+sr.height;
-    startLead=[sx,sy+6];
+    startLead=[sx,sy+3];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
-    startLead=[sx+(right?12:-12),sy];
+    startLead=[sx+(right?6:-6),sy];
    }
    if(target.tier0){
     tx=tx0+tr.width/2;ty=ty0+tr.height;
-    endLead=[tx,ty+6];
+    endLead=[tx,ty+3];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
-    endLead=[tx+(right?-12:12),ty];
+    endLead=[tx+(right?-6:6),ty];
    }
-   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base);
+   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base,[sx,sy],[tx,ty]);
    if(!middle)continue;
-   points=[[sx,sy],startLead,...middle.slice(1,-1),endLead,[tx,ty]];
-   paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
+   const points=[[sx,sy],...middle,[tx,ty]];
+   paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
    related.add(edge.from);related.add(edge.to);
   }
  }
