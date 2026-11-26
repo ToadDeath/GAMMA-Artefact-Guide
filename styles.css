@@ -323,3 +323,24 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .compare-row b{color:var(--acid);font-weight:500;text-align:right}
 .compare-metric{background:#ffffff06}
 @media(max-width:700px){.compare-table{grid-template-columns:minmax(120px,1.1fr) repeat(var(--compare-count),minmax(110px,1fr));overflow-x:auto}}
+
+/* Readability pass: bring dense matrix text up to a comfortable size */
+.tier-column-head span{font-size:10px}
+.tier-category h4{font-size:11px}
+.tier-category h4 span{font-size:10px}
+.purpose-row-label>small{font-size:10px}
+.purpose-row-label>em{font-size:9px}
+.purpose-copy>b{font-size:15px}
+.effect-tag{font-size:9.5px;line-height:1.35}
+.effect-heading{font-size:8.5px}
+.perk-card{font-size:11px;line-height:1.4}
+.perk-card>b{font-size:10px}
+.perk-card>span{font-size:10px;line-height:1.4}
+.route-path>small{font-size:9px}
+.route-chip{font-size:10px}
+.crafting-hint{font-size:10px}
+@media(max-width:1120px){
+  .purpose-copy>b{font-size:14px}
+  .effect-tag{font-size:9px}
+  .perk-card{font-size:10.5px}
+}
