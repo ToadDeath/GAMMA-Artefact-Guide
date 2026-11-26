@@ -25,8 +25,9 @@ function purposeFor(a){
  const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
- const mobilityUtility=positive.filter(s=>s.group==="Mobility"||s.group==="Utility");
- const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobilityUtility",label:"Mobility & utility",stats:mobilityUtility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
+ const mobility=positive.filter(s=>s.label==="Jump height"&&Number(s.numeric)>=0.4);
+ const utility=positive.filter(s=>s.group==="Utility");
+ const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobility",label:"Mobility",stats:mobility},{key:"utility",label:"Utility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
  scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
  return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
 }
@@ -64,8 +65,8 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
-let hoverRouteId="",pinnedRouteId="";
-function activeRoute(){return pinnedRouteId||hoverRouteId}
+let hoverRouteId="",pinnedRouteIds=new Set();
+function activeRoutes(){return pinnedRouteIds.size?[...pinnedRouteIds]:hoverRouteId?[hoverRouteId]:[]}
 function routeColumnBoundary(source,target,base){
  const board=$("#perk-matrix .tier-board");if(!board)return (source.rect.right+target.rect.left)/2-base.left;
  const sourceCell=source.node.closest(".purpose-cell"),sr=source.rect,tr=target.rect;
@@ -80,61 +81,59 @@ function routeColumnBoundary(source,target,base){
 function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
- const routeId=activeRoute();
- if(!routeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
+ const routeIds=activeRoutes();
+ if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
- const edges=recipeAdjacency.get(routeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
+ const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=layout.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
+ const base=layout.getBoundingClientRect(),paths=[],related=new Set(),selected=new Set(routeIds),unique=new Set();
  const anchorFor=id=>{
   const node=layout.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!node)return null;
   const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open),anchor=collapsed?tier0.querySelector(":scope > summary"):node;
   if(!anchor)return null;const rect=anchor.getBoundingClientRect();if(!rect.width||!rect.height)return null;
   return {node,rect,tier0:!!tier0,collapsed};
  };
- for(const edge of edges){
-  const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
-  const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
-  const sr=source.rect,tr=target.rect,sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
-  let sx,sy,tx,ty,points;
-  if(source.tier0){sx=sx0+sr.width/2;sy=sy0+sr.height}
-  else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2}
-  if(target.tier0){tx=tx0+tr.width/2;ty=ty0+tr.height}
-  else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2}
-  const boundary=routeColumnBoundary(source,target,base);
-  if(source.tier0&&!source.collapsed){
-   const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]];
-  }else if(source.tier0){
-   const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]];
-  }else if(target.tier0){
-   const approach=ty+18;points=[[sx,sy],[boundary,sy],[boundary,approach],[tx,approach],[tx,ty]];
-  }else points=[[sx,sy],[boundary,sy],[boundary,ty],[tx,ty]];
-  paths.push('<path class="'+(edge.from===routeId?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
-  related.add(edge.from);related.add(edge.to);
+ for(const routeId of routeIds){
+  for(const edge of recipeAdjacency.get(routeId)||[]){
+   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
+   const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
+   const sr=source.rect,tr=target.rect,sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
+   let sx,sy,tx,ty,points;
+   if(source.tier0){sx=sx0+sr.width/2;sy=sy0+sr.height}
+   else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2}
+   if(target.tier0){tx=tx0+tr.width/2;ty=ty0+tr.height}
+   else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2}
+   const boundary=routeColumnBoundary(source,target,base);
+   if(source.tier0){const drop=sy+18;points=[[sx,sy],[sx,drop],[boundary,drop],[boundary,ty],[tx,ty]]}
+   else if(target.tier0){const approach=ty+18;points=[[sx,sy],[boundary,sy],[boundary,approach],[tx,approach],[tx,ty]]}
+   else points=[[sx,sy],[boundary,sy],[boundary,ty],[tx,ty]];
+   paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
+   related.add(edge.from);related.add(edge.to);
+  }
  }
- layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===routeId);node.classList.toggle("route-related",related.has(id)&&id!==routeId)});
- svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!routeId);
+ layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",selected.has(id));node.classList.toggle("route-related",related.has(id)&&!selected.has(id))});
+ svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!paths.length);
 }
 function selectHoverRoute(id){hoverRouteId=id||"";drawRecipeLinks()}
 function togglePinnedRoute(id){
- pinnedRouteId=pinnedRouteId===id?"":id;
+ if(pinnedRouteIds.has(id))pinnedRouteIds.delete(id);else pinnedRouteIds.add(id);
  $("#perk-matrix").querySelectorAll(".route-pin").forEach(button=>{
-  const pinned=button.dataset.pinId===pinnedRouteId;button.classList.toggle("is-pinned",pinned);
+  const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);
   button.setAttribute("aria-pressed",String(pinned));button.title=pinned?"Unpin crafting connections":"Pin crafting connections";
  });
  drawRecipeLinks();
 }
 let routeRedrawPending=false;
 function scheduleRouteRedraw(){
- if(!activeRoute()||routeRedrawPending)return;routeRedrawPending=true;
- requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRoute())drawRecipeLinks()});
+ if(!activeRoutes().length||routeRedrawPending)return;routeRedrawPending=true;
+ requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRoutes().length)drawRecipeLinks()});
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
  const tier0=eligible.filter(a=>Number(a.tier)===0);
  const items=eligible.filter(a=>Number(a.tier)>=1&&(!purpose||purposeFor(a).key===purpose));
- const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobilityUtility",title:"Mobility & utility",note:"Movement, jump height, carry weight and practical effects"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
+ const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"mobility",title:"Mobility",note:"Meaningful jump-height bonuses"} ,{key:"utility",title:"Utility",note:"Carry weight and other practical bonuses"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
  const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
@@ -172,7 +171,7 @@ function renderMatrix(){
  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
  matrix.addEventListener("scroll",scheduleRouteRedraw,{passive:true});
  matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
- matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=button.dataset.pinId===pinnedRouteId;button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
+ matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  drawRecipeLinks();
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
