@@ -10,49 +10,57 @@ async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.j
 async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();const known=artifacts.filter(a=>a.tier!==null);render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
 function renderTierSummary(){const counts=artifacts.filter(a=>a.tier!==null).reduce((m,a)=>(m[a.tier]=(m[a.tier]||0)+1,m),{});const order=["0","1","2","3","4"];$("#tier-summary").innerHTML='<button class="tier-pill active" data-tier="">ALL TIERS <b>'+Object.values(counts).reduce((a,b)=>a+b,0)+'</b></button>'+order.filter(k=>counts[k]).map(k=>'<button class="tier-pill" data-tier="'+k+'">'+(k==="unclassified"?"UNCLASSIFIED":"TIER "+k)+' <b>'+counts[k]+'</b></button>').join("");document.querySelectorAll(".tier-pill").forEach(b=>b.addEventListener("click",()=>{$("#tier").value=b.dataset.tier;selectedTier=b.dataset.tier;document.querySelectorAll(".tier-pill").forEach(x=>x.classList.toggle("active",x===b));render()}))}
 function artifactName(a){return t(a.nameKey)}
-function artifactDesc(a){return t(a.descriptionKey)}
+function artifactDesc(a){return t(a.descriptionKey).replace(/\\n/g,"\n").replace(/\r\n?/g,"\n").replace(/\n{2,}/g,"\n").trim()}
 function perksText(a){return t(a.perkKey)}
 function matches(a,q){const all=[artifactName(a),a.id,artifactDesc(a),perksText(a),...a.stats.map(s=>s.label+" "+s.value)].join(" ").toLowerCase();return !q||all.includes(q)}
-function filtered(){const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,sort=$("#sort").value;let out=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));return out.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:a.tier-b.tier||artifactName(a).localeCompare(artifactName(b)))}
 function purposeFor(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
- const protections=positive.filter(s=>s.group==="Protection").sort((x,y)=>y.numeric-x.numeric);
- if(protections.length)return {key:"protection",label:"Protection",detail:protections[0].label,stat:protections[0]};
- const recovery=positive.filter(s=>s.group==="Recovery").sort((x,y)=>y.numeric-x.numeric);
- if(recovery.length)return {key:"recovery",label:"Healing & recovery",detail:recovery[0].label,stat:recovery[0]};
- const utility=positive.filter(s=>s.group==="Utility").sort((x,y)=>y.numeric-x.numeric);
- if(utility.length)return {key:"utility",label:"Carry & utility",detail:utility[0].label,stat:utility[0]};
- const mobility=positive.filter(s=>s.group==="Mobility").sort((x,y)=>y.numeric-x.numeric);
- if(mobility.length)return {key:"mobility",label:"Mobility",detail:mobility[0].label,stat:mobility[0]};
- return {key:"other",label:"Other / mixed",detail:"No positive core modifier",stat:null};
+ const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
+ const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
+ const recovery=positive.filter(s=>s.group==="Recovery");
+ const utility=positive.filter(s=>s.group==="Utility"||s.group==="Mobility");
+ const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"utility",label:"Utility & mobility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+Math.abs(Number(s.numeric)||0),0)})).filter(x=>x.stats.length);
+ scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
+ return scores[0]||{key:"other",label:"Other / special",stats:[],score:0};
+}
+function drawRecipeLinks(){
+ const board=$("#perk-matrix .tier-board");if(!board)return;
+ const svg=board.querySelector(".recipe-links");if(!svg)return;
+ const width=board.scrollWidth,height=board.scrollHeight;
+ svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
+ const base=board.getBoundingClientRect(),paths=[];
+ const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
+ const names=new Map();
+ for(const a of artifacts){names.set(artifactName(a).trim().toLowerCase(),a.id);names.set(a.id.toLowerCase(),a.id)}
+ for(const [n,id] of Object.entries(aliases))names.set(n,id);
+ for(const recipe of recipes){
+  const target=board.querySelector('[data-artifact-id="'+CSS.escape(recipe.id)+'"]');if(!target)continue;
+  const tr=target.getBoundingClientRect(),tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
+  for(const ingredient of recipe.ingredients){
+   const id=names.get(ingredient.name.trim().toLowerCase());if(!id)continue;
+   const source=board.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!source)continue;
+   const sr=source.getBoundingClientRect(),sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2;
+   const bend=Math.max(34,Math.abs(tx-sx)*.42);
+   paths.push('<path d="M '+sx+' '+sy+' C '+(sx+bend)+' '+sy+', '+(tx-bend)+' '+ty+', '+tx+' '+ty+'"/>');
+  }
+ }
+ svg.innerHTML='<defs><marker id="recipe-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#b4c47a"/></marker></defs>'+paths.join("");
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const items=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(!purpose||purposeFor(a).key===purpose)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
- const recipesById=new Map(recipes.map(r=>[r.id,r]));
- const nameToId=new Map();
- for(const a of artifacts){nameToId.set(artifactName(a).trim().toLowerCase(),a.id);nameToId.set(a.id.toLowerCase(),a.id)}
- const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood"};
- for(const [n,id] of Object.entries(aliases))nameToId.set(n,id);
- const groups=[{key:"protection",title:"Protection",desc:"Artefacts with positive resistance modifiers."},{key:"recovery",title:"Healing & recovery",desc:"Health, wound, stamina, radiation and satiety effects."},{key:"utility",title:"Carry & utility",desc:"Extra carrying capacity and other practical bonuses."},{key:"mobility",title:"Mobility",desc:"Jump-height bonuses when no stronger core benefit is present."},{key:"other",title:"Other / mixed",desc:"No positive core modifier in the exported stats."}];
+ const categories=[{key:"physical",title:"Physical resistance"},{key:"anomaly",title:"Anomaly resistance"},{key:"recovery",title:"Healing & recovery"},{key:"utility",title:"Utility & mobility"},{key:"other",title:"Other / special"}];
  const cardsFor=a=>{
-  const p=purposeFor(a),recipe=recipesById.get(a.id);
-  const positives=a.stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>{const rank=s=>s.group==="Protection"?0:s.group==="Recovery"?1:s.group==="Utility"?2:3;return rank(x)-rank(y)||y.numeric-x.numeric}).slice(0,3);
-  const negatives=a.stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(y.numeric)-Math.abs(x.numeric)).slice(0,1);
-  const tags=[...positives,...negatives].map(s=>'<span class="effect-tag '+(s.numeric<0?'negative':'positive')+'">'+esc(s.label)+' <b>'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("");
-  let route="";
-  if(recipe){
-   const ingredients=recipe.ingredients.map(i=>{const id=nameToId.get(i.name.trim().toLowerCase());return id&&artifacts.some(a=>a.id===id)?'<button class="route-chip" data-id="'+esc(id)+'">'+esc(i.name)+' '+esc(i.amount)+'</button>':'<span class="route-chip raw">'+esc(i.name)+' '+esc(i.amount)+'</span>'}).join('<span class="route-join">+</span>');
-   route='<div class="route-path"><small>CRAFTING ROUTE</small><div class="route-inputs">'+ingredients+'<span class="route-arrow"></span><b class="route-output">'+esc(artifactName(a))+'</b></div></div>';
-  }
-  return '<article class="purpose-card"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b><small>TIER '+a.tier+' · '+esc(p.detail)+'</small><span class="effect-tags">'+(tags||'<span class="effect-tag">No listed modifiers</span>')+'</span></span><em>VIEW ↗</em></button>'+route+'</article>';
+  const stats=a.stats.filter(s=>Number(s.numeric)!==0).map(s=>'<span class="effect-tag '+(s.numeric<0?'negative':'positive')+'">'+esc(s.label)+' <b>'+(s.numeric>0?'+':'')+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("");
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b><span class="effect-tags">'+(stats||'<span class="effect-tag">No listed modifiers</span>')+'</span></span><em>VIEW ↗</em></button></article>';
  };
- const markup=groups.filter(g=>!purpose||g.key===purpose).map(g=>{const list=items.filter(a=>purposeFor(a).key===g.key).sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:(purposeFor(b).stat?.numeric||0)-(purposeFor(a).stat?.numeric||0)||a.tier-b.tier||artifactName(a).localeCompare(artifactName(b)));if(!list.length)return "";return '<section class="purpose-group purpose-'+g.key+'"><header><div><h3>'+g.title+'</h3><p>'+g.desc+'</p></div><b>'+list.length+' ARTEFACTS</b></header><div class="purpose-grid">'+list.map(cardsFor).join("")+'</div></section>'}).join("");
+ const columns=[0,1,2,3,4].map(t=>{const tierItems=items.filter(a=>Number(a.tier)===t);const sections=categories.map(c=>{const list=tierItems.filter(a=>purposeFor(a).key===c.key).sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));if(!list.length)return "";return '<section class="tier-category"><h4>'+c.title+' <span>'+list.length+'</span></h4>'+list.map(cardsFor).join("")+'</section>'}).join("");return '<section class="tier-column"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+tierItems.length+' ARTEFACTS</span></header>'+(sections||'<p class="tier-empty">No matching artefacts</p>')+'</section>'}).join("");
  $("#matrix-count").textContent=items.length+' ARTEFACTS';
- $("#perk-matrix").innerHTML=markup||'<div class="empty">NO ARTEFACTS MATCH THESE FILTERS.</div>';
+ $("#perk-matrix").innerHTML='<div class="tier-board"><svg class="recipe-links" aria-hidden="true"></svg>'+columns+'</div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
- $("#perk-matrix").querySelectorAll(".route-chip[data-id]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
+ requestAnimationFrame(drawRecipeLinks);
 }
+window.addEventListener("resize",()=>requestAnimationFrame(drawRecipeLinks));
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"],["Resistance caps","Resistance caps"]];
