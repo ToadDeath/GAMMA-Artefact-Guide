@@ -177,13 +177,14 @@ function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
  const routeIds=activeRoutes().slice().sort();
- if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
+ if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related","route-ingredient","route-upgrade"));return}
  recipeEdges();
  const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=layout.getBoundingClientRect(),paths=[],related=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
+ const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=2.25;
  const sharedLanes={x:[],y:[]};
+ layout.querySelectorAll(".purpose-cell").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.x.push(r.right-base.left-.5)});
  layout.querySelectorAll(".artifact-node").forEach(node=>{
   const r=node.getBoundingClientRect();if(!r.width||!r.height)return;
   sharedLanes.x.push(r.left-base.left-clearance,r.right-base.left+clearance);
@@ -204,7 +205,7 @@ function drawRecipeLinks(){
    let sx,sy,tx,ty,startLead,endLead;
    if(source.tier0){
     sx=sx0+sr.width/2;sy=sy0+sr.height;
-    startLead=[sx,sy+6];
+    startLead=[sx,sy+8];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
@@ -212,7 +213,7 @@ function drawRecipeLinks(){
    }
    if(target.tier0){
     tx=tx0+tr.width/2;ty=ty0+tr.height;
-    endLead=[tx,ty+6];
+    endLead=[tx,ty+8];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
@@ -222,11 +223,12 @@ function drawRecipeLinks(){
    if(!middle)continue;
    const points=[[sx,sy],...middle,[tx,ty]];
    for(let i=1;i<points.length;i++)existingSegments.push({a:points[i-1],b:points[i]});
-   paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
+   const forward=selected.has(edge.from);paths.push('<path class="'+(forward?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
+   if(forward)upgrades.add(edge.to);else ingredients.add(edge.from);
    related.add(edge.from);related.add(edge.to);
   }
  }
- layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",selected.has(id));node.classList.toggle("route-related",related.has(id)&&!selected.has(id))});
+ layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",selected.has(id));node.classList.toggle("route-related",related.has(id)&&!selected.has(id));node.classList.toggle("route-ingredient",ingredients.has(id)&&!selected.has(id));node.classList.toggle("route-upgrade",upgrades.has(id)&&!selected.has(id))});
  svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!paths.length);
 }
 function selectHoverRoute(id){hoverRouteId=id||"";drawRecipeLinks()}
@@ -316,7 +318,7 @@ function perkDetailsMarkup(a){
  const lucifer=d.relatedArtifactId?'<button type="button" class="related-artifact-link" data-related-artifact="'+esc(d.relatedArtifactId)+'">Lucifer</button>':"";
  return '<div class="perk-detail"><h4>'+esc(d.heading||"ADDITIONAL MECHANICS")+'</h4><table class="perk-thresholds"><thead><tr><th>HEARTS EQUIPPED</th><th>LOW-HEALTH THRESHOLD</th></tr></thead><tbody>'+thresholds.map(x=>'<tr><td>'+esc(x.count)+'</td><td>'+esc(x.threshold)+'</td></tr>').join("")+'</tbody></table><div class="perk-properties"><div><span>'+esc(stacking.label||"Stacking")+'</span><b>'+esc(stacking.value||"")+'</b></div><div><span>'+esc(diminishing.label||"Diminishing returns")+'</span><b>'+esc(diminishing.value||"")+'</b></div></div><p class="perk-detail-note">'+esc(d.healingNote||"")+'</p><div class="perk-synergy"><h4>LUCIFER INTERACTION</h4><p>'+esc(d.luciferNote||"")+'</p><p class="perk-related">Related artefact: '+lucifer+'</p></div></div>';
 }
-function openProfile(a){const dialog=$("#artifact-dialog");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal()}
+function openProfile(a){const dialog=$("#artifact-dialog");document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal()}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){
  const section=$("#compare");
@@ -350,6 +352,7 @@ function renderCompare(){
 }
 const recipeName=r=>t(r.name)||r.name;
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
+$("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));
 window.addEventListener("resize",scheduleRouteRedraw);
 init();
