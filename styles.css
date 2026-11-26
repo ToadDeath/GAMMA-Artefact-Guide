@@ -397,3 +397,13 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
  letter-spacing:.035em;
  white-space:nowrap;
 }
+
+/* Profile icons sit directly on the profile background, without a contrasting tile. */
+.profile-hero img{background:transparent;padding:0}
+
+/* Long Tier 0 perk names, including Beacon, wrap inside their card. */
+.perk-card,.tier0-grid .perk-card{
+ white-space:normal;
+ overflow-wrap:anywhere;
+ min-width:0;
+}
