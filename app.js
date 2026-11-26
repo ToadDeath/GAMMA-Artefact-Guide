@@ -90,17 +90,18 @@ function clearRouteSegment(a,b,obstacles){
  }
  return false;
 }
-function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end){
+function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end,sharedLanes=null,existingSegments=[]){
  const clearance=2.25;
- const obstacles=[...layout.querySelectorAll(".artifact-node")].filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
+ const allNodes=[...layout.querySelectorAll(".artifact-node")];
+ const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
   const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+clearance}:null;
  }).filter(Boolean);
  if(!clearRouteSegment(startAnchor,start,obstacles)||!clearRouteSegment(end,endAnchor,obstacles))return null;
  const round=n=>Math.round(n*100)/100;
  const unique=values=>[...new Set(values.map(round))].sort((a,b)=>a-b);
  const width=layout.scrollWidth,height=layout.scrollHeight;
- const xs=unique([start[0],end[0],3,width-3,...obstacles.flatMap(r=>[r.left,r.right])]);
- const ys=unique([start[1],end[1],3,height-3,...obstacles.flatMap(r=>[r.top,r.bottom])]);
+ const xs=unique([...(sharedLanes?.x||[]),start[0],end[0],3,width-3]);
+ const ys=unique([...(sharedLanes?.y||[]),start[1],end[1],3,height-3]);
  const nx=xs.length,ny=ys.length,total=nx*ny;
  const blocked=new Uint8Array(total);
  const inside=(x,y,r)=>x>r.left+.01&&x<r.right-.01&&y>r.top+.01&&y<r.bottom-.01;
@@ -126,6 +127,19 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
   if(heap.length){let i=0;while(true){let child=i*2+1;if(child>=heap.length)break;if(child+1<heap.length&&heap[child+1].cost<heap[child].cost)child++;if(heap[child].cost>=last.cost)break;heap[i]=heap[child];i=child}heap[i]=last}
   return first;
  };
+ const sharesChannel=(a,b)=>{
+  const vertical=Math.abs(a[0]-b[0])<.5&&Math.abs(a[0]-b[0])<.5;
+  if(vertical){
+   const lo=Math.min(a[1],b[1]),hi=Math.max(a[1],b[1]);
+   return existingSegments.some(s=>Math.abs(s.a[0]-a[0])<.5&&Math.abs(s.b[0]-a[0])<.5&&Math.min(Math.max(s.a[1],s.b[1]),hi)-Math.max(Math.min(s.a[1],s.b[1]),lo)>.5);
+  }
+  const horizontal=Math.abs(a[1]-b[1])<.5;
+  if(horizontal){
+   const lo=Math.min(a[0],b[0]),hi=Math.max(a[0],b[0]);
+   return existingSegments.some(s=>Math.abs(s.a[1]-a[1])<.5&&Math.abs(s.b[1]-a[1])<.5&&Math.min(Math.max(s.a[0],s.b[0]),hi)-Math.max(Math.min(s.a[0],s.b[0]),lo)>.5);
+  }
+  return false;
+ };
  const startState=startNodeId*3+2;dist[startState]=0;push(startState,0);
  let finish=-1;
  while(heap.length){
@@ -136,7 +150,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
   if(nodeId===endNodeId){finish=state;break}
   const iy=Math.floor(nodeId/nx),ix=nodeId%nx,x=xs[ix],y=ys[iy];
   const neighbors=[];
-  if(ix>0)neighbors.push([nodeId-1,0,x-xs[ix-1], [xs[ix-1],y]]);
+  if(ix>0)neighbors.push([nodeId-1,0,x-xs[ix-1],[xs[ix-1],y]]);
   if(ix+1<nx)neighbors.push([nodeId+1,0,xs[ix+1]-x,[xs[ix+1],y]]);
   if(iy>0)neighbors.push([nodeId-nx,1,y-ys[iy-1],[x,ys[iy-1]]]);
   if(iy+1<ny)neighbors.push([nodeId+nx,1,ys[iy+1]-y,[x,ys[iy+1]]]);
@@ -144,7 +158,8 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
    if(blocked[nextId]||!clearRouteSegment([x,y],nextPoint,obstacles))continue;
    const nextState=nextId*3+nextDir;
    if(visited[nextState])continue;
-   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0);
+   const shared=sharesChannel([x,y],nextPoint);
+   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0)+(existingSegments.length&&!shared?7:0);
    if(cost<dist[nextState]){dist[nextState]=cost;previous[nextState]=state;push(nextState,cost)}
   }
  }
@@ -156,8 +171,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
   if(state===startState)break;
  }
  route.reverse();
- const compact=route.filter((p,i)=>!i||Math.abs(p[0]-route[i-1][0])>.5||Math.abs(p[1]-route[i-1][1])>.5);
- return compact;
+ return route.filter((p,i)=>!i||Math.abs(p[0]-route[i-1][0])>.5||Math.abs(p[1]-route[i-1][1])>.5);
 }
 function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
@@ -167,7 +181,14 @@ function drawRecipeLinks(){
  recipeEdges();
  const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=layout.getBoundingClientRect(),paths=[],related=new Set(),selected=new Set(routeIds),unique=new Set();
+ const base=layout.getBoundingClientRect(),paths=[],related=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
+ const clearance=2.25;
+ const sharedLanes={x:[],y:[]};
+ layout.querySelectorAll(".artifact-node").forEach(node=>{
+  const r=node.getBoundingClientRect();if(!r.width||!r.height)return;
+  sharedLanes.x.push(r.left-base.left-clearance,r.right-base.left+clearance);
+  sharedLanes.y.push(r.top-base.top-clearance,r.bottom-base.top+clearance);
+ });
  const anchorFor=id=>{
   const node=layout.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!node)return null;
   const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open),anchor=collapsed?tier0.querySelector(":scope > summary"):node;
@@ -197,9 +218,10 @@ function drawRecipeLinks(){
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
     endLead=[tx+(right?-6:6),ty];
    }
-   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base,[sx,sy],[tx,ty]);
+   const middle=findClearRoute(startLead,endLead,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,existingSegments);
    if(!middle)continue;
    const points=[[sx,sy],...middle,[tx,ty]];
+   for(let i=1;i<points.length;i++)existingSegments.push({a:points[i-1],b:points[i]});
    paths.push('<path class="'+(selected.has(edge.from)?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
    related.add(edge.from);related.add(edge.to);
   }
