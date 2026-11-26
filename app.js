@@ -159,7 +159,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
    const nextState=nextId*3+nextDir;
    if(visited[nextState])continue;
    const shared=sharesChannel([x,y],nextPoint);
-   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0)+(existingSegments.length&&!shared?7:0);
+   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0)+(existingSegments.length&&!shared?1000:0);
    if(cost<dist[nextState]){dist[nextState]=cost;previous[nextState]=state;push(nextState,cost)}
   }
  }
@@ -176,7 +176,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
 function drawRecipeLinks(){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
- const routeIds=activeRoutes();
+ const routeIds=activeRoutes().slice().sort();
  if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
  const width=layout.scrollWidth,height=layout.scrollHeight;
@@ -196,7 +196,7 @@ function drawRecipeLinks(){
   return {node,rect,tier0:!!tier0,collapsed};
  };
  for(const routeId of routeIds){
-  for(const edge of recipeAdjacency.get(routeId)||[]){
+  for(const edge of [...(recipeAdjacency.get(routeId)||[])].sort((a,b)=>(a.from+">"+a.to).localeCompare(b.from+">"+b.to))){
    const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
    const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
    const sr=source.rect,tr=target.rect;
@@ -204,7 +204,7 @@ function drawRecipeLinks(){
    let sx,sy,tx,ty,startLead,endLead;
    if(source.tier0){
     sx=sx0+sr.width/2;sy=sy0+sr.height;
-    startLead=[sx,sy+3];
+    startLead=[sx,sy+14];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
@@ -212,7 +212,7 @@ function drawRecipeLinks(){
    }
    if(target.tier0){
     tx=tx0+tr.width/2;ty=ty0+tr.height;
-    endLead=[tx,ty+3];
+    endLead=[tx,ty+14];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
