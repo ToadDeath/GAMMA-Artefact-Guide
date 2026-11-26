@@ -251,3 +251,14 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .route-lock{margin-top:8px;padding:7px 10px;border:1px solid #586545;background:#20291f;color:#aebc91;font:8px 'IBM Plex Mono';letter-spacing:.07em;cursor:pointer}
 .route-lock.active{border-color:#b9df82;color:#d8e9b7;background:#2b3926}
 .recipe-links path{marker-end:none}
+
+
+/* Final board sizing and right-aligned modifier values */
+@media(min-width:1121px){
+  .tier-board{width:85%;min-width:0;margin-left:auto;margin-right:auto}
+}
+@media(max-width:1120px){
+  .tier-board{width:100%;min-width:980px;margin:0}
+}
+.effect-tag{justify-content:space-between}
+.effect-tag b{margin-left:auto;white-space:nowrap}
