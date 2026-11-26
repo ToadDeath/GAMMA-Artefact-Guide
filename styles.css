@@ -427,3 +427,41 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
  overflow-wrap:anywhere;
  word-break:normal;
 }
+
+
+/* Comfortable reading sizes inside opened artefact profiles. */
+dialog:has(.profile){width:min(900px,calc(100% - 24px))}
+.profile{font-size:14px}
+.profile-hero{gap:26px}
+.profile h2{font-size:46px}
+.profile-desc{font-size:15px;line-height:1.75}
+.profile-meta{font-size:11px;line-height:1.6}
+.profile-section{margin-top:26px}
+.profile-section h3{font-size:27px;margin-bottom:13px}
+.stat-list{gap:9px}
+.stat-line{padding:12px 14px}
+.stat-line .name{font-size:12px;line-height:1.45}
+.stat-line .value{font-size:22px}
+.profile-perk{font-size:14px;line-height:1.75;padding:16px 18px}
+.profile-perk>b{font-size:14px;line-height:1.4;margin-bottom:9px}
+.perk-description{font-size:14px;line-height:1.75}
+.perk-detail>h4,.perk-synergy>h4{font-size:12px}
+.perk-thresholds{font-size:13px}
+.perk-thresholds th{font-size:11px}
+.perk-thresholds th,.perk-thresholds td{padding:9px 11px}
+.perk-properties{font-size:13px}
+.perk-detail-note,.perk-synergy p{font-size:13px;line-height:1.7}
+.related-artifact-link{font-size:13px}
+.crafting-profile-group h4{font-size:12px}
+.craft-material{font-size:13px;line-height:1.5;padding:11px 13px}
+.profile-actions{gap:10px;flex-wrap:wrap}
+.action-btn{font-size:11px;padding:11px 14px}
+.profile-note{font-size:12px;line-height:1.6}
+@media(max-width:700px){
+ .profile h2{font-size:35px}
+ .profile-desc{font-size:14px}
+ .profile-section h3{font-size:24px}
+ .stat-line .name{font-size:12px}
+ .profile-perk,.perk-description{font-size:13px}
+ .craft-material{font-size:12px}
+}
