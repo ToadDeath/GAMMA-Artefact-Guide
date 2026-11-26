@@ -1,4 +1,4 @@
-const $=s=>document.querySelector(s);let artifacts=[],recipes=[],translations={},activeFilter="all",compareIds=new Set(),selectedTier="";
+const $=s=>document.querySelector(s);let artifacts=[],recipes=[],translations={},activeFilter="all",compareIds=new Set(),selectedTier="",statMaxima={};
 let TIER_NAMES={0:["Atom","Ball","Bat","Beacon","Black Angel","Cell","Chain","Claw","Cocoon","Dragon's Eye","Electron","Fountain","Generator","Grapes","Heart","Knot","Lamp","Lucifer","Medal","Miser's Skull","Moon","Moss","Phantom Star","Sandstone","Scar","Seraphim","Signet","Sourpuss","Spike","Sun","Tapeworm","Thistle"],1:["Battery","Itcher","Jellyfish","Lost Soul","Mama's Beads","Meat Chunk","Nightstar","Soul","Sparkler","Stone Blood","Stone Flower"],2:["Bracelet","Crystal","Empty","Eye","Gravi","Kolobok","Lobster Eyes","Moonlight","Pin","Ring","Shell","Sponge","Wretched"],3:["Black Spray","Bubble","Fireball","Firefly","Flame","Flash","Full Empty","Goldfish","Prometheus","Snowflake"],4:["Compass","Death Lamp","Heart of the Oasis","Volat Emerald"]};
 function applyUserTiers(){const byName=new Map();for(const [tier,names] of Object.entries(TIER_NAMES))for(const name of names)byName.set(name.toLowerCase(),Number(tier));for(const a of artifacts){const name=artifactName(a).trim().toLowerCase();a.customTier=byName.has(name)?byName.get(name):null;a.tier=a.customTier;}const ids=new Set(),duplicates=[];for(const a of artifacts){if(ids.has(a.id))duplicates.push(a.id);ids.add(a.id)}const names=new Map();for(const a of artifacts){const n=artifactName(a).trim().toLowerCase();if(n){if(!names.has(n))names.set(n,[]);names.get(n).push(a)}}window.artifactAudit={total:artifacts.length,classified:artifacts.filter(a=>a.tier!==null).length,unclassified:artifacts.filter(a=>a.tier===null),duplicateIds:duplicates,duplicateNames:[...names.values()].filter(group=>group.length>1)};}
 const SOURCE_ICONS="https://raw.githubusercontent.com/simonwdev/stalker-anomaly-gamma-db/main/site/public/img/icons/";
@@ -6,13 +6,20 @@ const fmt=n=>{const v=Number(n);return Number.isFinite(v)?(Math.abs(v)>=10?Numbe
 const t=k=>k?(translations.en?.[String(k).toLowerCase()]||k):"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val=a=>a.raw||{};
-async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;TIER_NAMES=a.customTiers||{};artifacts.forEach(a=>a.tier=a.customTier??null);recipes=r.recipes||[];render();loadTranslations()}catch(e){$("#perk-matrix").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
+async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;TIER_NAMES=a.customTiers||{};artifacts.forEach(a=>a.tier=a.customTier??null);buildStatMaxima();recipes=r.recipes||[];render();loadTranslations()}catch(e){$("#perk-matrix").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
 async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();const known=artifacts.filter(a=>a.tier!==null);render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
 function renderTierSummary(){const counts=artifacts.filter(a=>a.tier!==null).reduce((m,a)=>(m[a.tier]=(m[a.tier]||0)+1,m),{});const order=["0","1","2","3","4"];$("#tier-summary").innerHTML='<button class="tier-pill active" data-tier="">ALL TIERS <b>'+Object.values(counts).reduce((a,b)=>a+b,0)+'</b></button>'+order.filter(k=>counts[k]).map(k=>'<button class="tier-pill" data-tier="'+k+'">'+(k==="unclassified"?"UNCLASSIFIED":"TIER "+k)+' <b>'+counts[k]+'</b></button>').join("");document.querySelectorAll(".tier-pill").forEach(b=>b.addEventListener("click",()=>{$("#tier").value=b.dataset.tier;selectedTier=b.dataset.tier;document.querySelectorAll(".tier-pill").forEach(x=>x.classList.toggle("active",x===b));render()}))}
 function artifactName(a){return t(a.nameKey)}
 function artifactDesc(a){return t(a.descriptionKey).replace(/\\n/g,"\n").replace(/\r\n?/g,"\n").replace(/\n{2,}/g,"\n").trim()}
 function perksText(a){return a.perkDescription||t(a.perkKey)}
 function matches(a,q){const all=[artifactName(a),a.id,artifactDesc(a),perksText(a),...a.stats.map(s=>s.label+" "+s.value)].join(" ").toLowerCase();return !q||all.includes(q)}
+function buildStatMaxima(){
+ statMaxima={};
+ for(const a of artifacts)for(const s of a.stats||[]){
+  const n=Number(s.numeric);
+  if(n>0)statMaxima[s.label]=Math.max(statMaxima[s.label]||0,n);
+ }
+}
 function purposeFor(a){
  if(a.perk)return {key:"perks",label:"Special perks",stats:[]};
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
@@ -22,7 +29,7 @@ function purposeFor(a){
  const recovery=positive.filter(s=>s.group==="Recovery");
  const mobility=positive.filter(s=>s.group==="Mobility");
  const utility=positive.filter(s=>s.group==="Utility");
- const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"caps",label:"Resistance caps",stats:caps},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobility",label:"Mobility",stats:mobility},{key:"utility",label:"Utility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+Math.abs(Number(s.numeric)||0),0)})).filter(x=>x.stats.length);
+ const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"caps",label:"Resistance caps",stats:caps},{key:"recovery",label:"Healing & recovery",stats:recovery},{key:"mobility",label:"Mobility",stats:mobility},{key:"utility",label:"Utility",stats:utility}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
  scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
  return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
 }
