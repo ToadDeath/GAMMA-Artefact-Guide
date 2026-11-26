@@ -207,12 +207,11 @@ function renderCompare(){
   const ga=groupOrder.indexOf(a.group),gb=groupOrder.indexOf(b.group);
   return (ga<0?99:ga)-(gb<0?99:gb)||a.label.localeCompare(b.label);
  });
- const groups=["Protection","Resistance caps","Recovery","Mobility","Utility","Other"];
+ const groups=[{title:"Protection",keys:["Protection"]},{title:"Resistance caps",keys:["Resistance caps"]},{title:"Recovery",keys:["Recovery"]},{title:"Mobility & utility",keys:["Mobility","Utility"]},{title:"Other effects",keys:["Other"]}];
  const rows=groups.map(group=>{
-  const list=statRows.filter(s=>s.group===group);
+  const list=statRows.filter(s=>group.keys.includes(s.group));
   if(!list.length)return "";
-  const heading=group==="Mobility"||group==="Utility"?"Mobility & utility":group;
-  return '<div class="compare-category">'+esc(heading)+'</div>'+list.map(s=>{
+  return '<div class="compare-category">'+esc(group.title)+'</div>'+list.map(s=>{
    const key=s.label+"|"+s.unit;
    return '<div class="compare-row"><span>'+esc(s.label)+'</span>'+items.map(a=>{
     const found=(a.stats||[]).find(x=>x.label+"|"+x.unit===key&&Number(x.numeric)!==0);
