@@ -383,3 +383,17 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .related-artifact-link{border:0;padding:0;background:none;color:#f0bd83;text-decoration:underline;text-underline-offset:2px;font:600 11px 'Inter';cursor:pointer}
 .related-artifact-link:hover{color:#fff0d7}
 @media(max-width:520px){.perk-properties{grid-template-columns:1fr}}
+
+/* Keep Tier 0 perk labels compact; full mechanics live in the artefact profile. */
+.tier0-grid .perk-card{
+ display:inline-flex;
+ align-self:flex-start;
+ width:auto;
+ max-width:100%;
+ padding:2px 5px;
+ margin:1px 0 2px;
+ border-radius:3px;
+ font:600 8.5px/1.2 'Inter';
+ letter-spacing:.035em;
+ white-space:nowrap;
+}
