@@ -43,7 +43,7 @@ function renderMatrix(){
   let route="";
   if(recipe){
    const ingredients=recipe.ingredients.map(i=>{const id=nameToId.get(i.name.trim().toLowerCase());return id&&artifacts.some(a=>a.id===id)?'<button class="route-chip" data-id="'+esc(id)+'">'+esc(i.name)+' '+esc(i.amount)+'</button>':'<span class="route-chip raw">'+esc(i.name)+' '+esc(i.amount)+'</span>'}).join('<span class="route-join">+</span>');
-   route='<div class="route-path"><small>CRAFTING INPUTS</small><div class="route-inputs">'+ingredients+'</div></div>';
+   route='<div class="route-path"><small>CRAFTING ROUTE</small><div class="route-inputs">'+ingredients+'<span class="route-arrow"></span><b class="route-output">'+esc(artifactName(a))+'</b></div></div>';
   }
   return '<article class="purpose-card"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><b>'+esc(artifactName(a))+'</b><small>TIER '+a.tier+' · '+esc(p.detail)+'</small><span class="effect-tags">'+(tags||'<span class="effect-tag">No listed modifiers</span>')+'</span></span><em>VIEW ↗</em></button>'+route+'</article>';
  };
