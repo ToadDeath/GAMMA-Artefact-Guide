@@ -41,41 +41,42 @@ function ingredientArtifactId(name){
  const named=artifacts.find(x=>artifactName(x).trim().toLowerCase()===key);
  return named?.id||aliases[key]||null;
 }
+let cachedRecipeEdges=null,recipeAdjacency=null;
 function recipeEdges(){
+ if(cachedRecipeEdges)return cachedRecipeEdges;
  const edges=[];
  for(const recipe of recipes)for(const ingredient of recipe.ingredients||[]){
   const input=ingredientArtifactId(ingredient.name);
   if(input&&input!==recipe.id)edges.push({from:input,to:recipe.id});
+ }
+ cachedRecipeEdges=edges;recipeAdjacency=new Map();
+ for(const edge of edges)for(const id of [edge.from,edge.to]){
+  if(!recipeAdjacency.has(id))recipeAdjacency.set(id,[]);
+  recipeAdjacency.get(id).push(edge);
  }
  return edges;
 }
 function drawRecipeLinks(activeId){
  const board=$("#perk-matrix .tier-board");if(!board)return;
  const svg=board.querySelector(".recipe-links");if(!svg)return;
- const edges=recipeEdges().filter(e=>!activeId||e.from===activeId||e.to===activeId);
- const width=board.scrollWidth,height=board.scrollHeight;
+ if(!activeId){svg.innerHTML="";svg.classList.remove("is-visible");board.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
+ recipeEdges();
+ const edges=recipeAdjacency.get(activeId)||[],width=board.scrollWidth,height=board.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
- const base=board.getBoundingClientRect(),paths=[],related=new Set();
- const unique=new Set();
+ const base=board.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
  for(const edge of edges){
   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
-  const source=board.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]');
-  const target=board.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
+  const source=board.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]'),target=board.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
   if(!source||!target)continue;
   const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
-  const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2;
-  const tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
-  const forward=tx>=sx,bend=Math.max(28,Math.abs(tx-sx)*.38),direction=forward?1:-1;
-  const d="M "+sx+" "+sy+" C "+(sx+bend*direction)+" "+sy+", "+(tx-bend*direction)+" "+ty+", "+tx+" "+ty;
-  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="'+d+'"/>');
+  const sx=sr.right-base.left+board.scrollLeft,sy=sr.top-base.top+sr.height/2,tx=tr.left-base.left+board.scrollLeft,ty=tr.top-base.top+tr.height/2;
+  const direction=tx>=sx?1:-1,bend=Math.max(28,Math.abs(tx-sx)*.38);
+  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="M '+sx+' '+sy+' C '+(sx+bend*direction)+' '+sy+', '+(tx-bend*direction)+' '+ty+', '+tx+' '+ty+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
- board.querySelectorAll(".artifact-node").forEach(node=>{
-  const id=node.dataset.artifactId;
-  node.classList.toggle("route-active",id===activeId);
-  node.classList.toggle("route-related",!!activeId&&related.has(id)&&id!==activeId);
- });
+ board.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
  svg.innerHTML='<defs><marker id="recipe-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#d6c879"/></marker></defs>'+paths.join("");
+ svg.classList.add("is-visible");
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
