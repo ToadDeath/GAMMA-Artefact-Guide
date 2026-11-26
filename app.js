@@ -64,12 +64,14 @@ function roundedOrthogonalPath(points,r=8){
  }
  const last=points[points.length-1];return d+" L "+last[0]+" "+last[1];
 }
+let pinnedRouteId="",routeVisible=false;
 function drawRecipeLinks(activeId){
  const layout=$("#perk-matrix .matrix-layout");if(!layout)return;
  const svg=layout.querySelector(".recipe-links");if(!svg)return;
- if(!activeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
+ const routeId=activeId||pinnedRouteId;
+ if(!routeId){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related"));return}
  recipeEdges();
- const edges=recipeAdjacency.get(activeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
+ const edges=recipeAdjacency.get(routeId)||[],width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),unique=new Set();
  for(const edge of edges){
@@ -77,16 +79,25 @@ function drawRecipeLinks(activeId){
   const source=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.from)+'"]'),target=layout.querySelector('[data-artifact-id="'+CSS.escape(edge.to)+'"]');
   if(!source||!target)continue;
   const sr=source.getBoundingClientRect(),tr=target.getBoundingClientRect();
-  const sx=sr.left-base.left+layout.scrollLeft+sr.width/2,sy=sr.top-base.top+layout.scrollTop+sr.height/2;
-  const tx=tr.left-base.left+layout.scrollLeft+tr.width/2,ty=tr.top-base.top+layout.scrollTop+tr.height/2;
-  let points;
-  if(Math.abs(ty-sy)>Math.abs(tx-sx)){const midY=(sy+ty)/2;points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];}
-  else{const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];}
-  paths.push('<path class="'+(edge.from===activeId?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
+  const sx0=sr.left-base.left+layout.scrollLeft,sy0=sr.top-base.top+layout.scrollTop;
+  const tx0=tr.left-base.left+layout.scrollLeft,ty0=tr.top-base.top+layout.scrollTop;
+  const sourceTier0=!!source.closest(".tier0-area"),targetTier0=!!target.closest(".tier0-area");
+  let sx,sy,tx,ty,points;
+  if(sourceTier0){sx=sx0+sr.width/2;sy=sy0+sr.height;}
+  else{const right=tx0+tr.width/2>=sx0+sr.width/2;sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;}
+  if(targetTier0){tx=tx0+tr.width/2;ty=ty0+tr.height;}
+  else{const right=tx0+tr.width/2>=sx0+sr.width/2;tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;}
+  if(sourceTier0||targetTier0){
+   const midY=sourceTier0&&targetTier0?Math.max(sy,ty)+24:(sourceTier0?sy+18:ty+18);
+   points=[[sx,sy],[sx,midY],[tx,midY],[tx,ty]];
+  }else{
+   const midX=(sx+tx)/2;points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];
+  }
+  paths.push('<path class="'+(edge.from===routeId?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points)+'"/>');
   related.add(edge.from);related.add(edge.to);
  }
- layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===activeId);node.classList.toggle("route-related",related.has(id)&&id!==activeId)});
- svg.innerHTML=paths.join("");svg.classList.add("is-visible");
+ layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",id===routeId);node.classList.toggle("route-related",related.has(id)&&id!==routeId)});
+ svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",routeVisible||!!activeId||!!pinnedRouteId);
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
@@ -104,7 +115,9 @@ function renderMatrix(){
   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
   const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button></article>';
+  const recipe=recipes.find(r=>r.id===a.id),used=recipes.filter(r=>(r.ingredients||[]).some(i=>ingredientArtifactId(i.name)===a.id));
+  const recipePanel=(recipe||used.length)?'<div class="card-crafting"><b>CRAFTING RECIPE</b>'+(recipe?'<div class="card-recipe-list">'+recipe.ingredients.map(i=>'<span>'+esc(t(i.name)||i.name)+' <strong>× '+esc(i.amount)+'</strong></span>').join('')+'</div>':'<small>No recipe output for this artefact.</small>')+(used.length?'<small>USED IN: '+used.map(r=>esc(recipeName(r))).join(', ')+'</small>':'')+'<button type="button" class="card-details" data-details="'+esc(a.id)+'">FULL ARTEFACT DETAILS</button></div>':'<div class="card-crafting"><b>CRAFTING RECIPE</b><small>No artifact melter recipe listed.</small><button type="button" class="card-details" data-details="'+esc(a.id)+'">FULL ARTEFACT DETAILS</button></div>';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="purpose-main" data-id="'+esc(a.id)+'" aria-expanded="false"><img loading="lazy" src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt=""><span class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</span></button>'+recipePanel+'</article>';
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
  const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
@@ -118,15 +131,20 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><section class="tier0-area"><header><div><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></div><span>'+tier0.length+' ARTEFACTS</span></header><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></section><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · CLICK IT TO SEE ALL REQUIRED MATERIALS</p>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER AN ARTEFACT TO TRACE ITS CRAFTING CONNECTIONS · EXPAND A CARD TO SEE ITS RECIPE</p><button type="button" id="route-lock" class="route-lock">KEEP CONNECTIONS VISIBLE</button></div>';
  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(b=>{
-  b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)});
-  b.addEventListener("mouseenter",()=>drawRecipeLinks(b.dataset.id));
-  b.addEventListener("focus",()=>drawRecipeLinks(b.dataset.id));
-  b.addEventListener("mouseleave",()=>drawRecipeLinks(""));
-  b.addEventListener("blur",()=>drawRecipeLinks(""));
+  b.addEventListener("click",()=>{const card=b.closest(".purpose-card"),expanded=card.classList.toggle("is-expanded");b.setAttribute("aria-expanded",String(expanded));});
+  b.addEventListener("mouseenter",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("focus",()=>{routeVisible=true;drawRecipeLinks(b.dataset.id)});
+  b.addEventListener("mouseleave",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
+  b.addEventListener("blur",()=>{routeVisible=!!pinnedRouteId;drawRecipeLinks(pinnedRouteId)});
  });
- drawRecipeLinks("");
+ $("#perk-matrix").querySelectorAll(".card-details").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.details);if(a)openProfile(a)}));
+ $("#route-lock").addEventListener("click",()=>{const active=$("#perk-matrix .route-active")?.dataset.artifactId;pinnedRouteId=pinnedRouteId?"":(active||"");routeVisible=!!pinnedRouteId;$("#route-lock").classList.toggle("active",!!pinnedRouteId);$("#route-lock").textContent=pinnedRouteId?"CONNECTIONS PINNED - CLICK TO CLEAR":"KEEP CONNECTIONS VISIBLE";drawRecipeLinks(pinnedRouteId)});
+ $("#perk-matrix .tier0-area").addEventListener("toggle",()=>{if(pinnedRouteId)requestAnimationFrame(()=>drawRecipeLinks(pinnedRouteId))});
+ routeVisible=!!pinnedRouteId;
+ if(pinnedRouteId)$("#route-lock").classList.add("active");
+ drawRecipeLinks(pinnedRouteId);
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
