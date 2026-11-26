@@ -68,7 +68,7 @@
 .purpose-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
 .purpose-card{min-width:0;background:rgba(23,28,22,.92);border:1px solid rgba(174,174,135,.2);border-radius:4px;overflow:hidden}
 .purpose-main{width:100%;display:grid;grid-template-columns:58px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;text-align:left;background:transparent;border:0;color:inherit;cursor:pointer}
-.purpose-main:hover{background:rgba(190,190,130,.06)}.purpose-main>img{width:56px;height:56px;object-fit:contain}
+.purpose-main>img{width:56px;height:56px;object-fit:contain}
 .purpose-copy{min-width:0;display:flex;flex-direction:column;gap:5px}.purpose-copy>b{font-size:16px;color:#eee9d5}.purpose-copy>small{font:10px monospace;letter-spacing:.05em;color:#b6ad78}
 .purpose-main>em{font:10px monospace;color:#8f967e;font-style:normal;white-space:nowrap}
 .effect-tags{display:flex;flex-wrap:wrap;gap:4px}.effect-tag{font:10px/1.3 monospace;padding:4px 6px;border-radius:2px;background:rgba(255,255,255,.045);color:#bfc4b2}
@@ -293,9 +293,6 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .matrix-layout .route-pin:hover,
 .matrix-layout .route-pin.is-pinned{background:#38432b;border-color:#c5d18e;color:#e4efb6}
 .matrix-layout .route-pin:focus-visible{outline:2px solid #d6c879;outline-offset:2px}
-.matrix-layout .purpose-card:hover .purpose-main{border-color:#87966a}
-
-
 /* Pinned crafting routes take priority over hover previews. Keep hover feedback subtle. */
 .matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
 .matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):hover,
