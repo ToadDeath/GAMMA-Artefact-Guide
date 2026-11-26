@@ -14,6 +14,8 @@
 .tree-node:hover{border-color:var(--acid);background:#293525}.tree-node img{width:42px;height:42px;object-fit:contain;flex:none}
 .tree-node-copy{min-width:0;display:block}.tree-node-copy>b{display:block;font:600 12px 'Barlow Condensed';text-transform:uppercase;line-height:1.15}.tree-node-copy small{display:block;color:var(--acid);font:8px 'IBM Plex Mono';margin:3px 0 6px}
 .tree-effects{display:flex;flex-direction:column;gap:3px}.tree-effects i{font:8px 'IBM Plex Mono';font-style:normal;color:#9da995;line-height:1.35}.tree-effects strong{color:var(--green);font-weight:600}.tree-effects strong.neg{color:var(--red)}
-.tree-node.early-tier{opacity:.82;padding:6px}.tree-node.early-tier img{width:30px;height:30px}.tree-node.early-tier .tree-effects{display:none}
+.tree-node.early-tier{opacity:.82;padding:6px}.tree-node.early-tier img{width:30px;height:30px}.tree-node.early-tier .tree-effects{display:flex}
 .tree-node.unclassified{border-style:dashed;border-color:#9b7654}.tree-node.unclassified small{color:#d5a277}
 @media(max-width:900px){.tree-view{min-width:900px}.tree-node{flex-direction:column}.tree-node img{width:36px;height:36px}}
+
+.tier-audit{margin-top:10px;border:1px solid var(--line);background:#141a14;padding:11px 14px;color:var(--muted);font:10px "IBM Plex Mono"}.tier-audit summary{cursor:pointer;color:var(--acid)}.tier-audit p{line-height:1.7;margin:8px 0}.tier-audit b{color:#cbd5c0}
