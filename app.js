@@ -190,9 +190,39 @@ function craftingProfileMarkup(a){
  const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>'<div class="craft-material"><span>'+esc(recipeName(r))+'</span><b>OUTPUT</b></div>').join("")+'</div></div>':"";
  return '<div class="profile-section"><h3>Crafting</h3>'+requiredMarkup+outputMarkup+'</div>';
 }
-function openProfile(a){const dialog=$("#artifact-dialog");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+(a.junk?" · JUNK":"")+(a.craftable?" · CRAFTABLE":"")+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div></div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-section"><h3>Field data</h3><div class="stat-list"><div class="stat-line"><span class="name">Jump height</span><strong class="value">'+fmt(a.jumpHeight)+'</strong></div><div class="stat-line"><span class="name">Used in crafting</span><strong class="value">'+(a.usedInCrafting?"YES":"NO")+'</strong></div><div class="stat-line"><span class="name">Can be crafted</span><strong class="value">'+(a.craftable?"YES":"NO")+'</strong></div></div></div><div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});if(!dialog.open)dialog.showModal()}
+function openProfile(a){const dialog=$("#artifact-dialog");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+SOURCE_ICONS+encodeURIComponent(a.id)+'.png" alt="" onerror="this.style.opacity=0.15"><div><div class="section-kicker">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' / '+esc(a.id.toUpperCase())+'</div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU · RANK '+a.rank+(a.junk?" · JUNK":"")+(a.craftable?" · CRAFTABLE":"")+'</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div></div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div><p class="profile-note">Exported GAMMA 0.9.5 values. Resistance and resistance cap are different properties.</p></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});if(!dialog.open)dialog.showModal()}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
-function renderCompare(){const section=$("#compare");if(compareIds.size===0){section.hidden=true;return}section.hidden=false;const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);$("#compare-content").innerHTML='<div class="compare-grid">'+items.map(a=>'<div class="compare-item"><h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>'+a.stats.map(s=>'<div class="compare-row"><span>'+esc(s.label)+'</span><b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></div>').join("")+'<div class="compare-row"><span>Weight</span><b>'+fmt(a.weight)+' kg</b></div><div class="compare-row"><span>Cost</span><b>'+fmt(a.cost)+' RU</b></div></div>').join("")+'</div>'}
+function renderCompare(){
+ const section=$("#compare");
+ if(compareIds.size===0){section.hidden=true;return}
+ section.hidden=false;
+ const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);
+ const groupOrder=["Protection","Resistance caps","Recovery","Mobility","Utility"];
+ const statMap=new Map();
+ items.forEach(a=>(a.stats||[]).filter(s=>Number(s.numeric)!==0).forEach(s=>{
+  const key=s.label+"|"+s.unit;
+  if(!statMap.has(key))statMap.set(key,{label:s.label,unit:s.unit,group:s.group||"Other"});
+ }));
+ const statRows=[...statMap.values()].sort((a,b)=>{
+  const ga=groupOrder.indexOf(a.group),gb=groupOrder.indexOf(b.group);
+  return (ga<0?99:ga)-(gb<0?99:gb)||a.label.localeCompare(b.label);
+ });
+ const groups=["Protection","Resistance caps","Recovery","Mobility","Utility","Other"];
+ const rows=groups.map(group=>{
+  const list=statRows.filter(s=>s.group===group);
+  if(!list.length)return "";
+  const heading=group==="Mobility"||group==="Utility"?"Mobility & utility":group;
+  return '<div class="compare-category">'+esc(heading)+'</div>'+list.map(s=>{
+   const key=s.label+"|"+s.unit;
+   return '<div class="compare-row"><span>'+esc(s.label)+'</span>'+items.map(a=>{
+    const found=(a.stats||[]).find(x=>x.label+"|"+x.unit===key&&Number(x.numeric)!==0);
+    return '<b>'+(found?(found.numeric>0?"+":"")+fmt(found.numeric)+esc(found.unit):" - ")+'</b>';
+   }).join("")+'</div>';
+  }).join("");
+ }).join("");
+ const metrics='<div class="compare-row compare-metric"><span>Weight</span>'+items.map(a=>'<b>'+fmt(a.weight)+' kg</b>').join("")+'</div><div class="compare-row compare-metric"><span>Cost</span>'+items.map(a=>'<b>'+fmt(a.cost)+' RU</b>').join("")+'</div>';
+ $("#compare-content").innerHTML='<div class="compare-table" style="--compare-count:'+items.length+'"><div class="compare-headings"><span></span>'+items.map(a=>'<h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>').join("")+'</div>'+rows+metrics+'</div>';
+}
 const recipeName=r=>t(r.name)||r.name;
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));window.addEventListener("scroll",scheduleRouteRedraw,{passive:true});
