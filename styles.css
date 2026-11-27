@@ -880,4 +880,7 @@ footer{align-items:center;gap:18px;padding-top:14px;padding-bottom:14px}
 .source-database-link:hover,.source-database-link:focus-visible{color:#e5a16f;filter:drop-shadow(0 0 6px #c8875c66);outline:none}
 .source-database-link:hover img,.source-database-link:focus-visible img{filter:grayscale(0) sepia(.45) saturate(.9) brightness(1.05) drop-shadow(0 0 5px #c8875c66)}
 .footer-note{margin-right:auto}
+.footer-links{display:flex;align-items:center;justify-content:flex-end;gap:22px}
+.project-github-link{min-width:150px}
+@media(max-width:700px){.footer-links{flex-wrap:wrap;gap:12px}}
 @media(max-width:700px){footer{align-items:flex-start;gap:12px}}
