@@ -770,8 +770,9 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .tier-board>.purpose-row-label{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
 .tier-board>.purpose-cell{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
 .tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
-/* The board's top edge supplies the single divider below Tier 0. */
-.matrix-content>.tier0-area{border-color:#586545!important;border-bottom:0!important}
+/* Tier 0 owns the divider beneath itself; the tier board starts without a top edge. */
+.matrix-content>.tier0-area{border-color:#586545!important;border-bottom:1px solid #586545!important}
+.matrix-content>.tier-board{border-top:0!important}
 /* Let the board's own bottom border be the only line beneath its final row. */
 .tier-board>.purpose-row-label:nth-last-child(5),
 .tier-board>.purpose-cell:nth-last-child(-n+4){border-bottom:0!important}
