@@ -621,3 +621,8 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-material span{flex:1;min-width:0}
 .ingredient{display:inline-flex;align-items:center;gap:6px}
 .mutant-part-icon-small{width:25px;height:25px;object-fit:contain;flex:0 0 25px}
+
+/* Artefact icons in crafting ingredient and output lists */
+.craft-material .artifact-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px;padding:3px;background:#151c15;border:1px solid #354032}
+.ingredient .artifact-icon-small{width:25px;height:25px;object-fit:contain;flex:0 0 25px}
+.recipe>.artifact-icon-small{width:38px;height:38px;object-fit:contain;float:right;margin:-7px 0 4px 10px}
