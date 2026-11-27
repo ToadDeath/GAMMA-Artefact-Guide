@@ -471,7 +471,7 @@ function craftingTreeArtifactMarkup(id,amount="",stack=new Set(),root=false){
  const artifact=artifacts.find(a=>a.id===id);
  if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
- const tier=Number.isFinite(Number(artifact.tier))?"TIER "+artifact.tier:"UNRANKED";
+ const tier=artifact.tier!==null&&artifact.tier!==undefined&&Number.isFinite(Number(artifact.tier))?"TIER "+artifact.tier:"UNRANKED";
  const icon='<img src="'+artifactIcon(artifact)+'" alt="" loading="lazy">';
  const kind=root?"FINAL ARTEFACT":recipe?"CRAFTED ARTEFACT":"BASE ARTEFACT";
  const row='<div class="craft-tree-item" data-tier="'+esc(artifact.tier??"unknown")+'">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b><small>'+tier+' · '+kind+'</small></span>'+(amount?'<strong>'+esc(amount)+'</strong>':"")+'</div>';
