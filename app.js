@@ -444,7 +444,7 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
