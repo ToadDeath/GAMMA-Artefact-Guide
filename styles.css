@@ -970,3 +970,99 @@ footer{justify-content:flex-end}
 
 /* The crafting tree uses the exact same red Combat tag as the catalogue. */
 .crafting-tree-page .craft-tree-role--combat{border-color:#a65355;background:#3a2021;color:#f0b4b5}
+
+
+/* Final shared treatment for every tier in the catalogue matrix. */
+.matrix-content{
+ display:grid!important;
+ grid-template-columns:minmax(270px,300px) minmax(0,1fr)!important;
+ gap:0!important;
+ align-items:stretch!important;
+ border:1px solid #394536!important;
+ background:rgba(15,20,15,.94)!important;
+}
+.matrix-content>.tier0-area{
+ min-width:0!important;
+ margin:0!important;
+ border:0!important;
+ border-right:1px solid #394536!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier0-area>summary.tier-column-head,
+.matrix-content>.tier-board>.tier-column>.tier-column-head{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ margin:0 0 8px!important;
+ padding:12px 10px!important;
+ border:0!important;
+ border-bottom:1px solid #394536!important;
+ border-radius:0!important;
+ background:#283323!important;
+}
+.matrix-content>.tier0-area>.tier0-grid{padding:12px!important}
+.matrix-content>.tier-board{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:0!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier-board>.tier-column{
+ min-width:0!important;
+ margin:0!important;
+ padding:0 8px 10px!important;
+ border:0!important;
+ border-right:1px solid #394536!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier-board>.tier-column:last-child{border-right:0!important}
+.matrix-content>.tier-board>.tier-column>.purpose-cell{
+ min-width:0!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier-board .purpose-card{margin:0 0 7px!important}
+@media(max-width:1300px){
+ .matrix-content{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  align-items:stretch!important;
+ }
+ .matrix-content>.tier0-area{
+  width:100%!important;
+  border-right:0!important;
+  border-bottom:1px solid #394536!important;
+ }
+ .matrix-content>.tier-board{width:100%!important;min-width:980px!important}
+}
+
+/* The upgrade path needs a clearly green interior, not just a green outline. */
+.matrix-layout .purpose-card.artifact-node.route-upgrade{
+ background:#344b2e!important;
+ border-color:#b0d27a!important;
+ box-shadow:0 0 0 1px #9dbb7066!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
+ background:#405b35!important;
+ background-image:none!important;
+}
+
+/* Combat is red on every page, including the higher-specificity tree selector. */
+.crafting-tree-page .craft-tree-role--combat{
+ border-color:#a65355!important;
+ background:#3a2021!important;
+ color:#f0b4b5!important;
+}
