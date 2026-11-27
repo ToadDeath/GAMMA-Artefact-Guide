@@ -276,7 +276,7 @@ function renderMatrix(){
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
  const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
- const header='<div class="purpose-label-head"><span>PRIMARY PURPOSE</span><small>FIND BY EFFECT</small></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
+ const header='<div class="purpose-label-head"></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head" data-tier="'+t+'"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
  const rows=visibleCategories.map(c=>{
   const cells=[1,2,3,4].map(t=>{
    const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
@@ -286,7 +286,7 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary><span><b>TIER 0</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER TO PREVIEW CRAFTING · SELECT THE PIN TO KEEP CONNECTIONS VISIBLE</p></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary><span><b>TIER 0</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
