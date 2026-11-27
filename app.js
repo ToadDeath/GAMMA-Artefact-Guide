@@ -504,8 +504,8 @@ function craftingTreeArtifactMarkup(id,stack=new Set()){
  if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
  const icon='<img class="craft-tree-logo" src="'+artifactIcon(artifact)+'" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&#39;'+SOURCE_ICONS+encodeURIComponent(artifact.id)+'.png&#39;">';
- const role=craftTreeRoleInfo(artifact);
- const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b>'+(role.label?'<small class="craft-tree-role craft-tree-role--'+role.key+'">'+esc(role.label)+'</small>':"")+'</span></button>';
+ const roleTags=craftTreeRoleMarkup(artifact);
+ const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b>'+(roleTags?'<span class="craft-tree-role-list">'+roleTags+'</span>':"")+'</span></button>';
  if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
  if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
  const nextStack=new Set(stack);nextStack.add(id);
@@ -546,7 +546,7 @@ function renderCraftingTree(){
  if(!roots.some(x=>x.artifact.id===selectedCraftTreeId))selectedCraftTreeId=roots[0]?.artifact.id||"";
   const tabs=roots.map(({recipe,artifact})=>'<button class="chip craft-tree-tab'+(artifact.id===selectedCraftTreeId?' active':'')+'" type="button" role="tab" aria-selected="'+(artifact.id===selectedCraftTreeId)+'" aria-controls="craft-tree-panel" data-craft-tree-tab="'+esc(artifact.id)+'"><img src="'+artifactIcon(artifact)+'" alt="" loading="eager" decoding="async"><span>'+esc(recipe.name||artifactName(artifact))+'</span></button>').join("");
  const current=roots.find(x=>x.artifact.id===selectedCraftTreeId);
- const role=current?craftTreeRoleInfo(current.artifact):null;const panel=current?'<section class="craft-tree-root" id="craft-tree-panel" role="tabpanel"><h3 class="craft-tree-title">'+esc(current.recipe.name||artifactName(current.artifact))+(role?'<span class="craft-tree-role craft-tree-role--'+role.key+'">'+esc(role.label)+'</span>':"")+'</h3><div class="craft-tree-scroll"><div class="craft-tree-canvas"><svg class="craft-tree-connectors" aria-hidden="true"></svg><ul>'+craftingTreeArtifactMarkup(current.artifact.id,new Set())+'</ul></div></div></section>':'<p class="tier-empty">No Tier 4 crafting recipes found.</p>';
+ const roleTags=current?craftTreeRoleMarkup(current.artifact):"";const panel=current?'<section class="craft-tree-root" id="craft-tree-panel" role="tabpanel"><h3 class="craft-tree-title">'+esc(current.recipe.name||artifactName(current.artifact))+(roleTags?'<span class="craft-tree-role-list">'+roleTags+'</span>':"")+'</h3><div class="craft-tree-scroll"><div class="craft-tree-canvas"><svg class="craft-tree-connectors" aria-hidden="true"></svg><ul>'+craftingTreeArtifactMarkup(current.artifact.id,new Set())+'</ul></div></div></section>':'<p class="tier-empty">No Tier 4 crafting recipes found.</p>';
  $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><div class="section-kicker">GAMMA 0.9.5</div><h2>Crafting <em>Tree</em></h2></div></header><div class="craft-tree-tabs" role="tablist" aria-label="Tier 4 crafting trees">'+tabs+'</div>'+panel;
  $("#crafting-tree-content").querySelectorAll("[data-craft-tree-tab]").forEach(button=>button.addEventListener("click",()=>{
   selectedCraftTreeId=button.dataset.craftTreeTab;
@@ -601,23 +601,21 @@ function perkDetailsMarkup(a){
 function craftTreeRoleInfo(a){
  const positive=(a.stats||[]).filter(s=>Number(s.numeric)>0);
  const has=labels=>positive.some(s=>labels.includes(s.label));
- const combat=has(["Ballistic resistance","Impact resistance","Explosive resistance"]);
- const mutant=has(["Rupture resistance","Psychic resistance"]);
- const anomaly=has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]);
- const recovery=positive.some(s=>s.group==="Recovery");
- if(combat&&mutant)return {label:"Combat & Mutant Defense",key:"combat-mutant"};
- if(mutant&&anomaly)return {label:"Mutant & Anomaly Defense",key:"mutant-anomaly"};
- if(combat)return {label:"Combat Defense",key:"combat"};
- if(mutant)return {label:"Mutant Defense",key:"mutant"};
- if(anomaly)return {label:"Anomaly Defense",key:"anomaly"};
- if(recovery)return {label:"Health & Recovery",key:"recovery"};
+ const tags=[];
+ if(has(["Ballistic resistance","Impact resistance","Explosive resistance"]))tags.push({label:"Combat Defense",key:"combat"});
+ if(has(["Rupture resistance","Psychic resistance"]))tags.push({label:"Mutant Defense",key:"mutant"});
+ if(has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]))tags.push({label:"Anomaly Defense",key:"anomaly"});
+ if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Health & Recovery",key:"recovery"});
+ if(tags.length)return tags;
  const purpose=purposeFor(a);
- if(purpose.key==="physical")return {label:"Combat Defense",key:"combat"};
- if(purpose.key==="anomaly")return {label:"Anomaly Defense",key:"anomaly"};
- if(purpose.key==="recovery")return {label:"Health & Recovery",key:"recovery"};
- return {label:purpose.label,key:"other"};
+ if(purpose.key==="physical")return [{label:"Combat Defense",key:"combat"}];
+ if(purpose.key==="anomaly")return [{label:"Anomaly Defense",key:"anomaly"}];
+ if(purpose.key==="recovery")return [{label:"Health & Recovery",key:"recovery"}];
+ return [{label:purpose.label,key:"other"}];
 }
-function craftTreeRole(a){return craftTreeRoleInfo(a).label;}
+function craftTreeRoleMarkup(a){
+ return craftTreeRoleInfo(a).map(tag=>'<small class="craft-tree-role craft-tree-role--'+tag.key+'">'+esc(tag.label)+'</small>').join("");
+}
 function openProfile(a){const dialog=$("#artifact-dialog");dialog.scrollTop=0;document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' · '+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));$("#dialog-content").querySelectorAll("[data-craft-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.craftArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal();dialog.scrollTop=0;requestAnimationFrame(()=>{dialog.scrollTop=0;dialog.querySelector(".profile")?.scrollTo(0,0);});}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){
