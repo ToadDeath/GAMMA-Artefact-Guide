@@ -34,20 +34,44 @@ function purposeFor(a){
 }
 
 const MUTANT_PART_ICONS={
- "mutant boar leg":"boar_leg","mutant brain burer":"burer_brain","mutant burer hand":"burer_hand",
- "mutant cat claw":"cat_claw","mutant cat tail":"cat_tail","mutant cat thyroid":"cat_thyroid",
- "mutant chimera claw":"chimera_claw","mutant chimera cogot":"chimera_horn",
- "mutant controller hand":"controller_hand","mutant dog heart":"dog_heart","mutant dog liver":"dog_liver",
- "mutant fang psevdodog":"pseudodog_fang","mutant flesh eye":"flesh_eye","mutant flesh meat":"flesh_meat",
- "mutant fracture hand":"fracture_hand","mutant heart chimera":"chimera_heart",
- "mutant krovosos meat":"bloodsucker_meat","mutant lurker eye":"lurker_eye","mutant lurker tail":"lurker_tail",
- "mutant part controller brain tissue":"controller_brain_tissue","mutant pseudogigant eye":"pseudogiant_eye",
- "mutant pseudogigant hand":"pseudogiant_hand","mutant psevdodog meat":"pseudodog_meat",
- "mutant psysucker hand":"psysucker_hand","mutant snork mask":"snork_mask",
- "mutant tusk boar":"boar_fang","mutant zombi hand":"zombi_hand"
+  "Boar Leg": "boar_leg",
+  "Burer Brain": "burer_brain",
+  "Burer Hand": "burer_hand",
+  "Cat Claw": "cat_claw",
+  "Cat Tail": "cat_tail",
+  "Cat Thyroid": "cat_thyroid",
+  "Chimera Claw": "chimera_claw",
+  "Chimera Horn": "chimera_horn",
+  "Chimera Meat": "chimera_meat",
+  "Controller Hand": "controller_hand",
+  "Dog Heart": "dog_heart",
+  "Dog Liver": "dog_liver",
+  "Dog Meat": "dog_meat",
+  "Dog Tail": "dog_tail",
+  "Pseudodog Fang": "pseudodog_fang",
+  "Flesh Eye": "flesh_eye",
+  "Flesh Meat": "flesh_meat",
+  "Fracture Hand": "fracture_hand",
+  "Bloodsucker Heart": "bloodsucker_heart",
+  "Chimera Heart": "chimera_heart",
+  "Bloodsucker Jaw": "bloodsucker_jaw",
+  "Bloodsucker Meat": "bloodsucker_meat",
+  "Lurker Eye": "lurker_eye",
+  "Lurker Tail": "lurker_tail",
+  "Controller Brain Tissue": "controller_brain_tissue",
+  "Pseudogiant Eye": "pseudogiant_eye",
+  "Pseudogiant Hand": "pseudogiant_hand",
+  "Pseudodog Meat": "pseudodog_meat",
+  "Pseudodog Tail": "pseudodog_tail",
+  "Psysucker Hand": "psysucker_hand",
+  "Snork Hand": "snork_hand",
+  "Snork Tendons": "snork_tendons",
+  "Snork Mask": "snork_mask",
+  "Boar Fang": "boar_fang",
+  "Zombie Hand": "zombi_hand"
 };
 function mutantPartIcon(name){
- const slug=MUTANT_PART_ICONS[String(name||"").trim().toLowerCase()];
+ const slug=MUTANT_PART_ICONS[String(name||"").trim()];
  return slug ? "assets/artifacts/mutant_part_"+slug+".png" : "";
 }
 function ingredientArtifactId(name){
