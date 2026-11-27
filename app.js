@@ -162,7 +162,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
    const nextState=nextId*3+nextDir;
    if(visited[nextState])continue;
    const shared=sharesChannel([x,y],nextPoint);
-   const cost=item.cost+length+(dir!==2&&dir!==nextDir?18:0)+(existingSegments.length&&!shared?1000:0);
+   const cost=item.cost+length+(existingSegments.length&&!shared?length*.2:0)+(dir!==2&&dir!==nextDir?24:0);
    if(cost<dist[nextState]){dist[nextState]=cost;previous[nextState]=state;push(nextState,cost)}
   }
  }
