@@ -744,3 +744,16 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 
 /* Keep the tool thumbnail compact beside its label. */
 .recipe-tool img{flex-shrink:0}
+
+/* Crafting profile links and balanced tool/manual requirement row. */
+.craft-recipe-info{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.craft-recipe-info>div{min-width:0;align-items:center;padding:9px 11px}
+.craft-recipe-info span{font-size:8px;letter-spacing:.04em}
+.craft-recipe-info b{font-size:10px}
+.craft-tool{gap:6px}
+.craft-tool img{width:22px;height:22px}
+.craft-artifact-link{display:flex;flex:1;min-width:0;align-items:center;gap:10px;padding:0;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.craft-artifact-link span{flex:1;min-width:0;color:#cbd4c2}
+.craft-artifact-link:hover span{color:var(--acid);text-decoration:underline;text-underline-offset:3px}
+.craft-artifact-link:focus-visible{outline:1px solid var(--acid);outline-offset:3px}
+@media(max-width:520px){.craft-recipe-info{grid-template-columns:1fr}}
