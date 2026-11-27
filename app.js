@@ -41,8 +41,8 @@ const MUTANT_PART_ICONS={
  "mutant fang psevdodog":"pseudodog_fang","mutant flesh eye":"flesh_eye","mutant flesh meat":"flesh_meat",
  "mutant fracture hand":"fracture_hand","mutant heart chimera":"chimera_heart",
  "mutant krovosos meat":"bloodsucker_meat","mutant lurker eye":"lurker_eye","mutant lurker tail":"lurker_tail",
- "mutant part controller brain tissue":"controller_brain_tissue","mutant pseudogigant eye":"pseudogigant_eye",
- "mutant pseudogigant hand":"pseudogigant_hand","mutant psevdodog meat":"pseudodog_meat",
+ "mutant part controller brain tissue":"controller_brain_tissue","mutant pseudogigant eye":"pseudogiant_eye",
+ "mutant pseudogigant hand":"pseudogiant_hand","mutant psevdodog meat":"pseudodog_meat",
  "mutant psysucker hand":"psysucker_hand","mutant snork mask":"snork_mask",
  "mutant tusk boar":"boar_fang","mutant zombi hand":"zombi_hand"
 };
