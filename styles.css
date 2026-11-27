@@ -761,7 +761,7 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  border:0!important;border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
  border-radius:0!important;background:#283323!important;
 }
-.matrix-content>.tier-board>.purpose-label-head{justify-content:center!important}
+.matrix-content>.tier-board>.purpose-label-head{align-items:flex-start!important;justify-content:center!important}
 .matrix-content>.tier-board>.purpose-row-label,.matrix-content>.tier-board>.purpose-cell{
  min-width:0!important;box-sizing:border-box!important;border:0!important;
  border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
