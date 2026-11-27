@@ -548,8 +548,8 @@ dialog{overscroll-behavior:contain}
    ingredients are muted gray, and downstream upgrades are green. */
 .matrix-layout .purpose-card.artifact-node.route-active{
  background:#2b2922!important;
- border-color:#d49a6b!important;
- box-shadow:inset 0 0 0 1px #d49a6b30!important;
+ border-color:#e0d18a!important;
+ box-shadow:0 0 0 1px #e0d18a66,0 0 16px #d4c16a20!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-active>.purpose-main{
  background:linear-gradient(105deg,rgba(196,112,58,.13),rgba(196,112,58,.055))!important;
