@@ -74,10 +74,10 @@ function mutantPartIcon(name){
  const slug=MUTANT_PART_ICONS[String(name||"").trim()];
  return slug ? "assets/artifacts/mutant_part_"+slug+".png" : "";
 }
-function craftingIconMarkup(name,small=false){
- const artifactId=ingredientArtifactId(name);
+function craftingIconMarkup(ingredient,small=false){
+ const artifactId=ingredient.artifactId||ingredientArtifactId(ingredient.name);
  const artifact=artifactId?artifacts.find(a=>a.id===artifactId):null;
- const src=artifact?artifactIcon(artifact):mutantPartIcon(name);
+ const src=artifact?artifactIcon(artifact):mutantPartIcon(ingredient.name);
  if(!src)return "";
  const cls=small?(artifact?"artifact-icon-small":"mutant-part-icon-small"):(artifact?"artifact-icon":"mutant-part-icon");
  return '<img class="'+cls+'" src="'+src+'" alt="" loading="lazy">';
@@ -101,7 +101,7 @@ function recipeEdges(){
  if(cachedRecipeEdges)return cachedRecipeEdges;
  const edges=[];
  for(const recipe of recipes)for(const ingredient of recipe.ingredients||[]){
-  const input=ingredientArtifactId(ingredient.name);
+  const input=ingredient.artifactId||ingredientArtifactId(ingredient.name);
   if(input&&input!==recipe.id)edges.push({from:input,to:recipe.id});
  }
  cachedRecipeEdges=edges;recipeAdjacency=new Map();
@@ -370,9 +370,9 @@ function statGroupMarkup(a){
 }
 function craftingProfileMarkup(a){
  const required=recipes.find(r=>r.id===a.id);
- const outputs=recipes.filter(r=>(r.ingredients||[]).some(i=>ingredientArtifactId(i.name)===a.id));
+ const outputs=recipes.filter(r=>(r.ingredients||[]).some(i=>(i.artifactId||ingredientArtifactId(i.name))===a.id));
  if(!required&&!outputs.length)return "";
- const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>'<div class="craft-material">'+craftingIconMarkup(i.name)+'<span>'+esc(t(i.name)||i.name)+'</span><b>'+esc(i.amount)+'</b></div>').join("")+'</div></div>':"";
+ const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>'<div class="craft-material">'+craftingIconMarkup(i)+'<span>'+esc(craftingIngredientName(i))+'</span><b>'+esc(i.amount)+'</b></div>').join("")+'</div></div>':"";
  const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>'<div class="craft-material">'+outputArtifactIconMarkup(r)+'<span>'+esc(recipeName(r))+'</span><b>OUTPUT</b></div>').join("")+'</div></div>':"";
  return '<div class="profile-section"><h3>Crafting</h3>'+requiredMarkup+outputMarkup+'</div>';
 }
@@ -417,8 +417,9 @@ function renderCompare(){
  const metrics='<div class="compare-row compare-metric"><span>Weight</span>'+items.map(a=>'<b>'+fmt(a.weight)+' kg</b>').join("")+'</div><div class="compare-row compare-metric"><span>Cost</span>'+items.map(a=>'<b>'+fmt(a.cost)+' RU</b>').join("")+'</div>';
  $("#compare-content").innerHTML='<div class="compare-table" style="--compare-count:'+items.length+'"><div class="compare-headings"><span></span>'+items.map(a=>'<h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>').join("")+'</div>'+rows+metrics+'</div>';
 }
-const recipeName=r=>t(r.name)||r.name;
-function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i.name,true)+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
+const recipeName=r=>{const a=artifacts.find(x=>x.id===r.id);return a?artifactName(a):t(r.name)||r.name};
+function craftingIngredientName(i){const id=i.artifactId||ingredientArtifactId(i.name);const a=id?artifacts.find(x=>x.id===id):null;return a?artifactName(a):i.name;}
+function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>recipeName(r).toLowerCase().includes(q)||r.ingredients.some(i=>craftingIngredientName(i).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i,true)+esc(craftingIngredientName(i))+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));
 window.addEventListener("resize",scheduleRouteRedraw);
