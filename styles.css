@@ -893,3 +893,17 @@ footer{align-items:center;gap:18px;padding-top:14px;padding-bottom:14px}
 .project-github-link img{filter:grayscale(1) brightness(1.45);transition:filter .18s}
 .project-github-link:hover img,.project-github-link:focus-visible img{filter:brightness(0) saturate(100%) invert(73%) sepia(24%) saturate(693%) hue-rotate(336deg) brightness(96%) contrast(88%) drop-shadow(0 0 5px #c8875c66)}
 @media(max-width:700px){.footer-links{justify-content:flex-start;gap:14px 20px}.source-database-link b{font-size:8px}}
+
+/* Keep footer references compact and unobtrusive on both pages. */
+footer{justify-content:flex-end}
+.footer-links{margin-left:auto;gap:18px}
+.source-database-link{gap:8px;min-height:30px}
+.source-database-link img{width:22px;height:22px;flex:0 0 22px}
+.source-database-link>span{gap:2px}
+.source-database-link small{font-size:6px;letter-spacing:.13em}
+.source-database-link b{font-size:8px;letter-spacing:.06em}
+@media(max-width:700px){
+ footer{align-items:flex-end}
+ .footer-links{justify-content:flex-end;gap:12px 16px}
+ .source-database-link b{font-size:7px}
+}
