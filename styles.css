@@ -711,3 +711,46 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 }
 .tier0-area>summary.tier-column-head::-webkit-details-marker{display:none}
 .tier0-area>summary.tier-column-head:before{display:none!important;content:none!important}
+
+
+/* Final board alignment and interaction cleanup. */
+@media(min-width:1121px){
+  .matrix-content{column-gap:0!important}
+  .matrix-content>.tier0-area{padding-right:0!important;margin-right:0!important}
+  .matrix-content>.tier-board{margin-left:0!important}
+}
+/* The category label is a real member of the shared header row. */
+.tier-board>.purpose-label-head{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  min-width:0;
+  min-height:58px;
+  height:58px;
+  box-sizing:border-box;
+  padding:12px;
+  background:#283323;
+  border-right:1px solid #394536;
+  border-bottom:1px solid #586545;
+  color:var(--acid);
+  font:700 14px 'Barlow Condensed';
+  letter-spacing:.08em;
+}
+.tier-board>.purpose-label-head small{
+  color:var(--muted);
+  font:9px 'Inter';
+  letter-spacing:.07em;
+}
+/* One consistent 2px divider between Tier 2 and Tier 3, not two adjacent borders. */
+.tier-board>.tier-column-head[data-tier="2"],
+.tier-board>.purpose-cell[data-tier="2"]{border-left:0!important;border-right:0!important}
+.tier-board>.tier-column-head[data-tier="3"],
+.tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
+/* Crafting preview highlights the route without dimming the rest of the board. */
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related),
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):hover,
+.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):focus-within{
+  opacity:1!important;
+}
+.matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
