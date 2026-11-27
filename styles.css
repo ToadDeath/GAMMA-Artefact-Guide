@@ -591,3 +591,10 @@ dialog{overscroll-behavior:contain}
 /* Keep the Tier 1 / Tier 2 divider clearly visible across the full board. */
 .tier-board>.tier-column-head[data-tier="2"],
 .tier-board>.purpose-cell[data-tier="2"]{border-left:2px solid #586545}
+
+
+/* Match the Tier 0 header to the Tier 1-4 column headers. */
+.tier0-area>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;padding:14px 11px;background:#283323;border-bottom:1px solid #586545;}
+.tier0-area>summary:before{display:none}
+.tier0-area>summary b{font:700 18px "Barlow Condensed";letter-spacing:.08em;color:var(--acid)}
+.tier0-area>summary>span:last-child{font:11px "Inter";color:var(--muted);white-space:nowrap}
