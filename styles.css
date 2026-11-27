@@ -1066,3 +1066,59 @@ footer{justify-content:flex-end}
  background:#3a2021!important;
  color:#f0b4b5!important;
 }
+
+
+/* Catalogue columns share one outer frame. Internal dividers are intentionally removed. */
+.matrix-content{
+ border:1px solid #394536!important;
+ background:rgba(15,20,15,.94)!important;
+}
+.matrix-content>.tier0-area,
+.matrix-content>.tier-board>.tier-column{
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ background:transparent!important;
+}
+.matrix-content>.tier0-area{border-right:0!important}
+.matrix-content>.tier-board>.tier-column:last-child{border-right:0!important}
+.matrix-content>.tier0-area>summary.tier-column-head,
+.matrix-content>.tier-board>.tier-column>.tier-column-head{
+ margin:0 0 8px!important;
+ padding:12px 10px!important;
+ border:0!important;
+ border-radius:0!important;
+ border-bottom:0!important;
+ background:#283323!important;
+}
+.matrix-content>.tier0-area>.tier0-grid{padding:0 12px 12px!important}
+.matrix-content>.tier-board>.tier-column{padding:0 8px 10px!important}
+.matrix-content>.tier-board{gap:0!important}
+@media(max-width:1300px){
+ .matrix-content>.tier0-area{border:0!important}
+}
+
+/* Tier 0 is a real tier column, not a separately styled side panel. */
+.matrix-content>.tier0-area.tier-column{
+ display:block!important;
+ box-sizing:border-box!important;
+ padding:0 8px 10px!important;
+ min-width:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier0-area.tier-column>summary.tier-column-head{
+ width:auto!important;
+ margin:0 -8px 8px!important;
+ padding:12px 10px!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ box-sizing:border-box!important;
+ background:#283323!important;
+ border:0!important;
+ border-radius:0!important;
+}
+.matrix-content>.tier0-area.tier-column>.tier0-grid{padding:0!important}
