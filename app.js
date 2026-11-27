@@ -495,9 +495,9 @@ function craftingTreePartMarkupWithStack(ingredient,stack){
 }
 function openCraftingTree(){
  const roots=recipes.map(r=>({recipe:r,artifact:artifacts.find(a=>a.id===r.id)}))
-  .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===artifactName(x.artifact).toLowerCase()))
-  .sort((a,b)=>artifactName(a.artifact).localeCompare(artifactName(b.artifact)));
- const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(artifactName(artifact))+'</h3><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></section>').join("");
+  .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===String(x.recipe.name||"").toLowerCase()))
+  .sort((a,b)=>String(a.recipe.name||"").localeCompare(String(b.recipe.name||"")));
+ const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></section>').join("");
  $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>All three craftable Tier 4 artefacts, traced back through every required artefact and mutant part.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span><i class="part-key"></i> Mutant part</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Every crafted step requires the Artifact Melter. Recipe manuals are listed at each step.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
  $("#crafting-tree-dialog").showModal();
 }
