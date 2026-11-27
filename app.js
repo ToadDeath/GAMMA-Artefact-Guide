@@ -469,7 +469,7 @@ function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),attribute=$("#attribute")?.value||"";
  const tagFilters=$("#tag-filters");
  if(tagFilters){
-  tagFilters.innerHTML='<span class="tag-filter-label">TAGS</span>'+TAG_DEFINITIONS.map(tag=>'<button type="button" class="tag-filter-chip'+(selectedTagFilters.has(tag.key)?" active":"")+'" data-tag-filter="'+tag.key+'" aria-pressed="'+String(selectedTagFilters.has(tag.key))+'">'+tag.label+'</button>').join("")+(selectedTagFilters.size?'<button type="button" class="tag-filter-clear" data-clear-tag-filters>CLEAR</button>':"");
+  tagFilters.innerHTML='<span class="tag-filter-label">TAGS</span><button type="button" class="tag-filter-chip'+(!selectedTagFilters.size?" active":"")+'" data-clear-tag-filters aria-pressed="'+String(!selectedTagFilters.size)+'">ALL</button>'+TAG_DEFINITIONS.map(tag=>'<button type="button" class="tag-filter-chip'+(selectedTagFilters.has(tag.key)?" active":"")+'" data-tag-filter="'+tag.key+'" aria-pressed="'+String(selectedTagFilters.has(tag.key))+'">'+tag.label+'</button>').join("");
  }
  const eligible=artifacts.filter(a=>{
   if(a.tier===null||!matches(a,q))return false;
