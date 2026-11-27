@@ -752,8 +752,10 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-recipe-info b{font-size:10px}
 .craft-tool{gap:6px}
 .craft-tool img{width:22px;height:22px}
-.craft-artifact-link{display:flex;flex:1;min-width:0;align-items:center;gap:10px;margin:-5px -7px;padding:5px 7px;border:1px solid transparent;border-radius:3px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.craft-material{transition:border-color .15s,background .15s}
+.craft-material-linked:has(.craft-artifact-link:hover),.craft-material-linked:has(.craft-artifact-link:focus-visible){border-color:#8a9e58;background:#283321;box-shadow:0 0 0 1px #8a9e5855}
+.craft-artifact-link{display:flex;flex:1;min-width:0;align-items:center;gap:10px;margin:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
 .craft-artifact-link span{flex:1;min-width:0;color:#cbd4c2}
-.craft-artifact-link:hover,.craft-artifact-link:focus-visible{border-color:#8a9e58;background:#8a9e5812;outline:none}
 .craft-artifact-link:hover span{color:var(--acid)}
+.craft-artifact-link:focus-visible{outline:none}
 @media(max-width:520px){.craft-recipe-info{grid-template-columns:1fr}}
