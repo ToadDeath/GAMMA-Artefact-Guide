@@ -561,10 +561,12 @@ dialog{overscroll-behavior:contain}
  background:rgba(157,165,157,.055)!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade{
- background:#252b22!important;
+ background:rgba(132,174,91,.12)!important;
+ border-color:#9dbb70!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
- background:rgba(132,174,91,.14)!important;
+ background:rgba(132,174,91,.24)!important;
+ background-image:none!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-active .effect-tag,
 .matrix-layout .purpose-card.artifact-node.route-ingredient .effect-tag,
@@ -758,13 +760,13 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  position:relative!important;top:auto!important;z-index:1!important;display:flex!important;
  align-items:center!important;justify-content:space-between!important;min-width:0!important;width:auto!important;
  height:58px!important;min-height:58px!important;box-sizing:border-box!important;margin:0!important;padding:12px!important;
- border:0!important;border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
+ border:0!important;border-right:.75px solid #394536!important;border-bottom:1px solid #394536!important;
  border-radius:0!important;background:#283323!important;
 }
 .matrix-content>.tier-board>.purpose-label-head{align-items:flex-start!important;justify-content:center!important}
 .matrix-content>.tier-board>.purpose-row-label,.matrix-content>.tier-board>.purpose-cell{
  min-width:0!important;box-sizing:border-box!important;border:0!important;
- border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
+ border-right:.75px solid #394536!important;border-bottom:1px solid #394536!important;
 }
 .matrix-content>.tier-board>:nth-child(5n){border-right:0!important}
 .matrix-content>.tier-board>:nth-last-child(-n+5){border-bottom:0!important}
