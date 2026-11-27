@@ -55,8 +55,8 @@ function renderAttributeOptions(){
 }
 function purposeScores(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
- const combat=positive.filter(s=>["Ballistic resistance","Ballistic cap","Impact resistance","Impact cap","Explosive resistance","Explosive cap"].includes(s.label));
- const mutant=positive.filter(s=>["Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"].includes(s.label));
+ const combat=positive.filter(s=>["Ballistic resistance","Ballistic cap","Explosive resistance","Explosive cap"].includes(s.label));
+ const mutant=positive.filter(s=>["Impact resistance","Impact cap","Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Burn cap","Electrical resistance","Electrical cap","Chemical resistance","Chemical cap","Radiation resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
  return [
@@ -616,8 +616,8 @@ function craftTreeRoleInfo(a){
  const positive=(a.stats||[]).filter(s=>Number(s.numeric)>0);
  const has=labels=>positive.some(s=>labels.includes(s.label));
  const tags=[];
- if(has(["Ballistic resistance","Ballistic cap","Impact resistance","Impact cap","Explosive resistance","Explosive cap"]))tags.push({label:"Combat",key:"combat"});
- if(has(["Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"]))tags.push({label:"Mutant",key:"mutant"});
+ if(has(["Ballistic resistance","Ballistic cap","Explosive resistance","Explosive cap"]))tags.push({label:"Combat",key:"combat"});
+ if(has(["Impact resistance","Impact cap","Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"]))tags.push({label:"Mutant",key:"mutant"});
  if(has(["Burn resistance","Burn cap","Electrical resistance","Electrical cap","Chemical resistance","Chemical cap","Radiation resistance"]))tags.push({label:"Anomaly",key:"anomaly"});
  if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Recovery",key:"recovery"});
  if(tags.length)return tags;
