@@ -68,7 +68,7 @@ const MUTANT_PART_ICONS={
   "Snork Tendons": "snork_tendons",
   "Snork Mask": "snork_mask",
   "Boar Fang": "boar_fang",
-  "Zombie Hand": "zombi_hand"
+  "Zombie Hand": "zombie_hand"
 };
 function mutantPartIcon(name){
  const slug=MUTANT_PART_ICONS[String(name||"").trim()];
