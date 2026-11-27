@@ -458,11 +458,11 @@ function buildCraftingOrder(){
  return rank;
 }
 const TAG_DEFINITIONS=[
- {key:"combat",label:"Combat Defense"},
- {key:"mutant",label:"Mutant Defense"},
- {key:"anomaly",label:"Anomaly Defense"},
- {key:"recovery",label:"Health & Recovery"},
- {key:"other",label:"Other Effects"}
+ {key:"combat",label:"Combat"},
+ {key:"mutant",label:"Mutant"},
+ {key:"anomaly",label:"Anomaly"},
+ {key:"recovery",label:"Recovery"},
+ 
 ];
 let selectedTagFilters=new Set();
 function renderMatrix(){
@@ -616,16 +616,16 @@ function craftTreeRoleInfo(a){
  const positive=(a.stats||[]).filter(s=>Number(s.numeric)>0);
  const has=labels=>positive.some(s=>labels.includes(s.label));
  const tags=[];
- if(has(["Ballistic resistance","Impact resistance","Explosive resistance"]))tags.push({label:"Combat Defense",key:"combat"});
- if(has(["Rupture resistance","Psychic resistance"]))tags.push({label:"Mutant Defense",key:"mutant"});
- if(has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]))tags.push({label:"Anomaly Defense",key:"anomaly"});
- if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Health & Recovery",key:"recovery"});
+ if(has(["Ballistic resistance","Impact resistance","Explosive resistance"]))tags.push({label:"Combat",key:"combat"});
+ if(has(["Rupture resistance","Psychic resistance"]))tags.push({label:"Mutant",key:"mutant"});
+ if(has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]))tags.push({label:"Anomaly",key:"anomaly"});
+ if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Recovery",key:"recovery"});
  if(tags.length)return tags;
  const purpose=purposeFor(a);
- if(purpose.key==="combat")return [{label:"Combat Defense",key:"combat"}];
- if(purpose.key==="anomaly")return [{label:"Anomaly Defense",key:"anomaly"}];
- if(purpose.key==="recovery")return [{label:"Health & Recovery",key:"recovery"}];
- return [{label:"Other Effects",key:"other"}];
+ if(purpose.key==="combat")return [{label:"Combat",key:"combat"}];
+ if(purpose.key==="anomaly")return [{label:"Anomaly",key:"anomaly"}];
+ if(purpose.key==="recovery")return [{label:"Recovery",key:"recovery"}];
+ return [];
 }
 function craftTreeRoleMarkup(a){
  return craftTreeRoleInfo(a).map(tag=>'<small class="craft-tree-role craft-tree-role--'+tag.key+'">'+esc(tag.label)+'</small>').join("");
