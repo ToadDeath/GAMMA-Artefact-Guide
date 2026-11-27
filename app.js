@@ -10,7 +10,31 @@ const t=k=>k?(translations.en?.[String(k).toLowerCase()]||k):"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val=a=>a.raw||{};
 async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;TIER_NAMES=a.customTiers||{};artifacts.forEach(a=>a.tier=a.customTier??null);buildStatMaxima();recipes=r.recipes||[];if(document.body.dataset.page==="crafting-tree")renderCraftingTree();else{renderAttributeOptions();render()}loadTranslations()}catch(e){$("#perk-matrix").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
-async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
+async function loadTranslations(){
+ const sources=[
+  "https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json",
+  "https://raw.githubusercontent.com/simonwdev/stalker-anomaly-gamma-db/main/site/public/data/gamma-0.9.5/translations.json"
+ ];
+ let lastError;
+ for(const url of sources){
+  try{
+   const response=await fetch(url);
+   if(!response.ok)throw Error("Localization request failed: "+response.status);
+   translations=await response.json();
+   applyUserTiers();
+   render();
+   if($("#artifact-dialog")?.open){
+    const id=$("#dialog-content")?.dataset.id;
+    const artifact=artifacts.find(x=>x.id===id);
+    if(artifact)openProfile(artifact);
+   }
+   return;
+  }catch(error){lastError=error;console.warn("Translation source unavailable:",url,error)}
+ }
+ console.error("Artefact guide could not load its English translations.",lastError);
+ const target=$("#perk-matrix")||$("#crafting-tree-content");
+ if(target)target.innerHTML='<div class="loading">COULD NOT LOAD ARTEFACT NAMES. PLEASE REFRESH THE PAGE.</div>';
+}
 function artifactName(a){return a.displayName||t(a.nameKey)}
 function artifactDesc(a){return a.descriptionOverride||t(a.descriptionKey).replace(/\\n/g,"\n").replace(/\r\n?/g,"\n").replace(/\n{2,}/g,"\n").trim()}
 function perksText(a){return a.perkDescription||t(a.perkKey)}
