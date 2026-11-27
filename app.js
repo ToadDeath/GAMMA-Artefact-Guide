@@ -312,6 +312,43 @@ function scheduleRouteRedraw(){
  if(!activeRoutes().length||routeRedrawPending)return;routeRedrawPending=true;
  requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRoutes().length)drawRecipeLinks()});
 }
+function buildCraftingOrder(){
+ const classified=artifacts.filter(a=>a.tier!==null);
+ const byId=new Map(classified.map(a=>[a.id,a]));
+ const adjacency=new Map(classified.map(a=>[a.id,new Set()]));
+ const groups=new Map();
+ for(const a of classified){
+  const key=Number(a.tier)===0?"tier-0":String(a.tier)+":"+purposeFor(a).key;
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push(a);
+ }
+ for(const recipe of recipes){
+  if(!byId.has(recipe.id))continue;
+  for(const ingredient of recipe.ingredients||[]){
+   if(!ingredient.artifactId||!byId.has(ingredient.artifactId))continue;
+   adjacency.get(recipe.id).add(ingredient.artifactId);
+   adjacency.get(ingredient.artifactId).add(recipe.id);
+  }
+ }
+ for(const list of groups.values())list.sort((a,b)=>artifactName(a).localeCompare(artifactName(b)));
+ for(let pass=0;pass<10;pass++){
+  const positions=new Map();
+  for(const list of groups.values())list.forEach((a,i)=>positions.set(a.id,list.length<2?0.5:i/(list.length-1)));
+  for(const list of groups.values()){
+   const previous=new Map(list.map((a,i)=>[a.id,i]));
+   const scored=list.map(a=>{
+    const linked=[...adjacency.get(a.id)].map(id=>positions.get(id)).filter(Number.isFinite);
+    const score=linked.length?linked.reduce((sum,n)=>sum+n,0)/linked.length:previous.get(a.id)/(Math.max(1,list.length-1));
+    return {a,score,previous:previous.get(a.id)};
+   });
+   scored.sort((x,y)=>x.score-y.score||x.previous-y.previous||artifactName(x.a).localeCompare(artifactName(y.a)));
+   list.splice(0,list.length,...scored.map(x=>x.a));
+  }
+ }
+ const rank=new Map();
+ for(const list of groups.values())list.forEach((a,i)=>rank.set(a.id,i));
+ return rank;
+}
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),tier=$("#tier").value,purpose=$("#purpose")?.value||"",sort=$("#sort").value;
  const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!tier||String(a.tier)===tier)&&(activeFilter==="all"||(activeFilter==="perk"&&a.perk)||(activeFilter==="craftable"&&a.craftable)||(activeFilter==="junk"&&a.junk)));
@@ -319,7 +356,8 @@ function renderMatrix(){
  const items=eligible.filter(a=>Number(a.tier)>=1&&(!purpose||purposeFor(a).key===purpose));
  const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
  const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
- const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?a.weight-b.weight:sort==="cost"?a.cost-b.cost:artifactName(a).localeCompare(artifactName(b)));
+ const craftingRank=buildCraftingOrder();
+ const sortItems=list=>list.sort((a,b)=>sort==="name"?artifactName(a).localeCompare(artifactName(b)):sort==="weight"?Number(a.weight)-Number(b.weight):sort==="cost"?Number(a.cost)-Number(b.cost):(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
  const card=a=>{
   const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s));
