@@ -229,7 +229,7 @@ function clearRouteSegment(a,b,obstacles){
  return false;
 }
 function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end,sharedLanes=null,existingSegments=[]){
- const clearance=7;
+ const clearance=3.5;
  const allNodes=[...layout.querySelectorAll(".artifact-node")];
  const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
   const r=n.getBoundingClientRect(),tier0=!!n.closest(".tier0-area");return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+(tier0?8:clearance)}:null;
@@ -323,7 +323,7 @@ function drawRecipeLinks(){
  const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
- const clearance=7;
+ const clearance=3.5;
  const sharedLanes={x:[],y:[],dividers:[]};
  layout.querySelectorAll(".tier-column:not(:last-child)").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
@@ -481,10 +481,19 @@ function renderMatrix(){
   const tagMarkup=tags?'<span class="craft-tree-role-list artifact-role-list">'+tags+'</span>':"";
   return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
  };
- const tier0Cards=sortItems([...tier0]).map(card).join("");
+ const clusterParent=new Map(eligible.map(a=>[a.id,a.id]));
+ const findCluster=id=>{let root=id;while(clusterParent.get(root)!==root)root=clusterParent.get(root);while(clusterParent.get(id)!==id){const next=clusterParent.get(id);clusterParent.set(id,root);id=next}return root};
+ const joinCluster=(a,b)=>{if(!clusterParent.has(a)||!clusterParent.has(b))return;const ra=findCluster(a),rb=findCluster(b);if(ra!==rb)clusterParent.set(rb,ra)};
+ for(const recipe of recipes){if(!clusterParent.has(recipe.id))continue;for(const ingredient of recipe.ingredients||[]){const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);if(id)joinCluster(recipe.id,id)}}
+ const groupedCards=list=>{
+  const groups=new Map();
+  for(const artifact of sortItems([...list])){const key=findCluster(artifact.id);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(artifact)}
+  return [...groups.entries()].sort((a,b)=>(craftingRank.get(a[1][0].id)??999)-(craftingRank.get(b[1][0].id)??999)).map(([key,items])=>'<div class="artifact-cluster" data-cluster="'+esc(key)+'">'+items.map(card).join("")+'</div>').join("");
+ };
+ const tier0Cards=groupedCards(tier0);
  const tierColumns=[1,2,3,4].map(t=>{
-  const list=sortItems(eligible.filter(a=>Number(a.tier)===t));
-  return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
+  const list=eligible.filter(a=>Number(a.tier)===t);
+  return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+(list.length?groupedCards(list):'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
  $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area tier-column" data-tier="0" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
