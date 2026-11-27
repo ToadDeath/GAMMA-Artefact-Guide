@@ -522,7 +522,7 @@ function renderCraftingTree(){
  const tabs=roots.map(({recipe,artifact})=>'<button class="chip craft-tree-tab'+(artifact.id===selectedCraftTreeId?' active':'')+'" type="button" role="tab" aria-selected="'+(artifact.id===selectedCraftTreeId)+'" aria-controls="craft-tree-panel" data-craft-tree-tab="'+esc(artifact.id)+'">'+esc(recipe.name||artifactName(artifact))+'</button>').join("");
  const current=roots.find(x=>x.artifact.id===selectedCraftTreeId);
  const panel=current?'<section class="craft-tree-root" id="craft-tree-panel" role="tabpanel"><h3>'+esc(current.recipe.name||artifactName(current.artifact))+'</h3><div class="craft-tree-scroll"><div class="craft-tree-canvas"><svg class="craft-tree-connectors" aria-hidden="true"></svg><ul>'+craftingTreeArtifactMarkup(current.artifact.id,new Set())+'</ul></div></div></section>':'<p class="tier-empty">No Tier 4 crafting recipes found.</p>';
- $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><div class="section-kicker">GAMMA 0.9.5</div><h2>Crafting <em>Tree</em></h2></div><a class="chip craft-tree-back" href="index.html">← ALL ARTEFACTS</a></header><div class="craft-tree-tabs" role="tablist" aria-label="Tier 4 crafting trees">'+tabs+'</div>'+panel;
+ $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><div class="section-kicker">GAMMA 0.9.5</div><h2>Crafting <em>Tree</em></h2></div></header><div class="craft-tree-tabs" role="tablist" aria-label="Tier 4 crafting trees">'+tabs+'</div>'+panel;
  $("#crafting-tree-content").querySelectorAll("[data-craft-tree-tab]").forEach(button=>button.addEventListener("click",()=>{
   selectedCraftTreeId=button.dataset.craftTreeTab;
   renderCraftingTree();
