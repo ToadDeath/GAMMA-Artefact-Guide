@@ -761,3 +761,11 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-artifact-link:hover span{color:var(--acid)}
 .craft-artifact-link:focus-visible{outline:none}
 @media(max-width:520px){.craft-recipe-info{grid-template-columns:1fr}}
+
+
+/* Use one consistent olive-green for every divider in the tier grid. */
+.tier-board>.purpose-label-head,
+.tier-board>.tier-column-head:not([data-tier="4"]){border-right:1px solid #586545!important}
+.tier-board>.purpose-row-label{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
+.tier-board>.purpose-cell{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
+.tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
