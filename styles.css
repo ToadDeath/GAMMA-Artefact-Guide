@@ -632,110 +632,6 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .recipe>.artifact-icon-small{width:38px;height:38px;object-fit:contain;float:right;margin:-7px 0 4px 10px}
 
 
-/* Join the Tier 0 header to the shared tier-board header row. */
-@media(min-width:1121px){
-  .matrix-content{gap:0}
-  .matrix-content>.tier0-area{border-right:1px solid var(--line)}
-  .matrix-content>.tier-board{border-left:0}
-}
-.tier0-area>summary{
-  height:58px;min-height:58px;max-height:58px;
-  margin:0;padding:12px;box-sizing:border-box;
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:#283323;border-bottom:1px solid #586545;
-}
-.tier0-area>summary:before{display:none}
-.tier0-area>summary b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
-.tier0-area>summary>span:last-child{font:9px 'Inter';color:var(--muted);white-space:nowrap}
-@media(max-width:1120px){
-  .tier0-area>summary{margin:0}
-}
-
-
-/* Final unified header row: Tier 0 and the tier board share the same header geometry. */
-@media(min-width:1121px){
- .matrix-content{grid-template-columns:minmax(270px,300px) minmax(0,1fr);gap:0;align-items:stretch}
- .matrix-content>.tier0-area{border:1px solid var(--line);border-right:0;border-bottom:1px solid var(--line);background:rgba(15,20,15,.94)}
- .matrix-content>.tier-board{border:1px solid var(--line);border-left:0;align-self:stretch}
-}
-.tier0-area>summary{
- display:flex;align-items:center;justify-content:space-between;gap:8px;
- height:58px;min-height:58px;max-height:58px;box-sizing:border-box;
- margin:0;padding:12px 12px;list-style:none;cursor:pointer;
- background:#283323;border:0;border-bottom:1px solid #586545;
-}
-.tier0-area>summary::-webkit-details-marker{display:none}
-.tier0-area>summary:before{display:none!important;content:none!important}
-.tier0-area>summary b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
-.tier0-area>summary>span:last-child{font:9px 'Inter';color:var(--muted);white-space:nowrap}
-.tier0-area>.tier0-grid{padding:12px}
-@media(max-width:1120px){
- .matrix-content{gap:12px}
- .matrix-content>.tier0-area{border:1px solid #586545}
- .tier0-area>summary{margin:0}
-}
-
-
-/* Shared tier header component: Tier 0 uses the exact same class as Tiers 1-4. */
-.tier-column-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  height:58px;
-  min-height:58px;
-  box-sizing:border-box;
-  margin:0;
-  padding:12px;
-  background:#283323;
-  border:0;
-  border-bottom:1px solid #586545;
-}
-.tier-column-head b{
-  font:700 18px 'Barlow Condensed';
-  letter-spacing:.08em;
-  color:var(--acid);
-}
-.tier-column-head span{
-  font:9px 'Inter';
-  color:var(--muted);
-  white-space:nowrap;
-}
-/* Only native disclosure behavior is specific to the Tier 0 summary. */
-.tier0-area>summary.tier-column-head{
-  list-style:none;
-  cursor:pointer;
-}
-.tier0-area>summary.tier-column-head::-webkit-details-marker{display:none}
-.tier0-area>summary.tier-column-head:before{display:none!important;content:none!important}
-
-
-/* Final board alignment and interaction cleanup. */
-@media(min-width:1121px){
-  .matrix-content{column-gap:0!important}
-  .matrix-content>.tier0-area{padding-right:0!important;margin-right:0!important}
-  .matrix-content>.tier-board{margin-left:0!important}
-}
-/* Unified board header: Category and every tier use the same type scale and palette. */
-.tier-board>.purpose-label-head{
- display:flex;flex-direction:column;justify-content:center;gap:4px;
- min-width:0;height:58px;min-height:58px;box-sizing:border-box;padding:12px;
- background:#283323;border-right:1px solid #394536;border-bottom:1px solid #586545;
-}
-.tier-board>.purpose-label-head b,.tier-board>.tier-column-head b{
- font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid);
-}
-.tier-board>.purpose-label-head span,.tier-board>.tier-column-head span{
- font:9px 'Inter';color:var(--muted);white-space:nowrap;letter-spacing:normal;
-}
-/* Each tier boundary has one border owner, preventing doubled or uneven separators. */
-.tier-board>.tier-column-head{border-left:0!important;border-right:1px solid #394536!important}
-.tier-board>.tier-column-head[data-tier="4"]{border-right:0!important}
-.tier-board>.purpose-cell{border-left:0!important;border-right:1px solid #303b2d!important}
-.tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
-.matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
-
-
 /* Artefact Melter tool image in recipe cards and artefact profiles. */
 .recipe-tool{display:flex;align-items:center;gap:7px;margin:7px 0 5px;color:#aebc91;font:8px 'Inter';letter-spacing:.08em}
 .recipe-tool img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px #0008)}
@@ -762,24 +658,6 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-artifact-link:focus-visible{outline:none}
 @media(max-width:520px){.craft-recipe-info{grid-template-columns:1fr}}
 
-
-/* Unified one-pixel board dividers with clean outer edges. */
-.tier-board{border:1px solid #586545!important}
-.tier-board>.purpose-label-head,
-.tier-board>.tier-column-head:not([data-tier="4"]){border-right:1px solid #586545!important}
-.tier-board>.purpose-row-label{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
-.tier-board>.purpose-cell{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
-.tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
-/* Tier 0 owns the divider beneath itself; the tier board starts without a top edge. */
-.matrix-content>.tier0-area{border-color:#586545!important;border-bottom:1px solid #586545!important}
-.matrix-content>.tier-board{border-top:0!important}
-/* Let the board's own bottom border be the only line beneath its final row. */
-.tier-board>.purpose-row-label:nth-last-child(5),
-.tier-board>.purpose-cell:nth-last-child(-n+4){border-bottom:0!important}
-@media(min-width:1121px){
- .matrix-content>.tier0-area{border-right:0!important}
- .matrix-content>.tier-board{border-left:0!important}
-}
 
 /* Crafting tree: orthogonal rounded connectors shared with the main matrix. */
 .crafting-tree-dialog{width:min(1600px,calc(100% - 28px));max-width:1600px;max-height:min(92vh,1100px);padding:30px;background:#111710;border:1px solid #586545;color:var(--text);overflow:auto}
@@ -813,19 +691,68 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-tree-recipe>ul{flex-direction:column;align-items:flex-end;justify-content:center;gap:10px}
 .craft-tree-cycle{display:block;color:#d28b77;font:9px 'Inter';margin-top:4px}
 @media(max-width:700px){.crafting-tree-dialog{width:calc(100% - 14px);padding:18px}.craft-tree-heading{display:block}.craft-tree-key{margin-top:12px;white-space:normal}.craft-tree-heading h2{font-size:32px}.craft-tree-item{width:170px}.craft-tree-branch,.craft-tree-leaf{gap:14px}}
-/* Normalize the collapsible Tier 0 header against the Tier 1-4 header row. */
-.tier-board>.purpose-label-head,.tier-board>.tier-column-head,.tier0-area>summary.tier-column-head{
- box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;
- width:100%;height:58px;min-height:58px;margin:0;padding:12px;
- background:#283323;border:0;border-right:1px solid #586545;border-bottom:1px solid #586545;
- border-radius:0;color:var(--acid);font:inherit;line-height:normal;text-align:left;
+
+
+/* Authoritative matrix border system.
+   Tier 0 and the Tier 1-4 grid own their outside edges.
+   Grid cells own internal dividers only. */
+.matrix-content{display:grid!important;grid-template-columns:minmax(270px,300px) minmax(0,1fr)!important;gap:0!important;align-items:stretch!important}
+.matrix-content>.tier0-area{
+ box-sizing:border-box!important;min-width:0!important;min-height:100%!important;margin:0!important;padding:0!important;
+ border:1px solid #586545!important;border-right:0!important;background:rgba(15,20,15,.94)!important;
 }
-.tier0-area>summary.tier-column-head{list-style:none;cursor:pointer}
-.tier0-area>summary.tier-column-head::-webkit-details-marker{display:none}
-.tier0-area>summary.tier-column-head::marker{content:""}
-.tier0-area>summary.tier-column-head>b,.tier-board>.tier-column-head>b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
-.tier0-area>summary.tier-column-head>span,.tier-board>.tier-column-head>span{font:9px 'Inter';color:var(--muted);white-space:nowrap}
-.tier-board>.purpose-label-head{justify-content:center}
-.tier-board>.purpose-label-head>b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
-.tier0-area{margin:0;padding:0;min-width:0}
-.tier0-area>summary.tier-column-head:focus-visible{outline:2px solid #9aaf63;outline-offset:-3px}
+.matrix-content>.tier0-area>summary.tier-column-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ width:100%!important;height:58px!important;min-height:58px!important;max-height:58px!important;
+ box-sizing:border-box!important;margin:0!important;padding:12px!important;
+ border:0!important;border-bottom:1px solid #586545!important;border-radius:0!important;
+ background:#283323!important;list-style:none!important;cursor:pointer!important;
+}
+.matrix-content>.tier0-area>summary.tier-column-head::-webkit-details-marker{display:none!important}
+.matrix-content>.tier0-area>summary.tier-column-head::marker{content:""!important}
+.matrix-content>.tier0-area>summary.tier-column-head:before{display:none!important;content:none!important}
+.matrix-content>.tier0-area>summary.tier-column-head>b,
+.matrix-content>.tier-board>.tier-column-head>b,
+.matrix-content>.tier-board>.purpose-label-head>b{
+ font:700 18px 'Barlow Condensed'!important;letter-spacing:.08em!important;color:var(--acid)!important;
+}
+.matrix-content>.tier0-area>summary.tier-column-head>span,
+.matrix-content>.tier-board>.tier-column-head>span{font:9px 'Inter'!important;color:var(--muted)!important;white-space:nowrap!important}
+.matrix-content>.tier0-area>.tier0-grid{box-sizing:border-box!important;padding:12px!important}
+.matrix-content>.tier-board{
+ display:grid!important;grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr))!important;
+ gap:0!important;align-items:stretch!important;align-self:stretch!important;width:100%!important;min-width:0!important;
+ margin:0!important;box-sizing:border-box!important;border:1px solid #586545!important;border-left:0!important;
+ background:rgba(15,20,15,.94)!important;
+}
+.matrix-content>.tier-board>.purpose-label-head,.matrix-content>.tier-board>.tier-column-head{
+ position:relative!important;top:auto!important;z-index:1!important;display:flex!important;
+ align-items:center!important;justify-content:space-between!important;min-width:0!important;width:auto!important;
+ height:58px!important;min-height:58px!important;box-sizing:border-box!important;margin:0!important;padding:12px!important;
+ border:0!important;border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
+ border-radius:0!important;background:#283323!important;
+}
+.matrix-content>.tier-board>.purpose-label-head{justify-content:center!important}
+.matrix-content>.tier-board>.purpose-row-label,.matrix-content>.tier-board>.purpose-cell{
+ min-width:0!important;box-sizing:border-box!important;border:0!important;
+ border-right:1px solid #586545!important;border-bottom:1px solid #586545!important;
+}
+.matrix-content>.tier-board>:nth-child(5n){border-right:0!important}
+.matrix-content>.tier-board>:nth-last-child(-n+5){border-bottom:0!important}
+.matrix-content>.tier-board>.purpose-cell{background:rgba(12,17,12,.25)!important}
+.matrix-content>.tier-board>.purpose-row-label{background:#1c241b!important}
+.matrix-content>.tier0-area>summary.tier-column-head:focus-visible{outline:2px solid #9aaf63!important;outline-offset:-3px!important}
+@media(max-width:1120px){
+ .matrix-content{display:flex!important;flex-direction:column!important;gap:12px!important;align-items:stretch!important}
+ .matrix-content>.tier0-area{width:100%!important;border:1px solid #586545!important}
+ .matrix-content>.tier-board{width:100%!important;min-width:980px!important;border:1px solid #586545!important}
+}
+@media(min-width:1121px){
+ .matrix-content>.tier0-area{border-right:0!important}
+ .matrix-content>.tier-board{border-left:1px solid #586545!important}
+}
+
+/* Crafting tree nodes are real buttons that open the standard artefact profile. */
+.craft-tree-item{appearance:none;-webkit-appearance:none;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:border-color .14s,background .14s,box-shadow .14s}
+.craft-tree-item:hover,.craft-tree-item:focus-visible{border-color:#9aaf63;background:#303d2b;box-shadow:0 0 0 2px #9aaf6340;outline:none}
+.craft-tree-item:focus-visible{outline:2px solid #9aaf63;outline-offset:2px}
