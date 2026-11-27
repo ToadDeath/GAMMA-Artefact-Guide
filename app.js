@@ -450,7 +450,7 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
@@ -485,15 +485,36 @@ function craftingTreeArtifactMarkup(id,amount="",stack=new Set(),root=false){
  if(!children)return '<li class="craft-tree-leaf">'+row+'</li>';
  return '<li class="craft-tree-branch">'+row+'<div class="craft-tree-recipe"><ul>'+children+'</ul></div></li>';
 }
+function drawCraftTreeConnectors(){
+ document.querySelectorAll(".craft-tree-canvas").forEach(canvas=>{
+  const svg=canvas.querySelector(".craft-tree-connectors");
+  if(!svg)return;
+  const rect=canvas.getBoundingClientRect(),width=Math.max(canvas.scrollWidth,rect.width),height=Math.max(canvas.scrollHeight,rect.height);
+  svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("width",width);svg.setAttribute("height",height);
+  const paths=[];
+  canvas.querySelectorAll(".craft-tree-branch").forEach(branch=>{
+   const parent=branch.querySelector(":scope > .craft-tree-item");
+   const children=branch.querySelectorAll(":scope > .craft-tree-recipe > ul > li > .craft-tree-item");
+   if(!parent||!children.length)return;
+   const pr=parent.getBoundingClientRect(),px=pr.left-rect.left,py=pr.top-rect.top+pr.height/2;
+   children.forEach(child=>{
+    const cr=child.getBoundingClientRect(),sx=cr.right-rect.left,sy=cr.top-rect.top+cr.height/2;
+    const bend=Math.max(28,(px-sx)*.48);
+    paths.push('<path d="M '+sx+' '+sy+' C '+(sx+bend)+' '+sy+', '+(px-bend)+' '+py+', '+px+' '+py+'"/>');
+   });
+  });
+  svg.innerHTML=paths.join("");
+ });
+}
 function openCraftingTree(){
  const roots=recipes.map(r=>({recipe:r,artifact:artifacts.find(a=>a.id===r.id)}))
   .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===String(x.recipe.name||"").toLowerCase()))
   .sort((a,b)=>String(a.recipe.name||"").localeCompare(String(b.recipe.name||"")));
- const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><div class="craft-tree-scroll"><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></div></section>').join("");
+ const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><div class="craft-tree-scroll"><div class="craft-tree-canvas"><svg class="craft-tree-connectors" aria-hidden="true"></svg><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></div></div></section>').join("");
  $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>Artefact-only crafting paths. Follow each branch from the base artefacts on the left to the Tier 4 result on the right.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span>LEFT: INGREDIENTS</span><span>RIGHT: FINISHED ARTEFACT</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Artefact ingredients only. Mutant parts are hidden from this overview.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
  $("#crafting-tree-dialog").showModal();
+ requestAnimationFrame(drawCraftTreeConnectors);
 }
-
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"]];
@@ -572,5 +593,5 @@ function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const l
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
 $("#crafting-tree-button").addEventListener("click",openCraftingTree);$("#crafting-tree-close").addEventListener("click",()=>$("#crafting-tree-dialog").close());$("#crafting-tree-dialog").addEventListener("click",e=>{if(e.target===$("#crafting-tree-dialog"))$("#crafting-tree-dialog").close()});
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
-window.addEventListener("resize",scheduleRouteRedraw);
+window.addEventListener("resize",()=>{scheduleRouteRedraw();drawCraftTreeConnectors()});
 init();
