@@ -586,3 +586,8 @@ dialog{overscroll-behavior:contain}
 
 /* Keep orthogonal connector joins and endpoints visually clean. */
 .recipe-links path{stroke-linecap:round;stroke-linejoin:round}
+
+
+/* Keep the Tier 1 / Tier 2 divider clearly visible across the full board. */
+.tier-board>.tier-column-head[data-tier="2"],
+.tier-board>.purpose-cell[data-tier="2"]{border-left:2px solid #586545}
