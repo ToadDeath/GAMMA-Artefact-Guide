@@ -325,7 +325,7 @@ function drawRecipeLinks(){
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=7;
  const sharedLanes={x:[],y:[],dividers:[]};
- layout.querySelectorAll(".purpose-cell:not(:nth-child(5n))").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
+ layout.querySelectorAll(".tier-column:not(:last-child)").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
  const tier0Area=layout.querySelector(".tier0-area"),tierBoard=layout.querySelector(".tier-board");
  const tier0Boundary=tier0Area&&tierBoard?(tier0Area.getBoundingClientRect().right-base.left):null;
@@ -457,13 +457,27 @@ function buildCraftingOrder(){
  for(const list of groups.values())list.forEach((a,i)=>rank.set(a.id,i));
  return rank;
 }
+const TAG_DEFINITIONS=[
+ {key:"combat",label:"Combat Defense"},
+ {key:"mutant",label:"Mutant Defense"},
+ {key:"anomaly",label:"Anomaly Defense"},
+ {key:"recovery",label:"Health & Recovery"},
+ {key:"other",label:"Other Effects"}
+];
+let selectedTagFilters=new Set();
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),attribute=$("#attribute")?.value||"";
- const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!attribute||(a.stats||[]).some(s=>s.label===attribute&&Number(s.numeric)>0)));
+ const tagFilters=$("#tag-filters");
+ if(tagFilters){
+  tagFilters.innerHTML='<span class="tag-filter-label">TAGS</span>'+TAG_DEFINITIONS.map(tag=>'<button type="button" class="tag-filter-chip'+(selectedTagFilters.has(tag.key)?" active":"")+'" data-tag-filter="'+tag.key+'" aria-pressed="'+String(selectedTagFilters.has(tag.key))+'">'+tag.label+'</button>').join("")+(selectedTagFilters.size?'<button type="button" class="tag-filter-clear" data-clear-tag-filters>CLEAR</button>':"");
+ }
+ const eligible=artifacts.filter(a=>{
+  if(a.tier===null||!matches(a,q))return false;
+  if(attribute&&!(a.stats||[]).some(s=>s.label===attribute&&Number(s.numeric)>0))return false;
+  if(selectedTagFilters.size&&!craftTreeRoleInfo(a).some(tag=>selectedTagFilters.has(tag.key)))return false;
+  return true;
+ });
  const tier0=eligible.filter(a=>Number(a.tier)===0);
- const items=eligible.filter(a=>Number(a.tier)>=1);
- const categories=[{key:"combat",title:"Combat Defense",note:"Ballistic, impact and explosive protection"},{key:"mutant",title:"Mutant Defense",note:"Rupture and psychic protection"},{key:"anomaly",title:"Anomaly Defense",note:"Burn, electrical, chemical and radiation protection"},{key:"recovery",title:"Health & Recovery",note:"Health, wound, stamina and radiation recovery"},{key:"other",title:"Other Effects",note:"Unusual modifiers that do not fit another category"}];
- const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const craftingRank=buildCraftingOrder();
  const sortItems=list=>list.sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
@@ -471,24 +485,20 @@ function renderMatrix(){
   const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s)&&!/^stopped bonus$/i.test(String(s.label||"")));
   const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
-   const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
+  const perk=a.perkTitle?'<span class="perk-card">'+esc(a.perkTitle)+'</span>':"";
   const value='<span class="artifact-value">'+Number(a.cost||0).toLocaleString("en-US")+' RU</span>';
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
+  const tags=craftTreeRoleMarkup(a);
+  const tagMarkup=tags?'<span class="craft-tree-role-list artifact-role-list">'+tags+'</span>':"";
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
- const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
- const header='<div class="purpose-label-head"><b>CATEGORY</b></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head" data-tier="'+t+'"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
- const rows=visibleCategories.map(c=>{
-  const cells=[1,2,3,4].map(t=>{
-   const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
-   return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'')+'</div>';
-  }).join("");
-  const count=items.filter(a=>purposeFor(a).key===c.key).length;
-  return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
+ const tierColumns=[1,2,3,4].map(t=>{
+  const list=sortItems(eligible.filter(a=>Number(a.tier)===t));
+  return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
@@ -499,12 +509,10 @@ function renderMatrix(){
  });
  matrix.querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
- // Connector paths are positioned in board coordinates and move with the board. Do not reroute on scroll.
  matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  drawRecipeLinks();
 }
-
 function craftingTreeArtifactMarkup(id,stack=new Set()){
  const artifact=artifacts.find(a=>a.id===id);
  if(!artifact)return "";
@@ -617,7 +625,7 @@ function craftTreeRoleInfo(a){
  if(purpose.key==="combat")return [{label:"Combat Defense",key:"combat"}];
  if(purpose.key==="anomaly")return [{label:"Anomaly Defense",key:"anomaly"}];
  if(purpose.key==="recovery")return [{label:"Health & Recovery",key:"recovery"}];
- return [{label:purpose.label,key:"other"}];
+ return [{label:"Other Effects",key:"other"}];
 }
 function craftTreeRoleMarkup(a){
  return craftTreeRoleInfo(a).map(tag=>'<small class="craft-tree-role craft-tree-role--'+tag.key+'">'+esc(tag.label)+'</small>').join("");
@@ -658,6 +666,7 @@ const recipeName=r=>{const a=artifacts.find(x=>x.id===r.id);return a?artifactNam
 function craftingIngredientName(i){const id=i.artifactId||ingredientArtifactId(i.name);const a=id?artifacts.find(x=>x.id===id):null;return a?artifactName(a):i.name;}
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>recipeName(r).toLowerCase().includes(q)||String(r.requiredManual||"").toLowerCase().includes(q)||r.ingredients.some(i=>craftingIngredientName(i).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<div class="recipe-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt="" loading="lazy"><span>ARTIFACT MELTER</span></div><small class="recipe-manual">'+esc(r.requiredManual||"No fusion manual required")+'</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i,true)+esc(craftingIngredientName(i))+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
+$("#tag-filters")?.addEventListener("click",event=>{const clear=event.target.closest("[data-clear-tag-filters]");if(clear){selectedTagFilters.clear();render();return}const button=event.target.closest("[data-tag-filter]");if(!button)return;const key=button.dataset.tagFilter;if(selectedTagFilters.has(key))selectedTagFilters.delete(key);else selectedTagFilters.add(key);render()});
 
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare")?.addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id)?.addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
 let craftTreeResizeTimer=0;
