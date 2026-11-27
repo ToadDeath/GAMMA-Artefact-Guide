@@ -405,56 +405,44 @@ function scheduleRouteRedraw(){
 function buildCraftingOrder(){
  const nodes=artifacts.filter(a=>a.tier!==null);
  const byId=new Map(nodes.map(a=>[a.id,a]));
- const groups=new Map();
- const edges=[];
- for(const a of nodes){
-  const key=Number(a.tier)===0?"tier-0":String(a.tier)+":"+purposeFor(a).key;
-  if(!groups.has(key))groups.set(key,[]);
-  groups.get(key).push(a);
- }
+ const layers=new Map([0,1,2,3,4].map(t=>[t,nodes.filter(a=>Number(a.tier)===t).sort((a,b)=>artifactName(a).localeCompare(artifactName(b)))]));
+ const neighbors=new Map(nodes.map(a=>[a.id,new Set()]));
  for(const recipe of recipes){
   if(!byId.has(recipe.id))continue;
   for(const ingredient of recipe.ingredients||[]){
    const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
-   if(id&&byId.has(id)&&id!==recipe.id)edges.push([id,recipe.id]);
-  }
- }
- for(const list of groups.values())list.sort((a,b)=>artifactName(a).localeCompare(artifactName(b)));
- const positions=new Map();
- const updatePositions=()=>{for(const list of groups.values())list.forEach((a,i)=>positions.set(a.id,list.length<2?0:i/(list.length-1)))};
- const incident=new Map(nodes.map(a=>[a.id,[]]));
- for(const [x,y] of edges){incident.get(x)?.push([x,y]);incident.get(y)?.push([x,y])}
- const edgeCost=(edge)=>{const [x,y]=edge;return Math.abs((positions.get(x)??0)-(positions.get(y)??0))};
- updatePositions();
- for(let pass=0;pass<8;pass++){
-  let changed=false;
-  for(const list of groups.values()){
-   if(list.length<2)continue;
-   let swaps=0,improved=true;
-   while(improved&&swaps<Math.min(24,list.length*2)){
-    improved=false;
-    let bestDelta=-1e-9,bestI=-1,bestJ=-1;
-    for(let i=0;i<list.length-1;i++)for(let j=i+1;j<list.length;j++){
-     const x=list[i],y=list[j],oldX=positions.get(x.id),oldY=positions.get(y.id);
-     const affected=new Set([...(incident.get(x.id)||[]),...(incident.get(y.id)||[])]);
-     let before=0;for(const edge of affected)before+=edgeCost(edge);
-     const nx=list.length<2?0:j/(list.length-1),ny=i/(list.length-1);
-     positions.set(x.id,nx);positions.set(y.id,ny);
-     let after=0;for(const edge of affected)after+=edgeCost(edge);
-     positions.set(x.id,oldX);positions.set(y.id,oldY);
-     const delta=after-before;
-     if(delta<bestDelta){bestDelta=delta;bestI=i;bestJ=j}
-    }
-    if(bestI>=0){
-     const temp=list[bestI];list[bestI]=list[bestJ];list[bestJ]=temp;
-     updatePositions();improved=true;changed=true;swaps++;
-    }
+   if(id&&id!==recipe.id&&byId.has(id)){
+    neighbors.get(id).add(recipe.id);
+    neighbors.get(recipe.id).add(id);
    }
   }
-  if(!changed)break;
+ }
+ const position=new Map();
+ const update=()=>{for(const list of layers.values())list.forEach((a,i)=>position.set(a.id,list.length<2?0:i/(list.length-1)))};
+ update();
+ // Repeated barycentric sweeps pull recipe ingredients and outputs toward one another.
+ // All artefacts in a tier participate, so links across purpose categories are considered too.
+ for(let pass=0;pass<12;pass++){
+  const order=pass%2?[4,3,2,1,0]:[0,1,2,3,4];
+  for(const tier of order){
+   const list=layers.get(tier);
+   const scored=list.map((a,index)=>{
+    const linked=[...neighbors.get(a.id)].filter(id=>byId.has(id));
+    const score=linked.length?linked.reduce((sum,id)=>sum+(position.get(id)??0),0)/linked.length:null;
+    return {a,index,score};
+   });
+   scored.sort((x,y)=>{
+    if(x.score===null&&y.score!==null)return 1;
+    if(y.score===null&&x.score!==null)return -1;
+    if(x.score!==null&&y.score!==null&&Math.abs(x.score-y.score)>1e-7)return x.score-y.score;
+    return artifactName(x.a).localeCompare(artifactName(y.a));
+   });
+   layers.set(tier,scored.map(x=>x.a));
+   update();
+  }
  }
  const rank=new Map();
- for(const list of groups.values())list.forEach((a,i)=>rank.set(a.id,i));
+ for(const list of layers.values())list.forEach((a,i)=>rank.set(a.id,i));
  return rank;
 }
 const TAG_DEFINITIONS=[
@@ -498,7 +486,7 @@ function renderMatrix(){
   return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area tier-column" data-tier="0" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
