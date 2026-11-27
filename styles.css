@@ -21,7 +21,7 @@
 .tier-audit{margin-top:10px;border:1px solid var(--line);background:#141a14;padding:11px 14px;color:var(--muted);font:10px "IBM Plex Mono"}.tier-audit summary{cursor:pointer;color:var(--acid)}.tier-audit p{line-height:1.7;margin:8px 0}.tier-audit b{color:#cbd5c0}
 
 /* Keep the tier headings in their own normal-flow row above the tree. */
-.tree-view{display:block;min-width:900px;overflow-x:auto;padding:14px}.tree-tier-rail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 14px;position:relative}.tree-tier-rail span{position:static;display:block;grid-row:auto;grid-column:auto;background:#263123;color:var(--acid);padding:10px 8px;text-align:center;font:9px "IBM Plex Mono";letter-spacing:.08em;border-bottom:1px solid #657747}.tree-lane{display:block;padding:7px 0;border-bottom:1px solid #293329}.tree-lane-content{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start}.tree-column{display:flex;flex-direction:column;gap:7px;min-width:0}.tree-node.unclassified{display:none}
+.tree-view{display:block;min-width:900px;overflow-x:auto;padding:14px}.tree-tier-rail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px;position:relative}.tree-tier-rail span{position:static;display:block;grid-row:auto;grid-column:auto;background:#263123;color:var(--acid);padding:10px 8px;text-align:center;font:9px "IBM Plex Mono";letter-spacing:.08em;border-bottom:1px solid #657747}.tree-lane{display:block;padding:7px 0;border-bottom:1px solid #293329}.tree-lane-content{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:start}.tree-column{display:flex;flex-direction:column;gap:7px;min-width:0}.tree-node.unclassified{display:none}
 
 
 /* Crafting-first guide refresh */
@@ -86,7 +86,7 @@ button.route-chip:hover{border-color:#b8b17a;color:#fff}.route-chip.raw{color:#8
 
 /* Five-tier purpose board */
 #perk-matrix{overflow-x:auto;overflow-y:hidden;padding-bottom:12px}
-.tier-board{position:relative;display:grid;grid-template-columns:repeat(5,minmax(255px,1fr));gap:10px;min-width:1320px;align-items:start}
+.tier-board{position:relative;display:grid;grid-template-columns:repeat(4,minmax(255px,1fr));gap:10px;min-width:1320px;align-items:start}
 .tier-column{position:relative;z-index:auto;min-width:0;background:rgba(15,20,15,.94);border:1px solid var(--line);padding:0 9px 12px}
 .tier-column-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -9px 10px;padding:14px 11px;background:#283323;border-bottom:1px solid #586545}
 .tier-column-head b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
@@ -120,7 +120,7 @@ main{max-width:none;width:100%;padding-left:clamp(20px,2.6vw,64px);padding-right
 footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .about{max-width:900px}
 #perk-matrix{overflow-x:auto;overflow-y:visible;padding:0 0 12px}
-.tier-board{display:grid;grid-template-columns:minmax(190px,0.88fr) repeat(5,minmax(0,1fr));gap:0;min-width:1120px;width:100%;align-items:stretch;border:1px solid var(--line);background:rgba(15,20,15,.94)}
+.tier-board{display:grid;grid-template-columns:minmax(190px,0.88fr) repeat(4,minmax(0,1fr));gap:0;min-width:1120px;width:100%;align-items:stretch;border:1px solid var(--line);background:rgba(15,20,15,.94)}
 .purpose-label-head,.tier-column-head{position:relative;top:auto;z-index:1;min-width:0;min-height:58px;padding:12px 12px;background:#283323;border-bottom:1px solid #586545;border-right:1px solid #394536}
 .purpose-label-head{display:flex;flex-direction:column;justify-content:center;gap:5px;color:var(--acid);font:600 10px 'Inter';letter-spacing:.1em}
 .purpose-label-head small{font:8px 'Inter';color:var(--muted);letter-spacing:.08em}
@@ -165,22 +165,26 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links path{fill:none;stroke:#d6c879;stroke-width:2.1;opacity:.92;marker-end:url(#recipe-arrow);filter:drop-shadow(0 0 2px #0b100b)}
 .recipe-links path.is-source{stroke:#b9df82;stroke-width:2.7}
 .recipe-links path.is-target{stroke:#d8b27b;stroke-width:2.7}
-.artifact-node{position:relative;z-index:3;transition:opacity .15s,border-color .15s,filter .15s}
+.artifact-node{position:relative;z-index:3;transition:border-color .15s,filter .15s}
 .artifact-node.route-active{border-color:#e0d18a;box-shadow:0 0 0 1px #e0d18a66,0 0 16px #d4c16a20}
 .artifact-node.route-related{border-color:#858b82}
-.tier-board:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
 .crafting-hint{margin:9px 0 0;color:#98a18c;font:9px 'Inter';letter-spacing:.07em}
 .stat-list{display:flex;flex-direction:column;gap:5px}
 .stat-line{display:flex;justify-content:space-between;align-items:center;gap:14px}
 .stat-line .name{display:block;flex:1}
 .stat-line .value{display:block;margin:0;white-space:nowrap}
+.craft-recipe-info{display:grid;gap:5px;margin:0 0 10px}
+.craft-recipe-info>div{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:7px 10px;background:#1a2119;border:1px solid #303b2d;font:9px 'Inter'}
+.craft-recipe-info span{color:var(--muted)}
+.craft-recipe-info b{color:#d7dfc9;text-align:right}
+.recipe .recipe-manual{margin:-4px 0 9px;color:#aebc91;line-height:1.45}
 .crafting-profile-group{margin-top:14px}
 .crafting-profile-group h4{margin:0 0 7px;color:#aebc91;font:600 9px 'Inter';letter-spacing:.1em;text-transform:uppercase}
 .craft-material-list{display:flex;flex-direction:column;gap:5px}
 .craft-material{display:flex;justify-content:space-between;gap:14px;padding:9px 11px;background:#20291f;border:1px solid #303b2d;font:10px 'Inter'}
 .craft-material span{color:#cbd4c2}
 .craft-material b{color:var(--acid);font-weight:600;white-space:nowrap}
-@media(max-width:1120px){.tier-board{min-width:0;grid-template-columns:minmax(150px,.8fr) repeat(5,minmax(0,1fr))}.purpose-cell{padding:6px}.purpose-row-label{padding:10px}.purpose-main{grid-template-columns:30px minmax(0,1fr);gap:6px;padding:6px}.purpose-main>img{width:29px;height:29px}.purpose-copy>b{font-size:12px}.effect-tag{font-size:8px}}
+@media(max-width:1120px){.tier-board{min-width:0;grid-template-columns:minmax(150px,.8fr) repeat(4,minmax(0,1fr))}.purpose-cell{padding:6px}.purpose-row-label{padding:10px}.purpose-main{grid-template-columns:30px minmax(0,1fr);gap:6px;padding:6px}.purpose-main>img{width:29px;height:29px}.purpose-copy>b{font-size:12px}.effect-tag{font-size:8px}}
 @media(max-width:900px){#perk-matrix{overflow-x:auto}.tier-board{min-width:980px}.purpose-row-label>small{font-size:8px}}
 
 /* Recipe paths are created only for the artefact currently hovered or focused. */
@@ -190,13 +194,13 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 
 
 /* Compact board values and simplified crafting connectors */
-.tier-board{grid-template-columns:minmax(160px,.78fr) repeat(5,minmax(0,1fr))}
+.tier-board{grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr))}
 .effect-tag{justify-content:flex-start;gap:6px}
 .effect-tag b{margin-left:0;white-space:nowrap}
 .artifact-value{display:block;color:#a9b58e;font:600 9px 'Inter';letter-spacing:.025em;line-height:1.2}
 .recipe-links path{marker-end:none;filter:none;stroke-width:1.6;opacity:.72}
 .recipe-links path.is-source,.recipe-links path.is-target{stroke-width:2;opacity:.9}
-@media(max-width:1120px){.tier-board{grid-template-columns:minmax(145px,.78fr) repeat(5,minmax(0,1fr))}}
+@media(max-width:1120px){.tier-board{grid-template-columns:minmax(145px,.78fr) repeat(4,minmax(0,1fr))}}
 
 
 /* Tier 0 showcase, inline values, and orthogonal crafting routes */
@@ -221,7 +225,6 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links path.is-source{stroke:#b9df82;stroke-width:2.2}
 .recipe-links path.is-target{stroke:#858b82;stroke-width:2.2}
 .matrix-layout .artifact-node{position:relative;z-index:3}
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
 .tier-board{position:relative;z-index:1;grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr));min-width:980px}
 .tier-board .purpose-cell:nth-child(5n){border-right:0}
 .stat-list.negative-list{margin-top:10px}
@@ -297,9 +300,6 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .matrix-layout .route-pin.is-pinned{background:#38432b;border-color:#c5d18e;color:#e4efb6}
 .matrix-layout .route-pin:focus-visible{outline:2px solid #d6c879;outline-offset:2px}
 /* Pinned crafting routes take priority over hover previews. Keep hover feedback subtle. */
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related){opacity:.34}
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):hover,
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):focus-within{opacity:.62;filter:brightness(1.12)}
 .matrix-layout .route-pin{
  width:16px;height:16px;padding:1px;top:3px;left:3px;
  border:0;border-radius:0;background:transparent;color:inherit;
@@ -747,10 +747,4 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .tier-board>.purpose-cell[data-tier="2"]{border-left:0!important;border-right:0!important}
 .tier-board>.tier-column-head[data-tier="3"],
 .tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
-/* Crafting preview highlights the route without dimming the rest of the board. */
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related),
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):hover,
-.matrix-layout:has(.route-active) .artifact-node:not(.route-active):not(.route-related):focus-within{
-  opacity:1!important;
-}
 .matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
