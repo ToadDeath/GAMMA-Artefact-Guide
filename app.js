@@ -55,10 +55,16 @@ function renderAttributeOptions(){
 }
 function purposeScores(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
- const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
- const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
+ const combat=positive.filter(s=>["Ballistic resistance","Impact resistance","Explosive resistance"].includes(s.label));
+ const mutant=positive.filter(s=>["Rupture resistance","Psychic resistance"].includes(s.label));
+ const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
- return [{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery}]
+ return [
+  {key:"combat",label:"Combat Defense",stats:combat},
+  {key:"mutant",label:"Mutant Defense",stats:mutant},
+  {key:"anomaly",label:"Anomaly Defense",stats:anomaly},
+  {key:"recovery",label:"Health & Recovery",stats:recovery}
+ ]
   .map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)}))
   .filter(x=>x.stats.length);
 }
@@ -76,7 +82,7 @@ function downstreamPurposeMap(){
   const own=purposeScores(a).sort((x,y)=>y.score-x.score);
   if(own.length<2||own[1].score<own[0].score*.8)continue;
   const queue=(outputs.get(a.id)||[]).map(id=>({id,depth:1}));
-  const visited=new Set([a.id]),votes={physical:0,anomaly:0,recovery:0};
+  const visited=new Set([a.id]),votes={combat:0,mutant:0,anomaly:0,recovery:0};
   while(queue.length){
    const {id,depth}=queue.shift();
    if(visited.has(id)||depth>4)continue;
@@ -456,7 +462,7 @@ function renderMatrix(){
  const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!attribute||(a.stats||[]).some(s=>s.label===attribute&&Number(s.numeric)>0)));
  const tier0=eligible.filter(a=>Number(a.tier)===0);
  const items=eligible.filter(a=>Number(a.tier)>=1);
- const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
+ const categories=[{key:"combat",title:"Combat Defense",note:"Ballistic, impact and explosive protection"},{key:"mutant",title:"Mutant Defense",note:"Rupture and psychic protection"},{key:"anomaly",title:"Anomaly Defense",note:"Burn, electrical, chemical and radiation protection"},{key:"recovery",title:"Health & Recovery",note:"Health, wound, stamina and radiation recovery"},{key:"other",title:"Other Effects",note:"Unusual modifiers that do not fit another category"}];
  const visibleCategories=categories.filter(c=>items.some(a=>purposeFor(a).key===c.key));
  const craftingRank=buildCraftingOrder();
  const sortItems=list=>list.sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
@@ -608,7 +614,7 @@ function craftTreeRoleInfo(a){
  if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Health & Recovery",key:"recovery"});
  if(tags.length)return tags;
  const purpose=purposeFor(a);
- if(purpose.key==="physical")return [{label:"Combat Defense",key:"combat"}];
+ if(purpose.key==="combat")return [{label:"Combat Defense",key:"combat"}];
  if(purpose.key==="anomaly")return [{label:"Anomaly Defense",key:"anomaly"}];
  if(purpose.key==="recovery")return [{label:"Health & Recovery",key:"recovery"}];
  return [{label:purpose.label,key:"other"}];
