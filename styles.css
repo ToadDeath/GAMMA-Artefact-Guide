@@ -724,65 +724,67 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 @media(max-width:700px){.crafting-tree-dialog{width:calc(100% - 14px);padding:18px}.craft-tree-heading{display:block}.craft-tree-key{margin-top:12px;white-space:normal}.craft-tree-heading h2{font-size:32px}.craft-tree-item{width:170px}.craft-tree-branch,.craft-tree-leaf{gap:14px}}
 
 
-/* Authoritative matrix border system.
-   Tier 0 and the Tier 1-4 grid own their outside edges.
-   Grid cells own internal dividers only. */
-.matrix-content{display:grid!important;grid-template-columns:minmax(270px,300px) minmax(0,1fr)!important;gap:0!important;align-items:stretch!important}
+/* Front-page grid styling follows the actual DOM: Tier 0 panel plus four tier columns.
+   Each tier column owns one consistent outer border; headers share a fixed height. */
+.matrix-content{
+ display:grid!important;
+ grid-template-columns:minmax(230px,270px) minmax(0,1fr)!important;
+ gap:10px!important;align-items:stretch!important;
+}
 .matrix-content>.tier0-area{
  box-sizing:border-box!important;min-width:0!important;min-height:100%!important;margin:0!important;padding:0!important;
- border:1px solid #586545!important;border-right:0!important;background:rgba(15,20,15,.94)!important;
+ border:1px solid #394536!important;background:rgba(15,20,15,.94)!important;
 }
 .matrix-content>.tier0-area>summary.tier-column-head{
  display:flex!important;align-items:center!important;justify-content:space-between!important;
  width:100%!important;height:58px!important;min-height:58px!important;max-height:58px!important;
  box-sizing:border-box!important;margin:0!important;padding:12px!important;
- border:0!important;border-bottom:1px solid #586545!important;border-radius:0!important;
+ border:0!important;border-bottom:1px solid #394536!important;border-radius:0!important;
  background:#283323!important;list-style:none!important;cursor:pointer!important;
 }
 .matrix-content>.tier0-area>summary.tier-column-head::-webkit-details-marker{display:none!important}
 .matrix-content>.tier0-area>summary.tier-column-head::marker{content:""!important}
 .matrix-content>.tier0-area>summary.tier-column-head:before{display:none!important;content:none!important}
 .matrix-content>.tier0-area>summary.tier-column-head>b,
-.matrix-content>.tier-board>.tier-column-head>b,
-.matrix-content>.tier-board>.purpose-label-head>b{
+.matrix-content>.tier-board .tier-column-head>b{
  font:700 18px 'Barlow Condensed'!important;letter-spacing:.08em!important;color:var(--acid)!important;
 }
 .matrix-content>.tier0-area>summary.tier-column-head>span,
-.matrix-content>.tier-board>.tier-column-head>span{font:9px 'Inter'!important;color:var(--muted)!important;white-space:nowrap!important}
+.matrix-content>.tier-board .tier-column-head>span{
+ font:9px 'Inter'!important;color:var(--muted)!important;white-space:nowrap!important;
+}
 .matrix-content>.tier0-area>.tier0-grid{box-sizing:border-box!important;padding:12px!important}
 .matrix-content>.tier-board{
- display:grid!important;grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr))!important;
- gap:0!important;align-items:stretch!important;align-self:stretch!important;width:100%!important;min-width:0!important;
- margin:0!important;box-sizing:border-box!important;border:1px solid #586545!important;border-left:0!important;
- background:rgba(15,20,15,.94)!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:8px!important;align-items:stretch!important;align-self:stretch!important;
+ width:100%!important;min-width:0!important;margin:0!important;padding:0!important;
+ box-sizing:border-box!important;border:0!important;background:transparent!important;
 }
-.matrix-content>.tier-board>.purpose-label-head,.matrix-content>.tier-board>.tier-column-head{
- position:relative!important;top:auto!important;z-index:1!important;display:flex!important;
- align-items:center!important;justify-content:space-between!important;min-width:0!important;width:auto!important;
- height:58px!important;min-height:58px!important;box-sizing:border-box!important;margin:0!important;padding:12px!important;
- border:0!important;border-right:.75px solid #394536!important;border-bottom:1px solid #394536!important;
- border-radius:0!important;background:#283323!important;
+.matrix-content>.tier-board>.tier-column{
+ position:relative!important;z-index:1!important;display:block!important;
+ min-width:0!important;margin:0!important;padding:0 8px 10px!important;
+ box-sizing:border-box!important;border:1px solid #394536!important;
+ border-radius:0!important;background:rgba(15,20,15,.94)!important;
 }
-.matrix-content>.tier-board>.purpose-label-head{align-items:flex-start!important;justify-content:center!important}
-.matrix-content>.tier-board>.purpose-row-label,.matrix-content>.tier-board>.purpose-cell{
- min-width:0!important;box-sizing:border-box!important;border:0!important;
- border-right:.75px solid #394536!important;border-bottom:1px solid #394536!important;
+.matrix-content>.tier-board>.tier-column>.tier-column-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:8px!important;width:auto!important;height:58px!important;min-height:58px!important;max-height:58px!important;
+ box-sizing:border-box!important;margin:0 -8px 8px!important;padding:12px!important;
+ border:0!important;border-bottom:1px solid #394536!important;border-radius:0!important;
+ background:#283323!important;
 }
-.matrix-content>.tier-board>:nth-child(5n){border-right:0!important}
-.matrix-content>.tier-board>:nth-last-child(-n+5){border-bottom:0!important}
-.matrix-content>.tier-board>.purpose-cell{background:rgba(12,17,12,.25)!important}
-.matrix-content>.tier-board>.purpose-row-label{background:#1c241b!important}
-.matrix-content>.tier0-area>summary.tier-column-head:focus-visible{outline:2px solid #9aaf63!important;outline-offset:-3px!important}
+.matrix-content>.tier-board .tier-column>.purpose-cell{
+ min-width:0!important;padding:0!important;border:0!important;background:transparent!important;
+}
+.matrix-content>.tier-board .purpose-card{margin:0 0 7px!important}
+.matrix-content>.tier0-area>summary.tier-column-head:focus-visible{
+ outline:2px solid #9aaf63!important;outline-offset:-3px!important;
+}
 @media(max-width:1300px){
  .matrix-content{display:flex!important;flex-direction:column!important;gap:12px!important;align-items:stretch!important}
- .matrix-content>.tier0-area{width:100%!important;border:1px solid #586545!important}
- .matrix-content>.tier-board{width:100%!important;min-width:980px!important;border:1px solid #586545!important}
+ .matrix-content>.tier0-area{width:100%!important}
+ .matrix-content>.tier-board{width:100%!important;min-width:980px!important}
 }
-@media(min-width:1301px){
- .matrix-content>.tier0-area{border-right:0!important}
- .matrix-content>.tier-board{border-left:1px solid #586545!important}
-}
-
 /* Crafting tree nodes are real buttons that open the standard artefact profile. */
 .craft-tree-item{appearance:none;-webkit-appearance:none;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:border-color .14s,background .14s,box-shadow .14s}
 .craft-tree-item:hover,.craft-tree-item:focus-visible{border-color:#9aaf63;background:#303d2b;box-shadow:0 0 0 2px #9aaf6340;outline:none}
