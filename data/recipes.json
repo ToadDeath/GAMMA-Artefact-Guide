@@ -14,7 +14,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Chimera Cogot",
+          "name": "Chimera Horn",
           "amount": "x4"
         }
       ]
@@ -32,11 +32,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Part Controller Brain Tissue",
+          "name": "Controller Brain Tissue",
           "amount": "x2"
         },
         {
-          "name": "Mutant Burer Hand",
+          "name": "Burer Hand",
           "amount": "x3"
         }
       ]
@@ -50,11 +50,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Psevdodog Meat",
+          "name": "Pseudodog Meat",
           "amount": "x1"
         },
         {
-          "name": "Mutant Zombi Hand",
+          "name": "Zombie Hand",
           "amount": "x1"
         }
       ]
@@ -68,7 +68,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Krovosos Meat",
+          "name": "Bloodsucker Meat",
           "amount": "x1"
         }
       ]
@@ -86,11 +86,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Part Controller Brain Tissue",
+          "name": "Controller Brain Tissue",
           "amount": "x4"
         },
         {
-          "name": "Mutant Heart Chimera",
+          "name": "Chimera Heart",
           "amount": "x4"
         }
       ]
@@ -104,11 +104,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Fang Psevdodog",
+          "name": "Pseudodog Fang",
           "amount": "x1"
         },
         {
-          "name": "Mutant Zombi Hand",
+          "name": "Zombie Hand",
           "amount": "x2"
         }
       ]
@@ -122,11 +122,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Heart",
+          "name": "Dog Heart",
           "amount": "x1"
         },
         {
-          "name": "Mutant Snork Leg",
+          "name": "Snork Tendons",
           "amount": "x1"
         }
       ]
@@ -140,11 +140,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Cat Tail",
+          "name": "Cat Tail",
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Liver",
+          "name": "Dog Liver",
           "amount": "x1"
         }
       ]
@@ -158,7 +158,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Brain Burer",
+          "name": "Burer Brain",
           "amount": "x1"
         }
       ]
@@ -172,11 +172,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Cat Tail",
+          "name": "Cat Tail",
           "amount": "x1"
         },
         {
-          "name": "Mutant Tusk Boar",
+          "name": "Boar Fang",
           "amount": "x1"
         }
       ]
@@ -194,7 +194,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Controller Hand",
+          "name": "Controller Hand",
           "amount": "x3"
         }
       ]
@@ -208,11 +208,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Psysucker Hand",
+          "name": "Psysucker Hand",
           "amount": "x1"
         },
         {
-          "name": "Mutant Psevdodog Tail",
+          "name": "Pseudodog Tail",
           "amount": "x1"
         }
       ]
@@ -226,11 +226,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Cat Thyroid",
+          "name": "Cat Thyroid",
           "amount": "x1"
         },
         {
-          "name": "Mutant Cat Claw",
+          "name": "Cat Claw",
           "amount": "x1"
         }
       ]
@@ -244,11 +244,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Fang Psevdodog",
+          "name": "Pseudodog Fang",
           "amount": "x1"
         },
         {
-          "name": "Mutant Snork Mask",
+          "name": "Snork Mask",
           "amount": "x1"
         }
       ]
@@ -262,11 +262,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Lurker Eye",
+          "name": "Lurker Eye",
           "amount": "x2"
         },
         {
-          "name": "Mutant Flesh Eye",
+          "name": "Flesh Eye",
           "amount": "x1"
         }
       ]
@@ -284,11 +284,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Chimera Claw",
+          "name": "Chimera Claw",
           "amount": "x2"
         },
         {
-          "name": "Mutant Chimera Cogot",
+          "name": "Chimera Horn",
           "amount": "x3"
         }
       ]
@@ -306,11 +306,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Heart Chimera",
+          "name": "Chimera Heart",
           "amount": "x6"
         },
         {
-          "name": "Mutant Controller Hand",
+          "name": "Controller Hand",
           "amount": "x6"
         }
       ]
@@ -328,7 +328,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Pseudogigant Eye",
+          "name": "Pseudogiant Eye",
           "amount": "x3"
         }
       ]
@@ -346,7 +346,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Pseudogigant Hand",
+          "name": "Pseudogiant Hand",
           "amount": "x4"
         }
       ]
@@ -360,7 +360,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Krovosos Meat",
+          "name": "Bloodsucker Meat",
           "amount": "x1"
         }
       ]
@@ -374,7 +374,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Chimera Meat",
+          "name": "Chimera Meat",
           "amount": "x4"
         }
       ]
@@ -388,15 +388,15 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Burer Hand",
+          "name": "Burer Hand",
           "amount": "x3"
         },
         {
-          "name": "Mutant Controller Hand",
+          "name": "Controller Hand",
           "amount": "x1"
         },
         {
-          "name": "Mutant Chimera Claw",
+          "name": "Chimera Claw",
           "amount": "x2"
         }
       ]
@@ -410,15 +410,15 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Snork Hand",
+          "name": "Snork Hand",
           "amount": "x1"
         },
         {
-          "name": "Mutant Zombi Hand",
+          "name": "Zombie Hand",
           "amount": "x1"
         },
         {
-          "name": "Mutant Fracture Hand",
+          "name": "Fracture Hand",
           "amount": "x1"
         }
       ]
@@ -432,15 +432,15 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Krovosos Jaw",
+          "name": "Bloodsucker Jaw",
           "amount": "x2"
         },
         {
-          "name": "Mutant Chimera Claw",
+          "name": "Chimera Claw",
           "amount": "x2"
         },
         {
-          "name": "Mutant Part Controller Brain Tissue",
+          "name": "Controller Brain Tissue",
           "amount": "x1"
         }
       ]
@@ -454,11 +454,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Cat Thyroid",
+          "name": "Cat Thyroid",
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Heart",
+          "name": "Dog Heart",
           "amount": "x1"
         }
       ]
@@ -472,7 +472,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Flesh Eye",
+          "name": "Flesh Eye",
           "amount": "x2"
         }
       ]
@@ -486,11 +486,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Tail",
+          "name": "Dog Tail",
           "amount": "x2"
         },
         {
-          "name": "Mutant Cat Claw",
+          "name": "Cat Claw",
           "amount": "x2"
         }
       ]
@@ -504,11 +504,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Flesh Meat",
+          "name": "Flesh Meat",
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Meat",
+          "name": "Dog Meat",
           "amount": "x1"
         }
       ]
@@ -526,11 +526,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Pseudogigant Hand",
+          "name": "Pseudogiant Hand",
           "amount": "x4"
         },
         {
-          "name": "Mutant Pseudogigant Eye",
+          "name": "Pseudogiant Eye",
           "amount": "x4"
         }
       ]
@@ -544,11 +544,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Boar Leg",
+          "name": "Boar Leg",
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Liver",
+          "name": "Dog Liver",
           "amount": "x1"
         }
       ]
@@ -566,11 +566,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Heart Bloodsucker",
+          "name": "Bloodsucker Heart",
           "amount": "x6"
         },
         {
-          "name": "Mutant Heart Chimera",
+          "name": "Chimera Heart",
           "amount": "x4"
         }
       ]
@@ -584,11 +584,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Snork Leg",
+          "name": "Snork Tendons",
           "amount": "x1"
         },
         {
-          "name": "Mutant Boar Leg",
+          "name": "Boar Leg",
           "amount": "x2"
         }
       ]
@@ -602,11 +602,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Lurker Tail",
+          "name": "Lurker Tail",
           "amount": "x1"
         },
         {
-          "name": "Mutant Krovosos Meat",
+          "name": "Bloodsucker Meat",
           "amount": "x1"
         }
       ]
@@ -620,7 +620,7 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Dog Meat",
+          "name": "Dog Meat",
           "amount": "x3"
         }
       ]
@@ -634,11 +634,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Snork Mask",
+          "name": "Snork Mask",
           "amount": "x1"
         },
         {
-          "name": "Mutant Tusk Boar",
+          "name": "Boar Fang",
           "amount": "x1"
         }
       ]
@@ -652,11 +652,11 @@
           "amount": "x1"
         },
         {
-          "name": "Mutant Lurker Tail",
+          "name": "Lurker Tail",
           "amount": "x2"
         },
         {
-          "name": "Mutant Fracture Hand",
+          "name": "Fracture Hand",
           "amount": "x1"
         }
       ]
