@@ -691,9 +691,9 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 /* Crafting tree: orthogonal rounded connectors shared with the main matrix. */
 .crafting-tree-dialog{width:min(1600px,calc(100% - 28px));max-width:1600px;max-height:min(92vh,1100px);padding:30px;background:#111710;border:1px solid #586545;color:var(--text);overflow:auto}
 .crafting-tree-dialog::backdrop{background:#050805e8}
-.crafting-tree-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:0 42px 18px 0;border-bottom:1px solid #586545}
+.crafting-tree-heading{display:flex;justify-content:flex-start;align-items:center;gap:20px;padding:0 0 14px;border-bottom:1px solid #586545}
 .craft-tree-heading>div:first-child>span{font:9px 'Inter';letter-spacing:.12em;color:var(--acid)}
-.craft-tree-heading h2{margin:7px 0;font:700 38px 'Barlow Condensed';color:#e9eddf}
+.craft-tree-heading h2{margin:0;font:700 38px 'Barlow Condensed';color:#e9eddf}
 .craft-tree-heading h2 em{color:var(--acid);font-style:normal}
 .craft-tree-heading p{margin:0;color:#aab5a3;font:12px/1.6 'Inter'}
 .craft-tree-key{display:flex;gap:14px;flex-wrap:wrap;color:#aab5a3;font:9px 'Inter';white-space:nowrap}
