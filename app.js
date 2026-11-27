@@ -23,14 +23,60 @@ function buildStatMaxima(){
   if(n>0)statMaxima[s.label]=Math.max(statMaxima[s.label]||0,n);
  }
 }
-function purposeFor(a){
+function purposeScores(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
  const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
  const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
- const scores=[{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery}].map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)})).filter(x=>x.stats.length);
- scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
- return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
+ return [{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery}]
+  .map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)}))
+  .filter(x=>x.stats.length);
+}
+let downstreamPurposeCache=null;
+function downstreamPurposeMap(){
+ if(downstreamPurposeCache)return downstreamPurposeCache;
+ const byId=new Map(artifacts.map(a=>[a.id,a]));
+ const outputs=new Map(artifacts.map(a=>[a.id,[]]));
+ for(const recipe of recipes)for(const ingredient of recipe.ingredients||[]){
+  const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
+  if(id&&outputs.has(id)&&byId.has(recipe.id))outputs.get(id).push(recipe.id);
+ }
+ const result=new Map();
+ for(const a of artifacts){
+  const own=purposeScores(a).sort((x,y)=>y.score-x.score);
+  if(own.length<2||own[1].score<own[0].score*.8)continue;
+  const queue=(outputs.get(a.id)||[]).map(id=>({id,depth:1}));
+  const visited=new Set([a.id]),votes={physical:0,anomaly:0,recovery:0};
+  while(queue.length){
+   const {id,depth}=queue.shift();
+   if(visited.has(id)||depth>4)continue;
+   visited.add(id);
+   const next=byId.get(id);if(!next)continue;
+   const scores=purposeScores(next).sort((x,y)=>y.score-x.score);
+   if(scores.length&&(!scores[1]||scores[0].score>=scores[1].score*1.2)){
+    votes[scores[0].key]+=1/depth;
+   }else{
+    for(const outputId of outputs.get(id)||[])queue.push({id:outputId,depth:depth+1});
+   }
+  }
+  const ranked=Object.entries(votes).sort((x,y)=>y[1]-x[1]);
+  const total=ranked.reduce((n,x)=>n+x[1],0);
+  if(total>0&&ranked[0][1]/total>=.75&&ranked[0][1]>ranked[1][1]){
+   result.set(a.id,ranked[0][0]);
+  }
+ }
+ downstreamPurposeCache=result;
+ return result;
+}
+function purposeFor(a){
+ const scores=purposeScores(a).sort((x,y)=>y.score-x.score||x.key.localeCompare(y.key));
+ if(!scores.length)return {key:"other",label:"Other effects",stats:[],score:0};
+ const downstream=downstreamPurposeMap().get(a.id);
+ if(downstream&&scores.length>1&&scores[1].score>=scores[0].score*.8){
+  const chosen=scores.find(x=>x.key===downstream);
+  if(chosen)return chosen;
+ }
+ return scores[0];
 }
 
 const MUTANT_PART_ICONS={
@@ -313,11 +359,11 @@ function scheduleRouteRedraw(){
  requestAnimationFrame(()=>{routeRedrawPending=false;if(activeRoutes().length)drawRecipeLinks()});
 }
 function buildCraftingOrder(){
- const classified=artifacts.filter(a=>a.tier!==null);
- const byId=new Map(classified.map(a=>[a.id,a]));
- const adjacency=new Map(classified.map(a=>[a.id,new Set()]));
+ const nodes=artifacts.filter(a=>a.tier!==null);
+ const byId=new Map(nodes.map(a=>[a.id,a]));
  const groups=new Map();
- for(const a of classified){
+ const edges=[];
+ for(const a of nodes){
   const key=Number(a.tier)===0?"tier-0":String(a.tier)+":"+purposeFor(a).key;
   if(!groups.has(key))groups.set(key,[]);
   groups.get(key).push(a);
@@ -325,25 +371,43 @@ function buildCraftingOrder(){
  for(const recipe of recipes){
   if(!byId.has(recipe.id))continue;
   for(const ingredient of recipe.ingredients||[]){
-   if(!ingredient.artifactId||!byId.has(ingredient.artifactId))continue;
-   adjacency.get(recipe.id).add(ingredient.artifactId);
-   adjacency.get(ingredient.artifactId).add(recipe.id);
+   const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
+   if(id&&byId.has(id)&&id!==recipe.id)edges.push([id,recipe.id]);
   }
  }
  for(const list of groups.values())list.sort((a,b)=>artifactName(a).localeCompare(artifactName(b)));
- for(let pass=0;pass<10;pass++){
-  const positions=new Map();
-  for(const list of groups.values())list.forEach((a,i)=>positions.set(a.id,list.length<2?0.5:i/(list.length-1)));
+ const positions=new Map();
+ const updatePositions=()=>{for(const list of groups.values())list.forEach((a,i)=>positions.set(a.id,list.length<2?0:i/(list.length-1)))};
+ const incident=new Map(nodes.map(a=>[a.id,[]]));
+ for(const [x,y] of edges){incident.get(x)?.push([x,y]);incident.get(y)?.push([x,y])}
+ const edgeCost=(edge)=>{const [x,y]=edge;return Math.abs((positions.get(x)??0)-(positions.get(y)??0))};
+ updatePositions();
+ for(let pass=0;pass<8;pass++){
+  let changed=false;
   for(const list of groups.values()){
-   const previous=new Map(list.map((a,i)=>[a.id,i]));
-   const scored=list.map(a=>{
-    const linked=[...adjacency.get(a.id)].map(id=>positions.get(id)).filter(Number.isFinite);
-    const score=linked.length?linked.reduce((sum,n)=>sum+n,0)/linked.length:previous.get(a.id)/(Math.max(1,list.length-1));
-    return {a,score,previous:previous.get(a.id)};
-   });
-   scored.sort((x,y)=>x.score-y.score||x.previous-y.previous||artifactName(x.a).localeCompare(artifactName(y.a)));
-   list.splice(0,list.length,...scored.map(x=>x.a));
+   if(list.length<2)continue;
+   let swaps=0,improved=true;
+   while(improved&&swaps<Math.min(24,list.length*2)){
+    improved=false;
+    let bestDelta=-1e-9,bestI=-1,bestJ=-1;
+    for(let i=0;i<list.length-1;i++)for(let j=i+1;j<list.length;j++){
+     const x=list[i],y=list[j],oldX=positions.get(x.id),oldY=positions.get(y.id);
+     const affected=new Set([...(incident.get(x.id)||[]),...(incident.get(y.id)||[])]);
+     let before=0;for(const edge of affected)before+=edgeCost(edge);
+     const nx=list.length<2?0:j/(list.length-1),ny=i/(list.length-1);
+     positions.set(x.id,nx);positions.set(y.id,ny);
+     let after=0;for(const edge of affected)after+=edgeCost(edge);
+     positions.set(x.id,oldX);positions.set(y.id,oldY);
+     const delta=after-before;
+     if(delta<bestDelta){bestDelta=delta;bestI=i;bestJ=j}
+    }
+    if(bestI>=0){
+     const temp=list[bestI];list[bestI]=list[bestJ];list[bestJ]=temp;
+     updatePositions();improved=true;changed=true;swaps++;
+    }
+   }
   }
+  if(!changed)break;
  }
  const rank=new Map();
  for(const list of groups.values())list.forEach((a,i)=>rank.set(a.id,i));
