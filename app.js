@@ -9,7 +9,7 @@ const isVisibleStat=s=>!/jump/i.test(String(s.label||""));
 const t=k=>k?(translations.en?.[String(k).toLowerCase()]||k):"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const val=a=>a.raw||{};
-async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;TIER_NAMES=a.customTiers||{};artifacts.forEach(a=>a.tier=a.customTier??null);buildStatMaxima();renderAttributeOptions();recipes=r.recipes||[];render();loadTranslations()}catch(e){$("#perk-matrix").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
+async function init(){try{const [a,r]=await Promise.all([fetch("data/artifacts.json").then(x=>{if(!x.ok)throw Error("artifact data");return x.json()}),fetch("data/recipes.json").then(x=>x.json())]);artifacts=a.artifacts;TIER_NAMES=a.customTiers||{};artifacts.forEach(a=>a.tier=a.customTier??null);buildStatMaxima();recipes=r.recipes||[];if(document.body.dataset.page==="crafting-tree")renderCraftingTree();else{renderAttributeOptions();render()}loadTranslations()}catch(e){$("#perk-matrix").innerHTML='<div class="loading">DATABASE ERROR - CHECK DATA FILES</div>';console.error(e)}}
 async function loadTranslations(){try{const r=await fetch("https://cdn.jsdelivr.net/gh/simonwdev/stalker-anomaly-gamma-db@main/site/public/data/gamma-0.9.5/translations.json");if(!r.ok)throw Error("localization unavailable");translations=await r.json();applyUserTiers();render();if($("#artifact-dialog").open){const id=$("#dialog-content").dataset.id;const a=artifacts.find(x=>x.id===id);if(a)openProfile(a)}}catch(e){console.warn("English localization could not be loaded; showing source identifiers.",e)}}
 function artifactName(a){return a.displayName||t(a.nameKey)}
 function artifactDesc(a){return a.descriptionOverride||t(a.descriptionKey).replace(/\\n/g,"\n").replace(/\r\n?/g,"\n").replace(/\n{2,}/g,"\n").trim()}
@@ -513,7 +513,7 @@ function drawCraftTreeConnectors(){
   svg.innerHTML=paths.join("");
  });
 }
-function openCraftingTree(){
+function renderCraftingTree(){
  const roots=recipes.map(r=>({recipe:r,artifact:artifacts.find(a=>a.id===r.id)}))
   .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===String(x.recipe.name||"").toLowerCase()))
   .sort((a,b)=>String(a.recipe.name||"").localeCompare(String(b.recipe.name||"")));
@@ -523,11 +523,10 @@ function openCraftingTree(){
   const artifact=artifacts.find(a=>a.id===button.dataset.craftTreeArtifact);
   if(artifact)openProfile(artifact);
  }));
- $("#crafting-tree-dialog").showModal();
  requestAnimationFrame(drawCraftTreeConnectors);
 }
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
-function render(){renderMatrix();renderCompare()}
+function render(){if(document.body.dataset.page==="crafting-tree"){renderCraftingTree();return}renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"]];
 function statGroupMarkup(a){
  const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s));
@@ -569,7 +568,7 @@ function perkDetailsMarkup(a){
 function openProfile(a){const dialog=$("#artifact-dialog");document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' · '+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));$("#dialog-content").querySelectorAll("[data-craft-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.craftArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal()}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){
- const section=$("#compare");
+ const section=$("#compare");if(!section)return;
  if(compareIds.size===0){section.hidden=true;return}
  section.hidden=false;
  const items=[...compareIds].map(id=>artifacts.find(a=>a.id===id)).filter(Boolean);
@@ -602,7 +601,7 @@ const recipeName=r=>{const a=artifacts.find(x=>x.id===r.id);return a?artifactNam
 function craftingIngredientName(i){const id=i.artifactId||ingredientArtifactId(i.name);const a=id?artifacts.find(x=>x.id===id):null;return a?artifactName(a):i.name;}
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>recipeName(r).toLowerCase().includes(q)||String(r.requiredManual||"").toLowerCase().includes(q)||r.ingredients.some(i=>craftingIngredientName(i).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<div class="recipe-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt="" loading="lazy"><span>ARTIFACT MELTER</span></div><small class="recipe-manual">'+esc(r.requiredManual||"No fusion manual required")+'</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i,true)+esc(craftingIngredientName(i))+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
-$("#crafting-tree-button").addEventListener("click",openCraftingTree);$("#crafting-tree-close").addEventListener("click",()=>$("#crafting-tree-dialog").close());$("#crafting-tree-dialog").addEventListener("click",e=>{if(e.target===$("#crafting-tree-dialog"))$("#crafting-tree-dialog").close()});
+$("#crafting-tree-button")?.addEventListener("click",()=>{window.location.href="crafting-tree.html"});
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
 window.addEventListener("resize",()=>{scheduleRouteRedraw();drawCraftTreeConnectors()});
 init();
