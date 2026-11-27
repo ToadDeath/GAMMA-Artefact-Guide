@@ -503,7 +503,7 @@ function craftingTreeArtifactMarkup(id,stack=new Set()){
  const artifact=artifacts.find(a=>a.id===id);
  if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
- const icon='<img class="craft-tree-logo" src="'+artifactIcon(artifact)+'" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\''+SOURCE_ICONS+encodeURIComponent(artifact.id)+\'.png\'">';
+ const icon='<img class="craft-tree-logo" src="'+artifactIcon(artifact)+'" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&#39;'+SOURCE_ICONS+encodeURIComponent(artifact.id)+'.png&#39;">';
  const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b></span></button>';
  if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
  if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
