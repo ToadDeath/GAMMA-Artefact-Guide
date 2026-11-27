@@ -467,38 +467,30 @@ function renderMatrix(){
  drawRecipeLinks();
 }
 
-function craftingTreePartMarkup(ingredient){
- const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
- const artifact=id?artifacts.find(a=>a.id===id):null;
- if(artifact)return craftingTreeArtifactMarkup(artifact.id,ingredient.amount,new Set());
- return '<li class="craft-tree-leaf"><div class="craft-tree-part">'+craftingIconMarkup(ingredient)+'<span><b>'+esc(ingredient.name)+'</b><small>MUTANT PART</small></span><strong>'+esc(ingredient.amount||"")+'</strong></div></li>';
-}
 function craftingTreeArtifactMarkup(id,amount="",stack=new Set(),root=false){
  const artifact=artifacts.find(a=>a.id===id);
- if(!artifact)return '<li class="craft-tree-leaf"><div class="craft-tree-part"><span><b>'+esc(id)+'</b></span><strong>'+esc(amount)+'</strong></div></li>';
+ if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
+ const tier=Number.isFinite(Number(artifact.tier))?"TIER "+artifact.tier:"UNRANKED";
  const icon='<img src="'+artifactIcon(artifact)+'" alt="" loading="lazy">';
- const kind=root?"TIER 4 FINAL ARTEFACT":recipe?"CRAFTED ARTEFACT":"BASE ARTEFACT";
- const row='<div class="craft-tree-item">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b><small>'+kind+'</small></span><strong>'+esc(amount)+'</strong></div>';
+ const kind=root?"FINAL ARTEFACT":recipe?"CRAFTED ARTEFACT":"BASE ARTEFACT";
+ const row='<div class="craft-tree-item" data-tier="'+esc(artifact.tier??"unknown")+'">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b><small>'+tier+' · '+kind+'</small></span>'+(amount?'<strong>'+esc(amount)+'</strong>':"")+'</div>';
  if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
  if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
  const nextStack=new Set(stack);nextStack.add(id);
- const children=(recipe.ingredients||[]).map(i=>craftingTreePartMarkupWithStack(i,nextStack)).join("");
- const manual=recipe.requiredManual||"No fusion manual required";
- return '<li class="craft-tree-branch">'+row+'<div class="craft-tree-recipe"><small>ARTIFACT MELTER · '+esc(manual)+'</small><ul>'+children+'</ul></div></li>';
-}
-function craftingTreePartMarkupWithStack(ingredient,stack){
- const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
- const artifact=id?artifacts.find(a=>a.id===id):null;
- if(artifact)return craftingTreeArtifactMarkup(id,ingredient.amount,stack);
- return '<li class="craft-tree-leaf"><div class="craft-tree-part">'+craftingIconMarkup(ingredient)+'<span><b>'+esc(ingredient.name)+'</b><small>MUTANT PART</small></span><strong>'+esc(ingredient.amount||"")+'</strong></div></li>';
+ const children=(recipe.ingredients||[]).filter(i=>{
+  const ingredientId=i.artifactId||ingredientArtifactId(i.name);
+  return ingredientId&&artifacts.some(a=>a.id===ingredientId);
+ }).map(i=>craftingTreeArtifactMarkup(i.artifactId||ingredientArtifactId(i.name),i.amount,nextStack)).filter(Boolean).join("");
+ if(!children)return '<li class="craft-tree-leaf">'+row+'</li>';
+ return '<li class="craft-tree-branch">'+row+'<div class="craft-tree-recipe"><ul>'+children+'</ul></div></li>';
 }
 function openCraftingTree(){
  const roots=recipes.map(r=>({recipe:r,artifact:artifacts.find(a=>a.id===r.id)}))
   .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===String(x.recipe.name||"").toLowerCase()))
   .sort((a,b)=>String(a.recipe.name||"").localeCompare(String(b.recipe.name||"")));
- const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></section>').join("");
- $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>All three craftable Tier 4 artefacts, traced back through every required artefact and mutant part.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span><i class="part-key"></i> Mutant part</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Every crafted step requires the Artifact Melter. Recipe manuals are listed at each step.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
+ const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><div class="craft-tree-scroll"><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></div></section>').join("");
+ $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>Artefact-only crafting paths. Follow each branch from the base artefacts on the left to the Tier 4 result on the right.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span>LEFT: INGREDIENTS</span><span>RIGHT: FINISHED ARTEFACT</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Artefact ingredients only. Mutant parts are hidden from this overview.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
  $("#crafting-tree-dialog").showModal();
 }
 
