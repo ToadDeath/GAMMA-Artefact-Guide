@@ -611,5 +611,12 @@ function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const l
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
 
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare")?.addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id)?.addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
-window.addEventListener("resize",()=>{scheduleRouteRedraw();drawCraftTreeConnectors()});
+let craftTreeResizeTimer=0;
+window.addEventListener("resize",()=>{
+ scheduleRouteRedraw();
+ if(document.body.dataset.page==="crafting-tree"){
+  clearTimeout(craftTreeResizeTimer);
+  craftTreeResizeTimer=setTimeout(()=>requestAnimationFrame(drawCraftTreeConnectors),180);
+ }
+});
 init();
