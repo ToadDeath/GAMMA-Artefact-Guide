@@ -472,7 +472,7 @@ function craftingTreeArtifactMarkup(id,stack=new Set()){
  if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
  const icon='<img src="'+artifactIcon(artifact)+'" alt="" loading="lazy">';
- const row='<div class="craft-tree-item" data-tier="'+esc(artifact.tier??"unknown")+'">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b></span></div>';
+ const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b></span></button>';
  if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
  if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
  const nextStack=new Set(stack);nextStack.add(id);
@@ -511,6 +511,10 @@ function openCraftingTree(){
   .sort((a,b)=>String(a.recipe.name||"").localeCompare(String(b.recipe.name||"")));
  const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(recipe.name||artifactName(artifact))+'</h3><div class="craft-tree-scroll"><div class="craft-tree-canvas"><svg class="craft-tree-connectors" aria-hidden="true"></svg><ul>'+craftingTreeArtifactMarkup(artifact.id,new Set())+'</ul></div></div></section>').join("");
  $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>Artefact-only crafting paths. Follow each branch from the base artefacts on the left to the Tier 4 result on the right.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span>LEFT: INGREDIENTS</span><span>RIGHT: FINISHED ARTEFACT</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Artefact ingredients only. Mutant parts are hidden from this overview.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
+ $("#crafting-tree-content").querySelectorAll("[data-craft-tree-artifact]").forEach(button=>button.addEventListener("click",()=>{
+  const artifact=artifacts.find(a=>a.id===button.dataset.craftTreeArtifact);
+  if(artifact)openProfile(artifact);
+ }));
  $("#crafting-tree-dialog").showModal();
  requestAnimationFrame(drawCraftTreeConnectors);
 }
