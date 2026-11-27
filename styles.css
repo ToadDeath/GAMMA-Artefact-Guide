@@ -800,7 +800,6 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 /* Crafting tree navigation and per-Tier-4 tabs. */
 .crafting-tree-page .craft-tree-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}
 .crafting-tree-page .craft-tree-heading h2{margin:6px 0 0}
-.craft-tree-back{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap}
 .craft-tree-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding-bottom:14px;border-bottom:1px solid #354032}
 .craft-tree-tab{min-height:38px;padding:10px 16px;font-size:10px}
 .crafting-tree-page .craft-tree-root{padding:22px}
