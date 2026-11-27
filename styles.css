@@ -583,3 +583,6 @@ dialog{overscroll-behavior:contain}
     padding-right:10px;
   }
 }
+
+/* Keep orthogonal connector joins and endpoints visually clean. */
+.recipe-links path{stroke-linecap:round;stroke-linejoin:round}
