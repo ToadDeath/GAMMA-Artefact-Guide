@@ -809,7 +809,7 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-tree-item>strong{color:var(--acid);font:600 10px 'Inter';white-space:nowrap}
 .craft-tree-branch,.craft-tree-leaf{display:flex;flex-direction:row-reverse;align-items:center;gap:22px;min-width:0;position:relative}
 .craft-tree-recipe{position:relative;margin:0;padding:0}
-.craft-tree-recipe>ul{align-items:center;justify-content:flex-end;gap:18px}
+.craft-tree-recipe>ul{flex-direction:column;align-items:flex-end;justify-content:center;gap:10px}
 .craft-tree-branch:before{content:"";position:absolute;right:212px;top:50%;width:22px;border-top:1px solid #718653}
 .craft-tree-recipe>.craft-tree-branch:before{right:212px}
 .craft-tree-cycle{display:block;color:#d28b77;font:9px 'Inter';margin-top:4px}
