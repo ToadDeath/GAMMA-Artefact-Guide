@@ -742,12 +742,12 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .matrix-content>.tier-board>.purpose-cell{background:rgba(12,17,12,.25)!important}
 .matrix-content>.tier-board>.purpose-row-label{background:#1c241b!important}
 .matrix-content>.tier0-area>summary.tier-column-head:focus-visible{outline:2px solid #9aaf63!important;outline-offset:-3px!important}
-@media(max-width:1120px){
+@media(max-width:1300px){
  .matrix-content{display:flex!important;flex-direction:column!important;gap:12px!important;align-items:stretch!important}
  .matrix-content>.tier0-area{width:100%!important;border:1px solid #586545!important}
  .matrix-content>.tier-board{width:100%!important;min-width:980px!important;border:1px solid #586545!important}
 }
-@media(min-width:1121px){
+@media(min-width:1301px){
  .matrix-content>.tier0-area{border-right:0!important}
  .matrix-content>.tier-board{border-left:1px solid #586545!important}
 }
