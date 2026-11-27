@@ -677,3 +677,37 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  .matrix-content>.tier0-area{border:1px solid #586545}
  .tier0-area>summary{margin:0}
 }
+
+
+/* Shared tier header component: Tier 0 uses the exact same class as Tiers 1-4. */
+.tier-column-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  height:58px;
+  min-height:58px;
+  box-sizing:border-box;
+  margin:0;
+  padding:12px;
+  background:#283323;
+  border:0;
+  border-bottom:1px solid #586545;
+}
+.tier-column-head b{
+  font:700 18px 'Barlow Condensed';
+  letter-spacing:.08em;
+  color:var(--acid);
+}
+.tier-column-head span{
+  font:9px 'Inter';
+  color:var(--muted);
+  white-space:nowrap;
+}
+/* Only native disclosure behavior is specific to the Tier 0 summary. */
+.tier0-area>summary.tier-column-head{
+  list-style:none;
+  cursor:pointer;
+}
+.tier0-area>summary.tier-column-head::-webkit-details-marker{display:none}
+.tier0-area>summary.tier-column-head:before{display:none!important;content:none!important}
