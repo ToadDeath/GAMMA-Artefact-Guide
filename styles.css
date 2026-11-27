@@ -781,7 +781,7 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  .matrix-content>.tier-board{border-left:0!important}
 }
 
-/* Crafting tree: nested branches with SVG bezier connectors. */
+/* Crafting tree: orthogonal rounded connectors shared with the main matrix. */
 .crafting-tree-dialog{width:min(1600px,calc(100% - 28px));max-width:1600px;max-height:min(92vh,1100px);padding:30px;background:#111710;border:1px solid #586545;color:var(--text);overflow:auto}
 .crafting-tree-dialog::backdrop{background:#050805e8}
 .crafting-tree-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:0 42px 18px 0;border-bottom:1px solid #586545}
@@ -801,21 +801,18 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-tree-scroll{width:100%;overflow:auto;padding:4px 2px 12px;scrollbar-color:#586545 #171f16}
 .craft-tree-canvas{position:relative;width:max-content;min-width:100%;box-sizing:border-box;padding:8px 18px}
 .craft-tree-connectors{position:absolute;inset:0;z-index:0;overflow:visible;pointer-events:none}
-.craft-tree-connectors path{fill:none;stroke:#9aaf63;stroke-width:1.7;stroke-linecap:round;opacity:.82}
+.craft-tree-connectors path{fill:none;stroke:#9aaf63;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.72}
 .craft-tree-canvas>ul,.craft-tree-recipe>ul{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:22px;list-style:none;width:max-content;min-width:100%;margin:0;padding:0;position:relative;z-index:1}
 .craft-tree-item{display:flex;align-items:center;gap:9px;width:190px;min-height:58px;box-sizing:border-box;padding:8px;background:#263323;border:1px solid #526744;border-radius:3px;position:relative;z-index:1}
 .craft-tree-item[data-tier="4"]{background:#303a25;border-color:#9aaf63;box-shadow:inset 0 0 0 1px #9aaf6330}
 .craft-tree-item>img{width:38px;height:38px;object-fit:contain;flex:0 0 38px}
 .craft-tree-item>span{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
 .craft-tree-item b{color:#e5eadb;font:600 11px 'Inter';overflow-wrap:anywhere}
-.craft-tree-item small{color:#a6b28e;font:8px 'Inter';letter-spacing:.045em}
-.craft-tree-item>strong{color:var(--acid);font:600 10px 'Inter';white-space:nowrap}
 .craft-tree-branch,.craft-tree-leaf{display:flex;flex-direction:row-reverse;align-items:center;gap:22px;min-width:0;position:relative}
 .craft-tree-recipe{position:relative;margin:0;padding:0}
 .craft-tree-recipe>ul{flex-direction:column;align-items:flex-end;justify-content:center;gap:10px}
 .craft-tree-cycle{display:block;color:#d28b77;font:9px 'Inter';margin-top:4px}
 @media(max-width:700px){.crafting-tree-dialog{width:calc(100% - 14px);padding:18px}.craft-tree-heading{display:block}.craft-tree-key{margin-top:12px;white-space:normal}.craft-tree-heading h2{font-size:32px}.craft-tree-item{width:170px}.craft-tree-branch,.craft-tree-leaf{gap:14px}}
-
 /* Normalize the collapsible Tier 0 header against the Tier 1-4 header row. */
 .tier-board>.purpose-label-head,.tier-board>.tier-column-head,.tier0-area>summary.tier-column-head{
  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;
