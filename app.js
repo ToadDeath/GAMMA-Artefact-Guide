@@ -440,7 +440,7 @@ function renderMatrix(){
  };
  const tier0Cards=sortItems([...tier0]).map(card).join("");
  const tierCounts=[1,2,3,4].map(t=>items.filter(a=>Number(a.tier)===t).length);
- const header='<div class="purpose-label-head"><b>CATEGORY</b><span>PRIMARY PURPOSE</span></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head" data-tier="'+t+'"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
+ const header='<div class="purpose-label-head"><b>CATEGORY</b></div>'+[1,2,3,4].map((t,i)=>'<div class="tier-column-head" data-tier="'+t+'"><b>TIER '+t+'</b><span>'+tierCounts[i]+' ARTEFACTS</span></div>').join("");
  const rows=visibleCategories.map(c=>{
   const cells=[1,2,3,4].map(t=>{
    const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
