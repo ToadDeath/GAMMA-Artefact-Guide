@@ -840,3 +840,8 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  .crafting-tree-page .craft-tree-tab img{width:30px;height:30px;flex-basis:30px}
  .crafting-tree-page .craft-tree-tab span{font-size:9px}
 }
+
+/* Contextual role labels are currently piloted on crafting-tree profiles only. */
+.crafting-tree-page .profile-title-line{display:flex;align-items:center;flex-wrap:wrap;gap:10px 13px}
+.crafting-tree-page .profile-title-line h2{margin:10px 0 4px}
+.crafting-tree-page .profile-role{display:inline-flex;align-items:center;margin-top:7px;padding:5px 8px;border:1px solid #71824b;background:#273120;color:#d5e4a0;font:600 9px 'Inter';letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
