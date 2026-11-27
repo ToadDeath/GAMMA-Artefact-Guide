@@ -610,7 +610,8 @@ dialog{overscroll-behavior:contain}
 /* Match the Tier 1-4 header dimensions, type and alignment exactly. */
 .tier0-area>summary{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
-  min-height:58px;padding:12px 12px;box-sizing:border-box;
+  height:58px;min-height:58px;max-height:58px;padding:12px 12px;box-sizing:border-box;
+  line-height:normal;white-space:nowrap;
   background:#283323;border-bottom:1px solid #586545;border-right:1px solid #394536;
 }
 .tier0-area>summary b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
