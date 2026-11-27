@@ -493,7 +493,7 @@ function craftingProfileMarkup(a){
  const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>{
   const artifact=artifacts.find(x=>x.id===r.id);
   const content=outputArtifactIconMarkup(r)+'<span>'+esc(recipeName(r))+'</span>';
-  return '<div class="craft-material">'+(artifact?craftArtifactLinkMarkup(artifact,content):content)+'<b>OUTPUT</b></div>';
+  return '<div class="craft-material'+(artifact?' craft-material-linked':'')+'">'+(artifact?craftArtifactLinkMarkup(artifact,content):content)+'</div>';
  }).join("")+'</div></div>':"";
  return '<div class="profile-section"><h3>Crafting</h3>'+requirementMarkup+requiredMarkup+outputMarkup+'</div>';
 }
