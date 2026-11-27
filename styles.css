@@ -613,3 +613,11 @@ dialog{overscroll-behavior:contain}
 /* Reduce expensive full-screen effects while keeping the profile dialog distinct. */
 dialog{contain:layout paint;box-shadow:0 12px 36px #0009;scrollbar-gutter:stable}
 dialog::backdrop{background:#050805e8;backdrop-filter:none}
+
+
+/* Mutant-part inventory icons */
+.craft-material{align-items:center}
+.craft-material .mutant-part-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px;padding:3px;background:#151c15;border:1px solid #354032}
+.craft-material span{flex:1;min-width:0}
+.ingredient{display:inline-flex;align-items:center;gap:6px}
+.mutant-part-icon-small{width:25px;height:25px;object-fit:contain;flex:0 0 25px}
