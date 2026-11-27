@@ -561,11 +561,11 @@ dialog{overscroll-behavior:contain}
  background:rgba(157,165,157,.055)!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade{
- background:rgba(132,174,91,.12)!important;
+ background:#293728!important;
  border-color:#9dbb70!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
- background:rgba(132,174,91,.24)!important;
+ background:#3b4e34!important;
  background-image:none!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-active .effect-tag,
