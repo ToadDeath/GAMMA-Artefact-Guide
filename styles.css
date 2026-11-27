@@ -828,3 +828,15 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  .compact-topbar nav a{min-height:34px;padding:0 10px;font-size:8px;letter-spacing:.08em}
  .compact-topbar .brand b{font-size:9px;letter-spacing:.07em}
 }
+
+
+/* Tier 4 crafting-tree selectors use the artefact's own icon. */
+.crafting-tree-page .craft-tree-tab{display:inline-flex;align-items:center;justify-content:flex-start;gap:9px;min-height:54px;padding:6px 13px;text-align:left}
+.crafting-tree-page .craft-tree-tab img{width:36px;height:36px;flex:0 0 36px;object-fit:contain}
+.crafting-tree-page .craft-tree-tab span{font:600 11px 'Inter';letter-spacing:.06em;white-space:nowrap}
+.crafting-tree-page .craft-tree-tab.active{border-color:#a0b96a;background:#354329;color:#f0f4dc}
+@media(max-width:700px){
+ .crafting-tree-page .craft-tree-tab{min-height:48px;padding:5px 10px;gap:7px}
+ .crafting-tree-page .craft-tree-tab img{width:30px;height:30px;flex-basis:30px}
+ .crafting-tree-page .craft-tree-tab span{font-size:9px}
+}
