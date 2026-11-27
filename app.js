@@ -352,7 +352,15 @@ function drawRecipeLinks(){
 }
 let hoverDrawPending=false;function selectHoverRoute(id){const next=id||"";if(next===hoverRouteId)return;hoverRouteId=next;if(pinnedRouteIds.size||hoverDrawPending)return;hoverDrawPending=true;requestAnimationFrame(()=>{hoverDrawPending=false;drawRecipeLinks()})}
 function togglePinnedRoute(id){
- if(pinnedRouteIds.has(id))pinnedRouteIds.delete(id);else pinnedRouteIds.add(id);
+ const wasPinned=pinnedRouteIds.has(id);
+ if(wasPinned)pinnedRouteIds.delete(id);else pinnedRouteIds.add(id);
+ if(wasPinned&&!pinnedRouteIds.size){
+  // A pin button can retain keyboard focus after the pointer leaves its card.
+  // Do not let that stale focus route reactivate when the final pin is removed.
+  hoverRouteId="";
+  const focused=document.activeElement;
+  if(focused?.classList?.contains("route-pin"))focused.blur();
+ }
  $("#perk-matrix").querySelectorAll(".route-pin").forEach(button=>{
   const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);
   button.setAttribute("aria-pressed",String(pinned));button.title=pinned?"Unpin crafting connections":"Pin crafting connections";
