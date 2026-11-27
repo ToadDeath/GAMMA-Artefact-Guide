@@ -487,8 +487,8 @@ function craftingProfileMarkup(a){
  const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>{
   const id=i.artifactId||ingredientArtifactId(i.name),artifact=id?artifacts.find(x=>x.id===id):null;
   const content=craftingIconMarkup(i)+'<span>'+esc(craftingIngredientName(i))+'</span>';
-  const item=artifact?craftArtifactLinkMarkup(artifact,content):content;
-  return '<div class="craft-material">'+item+'<b>'+esc(i.amount)+'</b></div>';
+  const item=artifact?craftArtifactLinkMarkup(artifact,content+'<b>'+esc(i.amount)+'</b>'):content+'<b>'+esc(i.amount)+'</b>';
+  return '<div class="craft-material'+(artifact?' craft-material-linked':'')+'">'+item+'</div>';
  }).join("")+'</div></div>':"";
  const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>{
   const artifact=artifacts.find(x=>x.id===r.id);
