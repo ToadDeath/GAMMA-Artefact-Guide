@@ -55,9 +55,9 @@ function renderAttributeOptions(){
 }
 function purposeScores(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
- const combat=positive.filter(s=>["Ballistic resistance","Impact resistance","Explosive resistance"].includes(s.label));
- const mutant=positive.filter(s=>["Rupture resistance","Psychic resistance"].includes(s.label));
- const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"].includes(s.label));
+ const combat=positive.filter(s=>["Ballistic resistance","Ballistic cap","Impact resistance","Impact cap","Explosive resistance","Explosive cap"].includes(s.label));
+ const mutant=positive.filter(s=>["Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"].includes(s.label));
+ const anomaly=positive.filter(s=>["Burn resistance","Burn cap","Electrical resistance","Electrical cap","Chemical resistance","Chemical cap","Radiation resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
  return [
   {key:"combat",label:"Combat Defense",stats:combat},
@@ -616,13 +616,14 @@ function craftTreeRoleInfo(a){
  const positive=(a.stats||[]).filter(s=>Number(s.numeric)>0);
  const has=labels=>positive.some(s=>labels.includes(s.label));
  const tags=[];
- if(has(["Ballistic resistance","Impact resistance","Explosive resistance"]))tags.push({label:"Combat",key:"combat"});
- if(has(["Rupture resistance","Psychic resistance"]))tags.push({label:"Mutant",key:"mutant"});
- if(has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]))tags.push({label:"Anomaly",key:"anomaly"});
+ if(has(["Ballistic resistance","Ballistic cap","Impact resistance","Impact cap","Explosive resistance","Explosive cap"]))tags.push({label:"Combat",key:"combat"});
+ if(has(["Rupture resistance","Rupture cap","Psychic resistance","Psychic cap"]))tags.push({label:"Mutant",key:"mutant"});
+ if(has(["Burn resistance","Burn cap","Electrical resistance","Electrical cap","Chemical resistance","Chemical cap","Radiation resistance"]))tags.push({label:"Anomaly",key:"anomaly"});
  if(positive.some(s=>s.group==="Recovery"))tags.push({label:"Recovery",key:"recovery"});
  if(tags.length)return tags;
  const purpose=purposeFor(a);
  if(purpose.key==="combat")return [{label:"Combat",key:"combat"}];
+ if(purpose.key==="mutant")return [{label:"Mutant",key:"mutant"}];
  if(purpose.key==="anomaly")return [{label:"Anomaly",key:"anomaly"}];
  if(purpose.key==="recovery")return [{label:"Recovery",key:"recovery"}];
  return [];
