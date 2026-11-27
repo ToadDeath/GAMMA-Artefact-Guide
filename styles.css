@@ -795,3 +795,26 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .crafting-tree-page .craft-tree-scroll{overflow-x:auto}
 .crafting-tree-page .craft-tree-canvas{min-width:max-content}
 @media(max-width:700px){.crafting-tree-main{width:calc(100% - 24px);margin-top:18px}.crafting-tree-page .craft-tree-heading h2{font-size:34px}}
+
+
+/* Crafting tree navigation and per-Tier-4 tabs. */
+.crafting-tree-page .craft-tree-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.crafting-tree-page .craft-tree-heading h2{margin:6px 0 0}
+.craft-tree-back{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap}
+.craft-tree-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding-bottom:14px;border-bottom:1px solid #354032}
+.craft-tree-tab{min-height:38px;padding:10px 16px;font-size:10px}
+.crafting-tree-page .craft-tree-root{padding:22px}
+.crafting-tree-page .craft-tree-root>h3{font-size:27px;margin-bottom:18px;padding-bottom:13px}
+.crafting-tree-page .craft-tree-canvas{padding:18px 26px}
+.crafting-tree-page .craft-tree-canvas>ul,.crafting-tree-page .craft-tree-recipe>ul{gap:30px}
+.crafting-tree-page .craft-tree-branch,.crafting-tree-page .craft-tree-leaf{gap:30px}
+.crafting-tree-page .craft-tree-item{width:230px;min-height:76px;padding:11px;gap:12px}
+.crafting-tree-page .craft-tree-item>img{width:48px;height:48px;flex-basis:48px}
+.crafting-tree-page .craft-tree-item b{font-size:13px}
+@media(max-width:700px){
+ .crafting-tree-page .craft-tree-heading{align-items:flex-start;flex-direction:column}
+ .craft-tree-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:12px}
+ .craft-tree-tab{flex:0 0 auto}
+ .crafting-tree-page .craft-tree-root{padding:14px}
+ .crafting-tree-page .craft-tree-item{width:205px}
+}
