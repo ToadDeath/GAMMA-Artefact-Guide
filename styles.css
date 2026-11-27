@@ -884,3 +884,12 @@ footer{align-items:center;gap:18px;padding-top:14px;padding-bottom:14px}
 .project-github-link{min-width:150px}
 @media(max-width:700px){.footer-links{flex-wrap:wrap;gap:12px}}
 @media(max-width:700px){footer{align-items:flex-start;gap:12px}}
+
+/* Match both footer credits as compact icon-and-wordmark links. */
+.footer-links{gap:26px}
+.source-database-link{gap:11px;min-height:40px}
+.source-database-link img{width:30px;height:30px;flex:0 0 30px}
+.project-github-link{min-width:0}
+.project-github-link img{filter:grayscale(1) brightness(1.45);transition:filter .18s}
+.project-github-link:hover img,.project-github-link:focus-visible img{filter:brightness(0) saturate(100%) invert(73%) sepia(24%) saturate(693%) hue-rotate(336deg) brightness(96%) contrast(88%) drop-shadow(0 0 5px #c8875c66)}
+@media(max-width:700px){.footer-links{justify-content:flex-start;gap:14px 20px}.source-database-link b{font-size:8px}}
