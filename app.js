@@ -55,11 +55,10 @@ function renderAttributeOptions(){
 }
 function purposeScores(a){
  const positive=a.stats.filter(s=>Number(s.numeric)>0);
- const combat=positive.filter(s=>["Ballistic resistance","Impact resistance","Explosive resistance"].includes(s.label));
- const mutant=positive.filter(s=>["Rupture resistance","Psychic resistance"].includes(s.label));
- const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"].includes(s.label));
+ const physical=positive.filter(s=>["Ballistic resistance","Impact resistance","Rupture resistance","Explosive resistance"].includes(s.label));
+ const anomaly=positive.filter(s=>["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance","Psychic resistance"].includes(s.label));
  const recovery=positive.filter(s=>s.group==="Recovery");
- return [{key:"combat",label:"Combat Defense",stats:combat},{key:"mutant",label:"Mutant Defense",stats:mutant},{key:"anomaly",label:"Anomaly Resistance",stats:anomaly},{key:"recovery",label:"Healing & Recovery",stats:recovery}]
+ return [{key:"physical",label:"Physical resistance",stats:physical},{key:"anomaly",label:"Anomaly resistance",stats:anomaly},{key:"recovery",label:"Healing & recovery",stats:recovery}]
   .map(x=>({...x,score:x.stats.reduce((n,s)=>n+(Math.abs(Number(s.numeric)||0)/(statMaxima[s.label]||Math.abs(Number(s.numeric)||1))),0)}))
   .filter(x=>x.stats.length);
 }
@@ -77,7 +76,7 @@ function downstreamPurposeMap(){
   const own=purposeScores(a).sort((x,y)=>y.score-x.score);
   if(own.length<2||own[1].score<own[0].score*.8)continue;
   const queue=(outputs.get(a.id)||[]).map(id=>({id,depth:1}));
-  const visited=new Set([a.id]),votes={combat:0,mutant:0,anomaly:0,recovery:0};
+  const visited=new Set([a.id]),votes={physical:0,anomaly:0,recovery:0};
   while(queue.length){
    const {id,depth}=queue.shift();
    if(visited.has(id)||depth>4)continue;
@@ -599,7 +598,21 @@ function perkDetailsMarkup(a){
  const lucifer=d.relatedArtifactId?'<button type="button" class="related-artifact-link" data-related-artifact="'+esc(d.relatedArtifactId)+'">Lucifer</button>':"";
  return '<div class="perk-detail"><h4>'+esc(d.heading||"ADDITIONAL MECHANICS")+'</h4><table class="perk-thresholds"><thead><tr><th>HEARTS EQUIPPED</th><th>LOW-HEALTH THRESHOLD</th></tr></thead><tbody>'+thresholds.map(x=>'<tr><td>'+esc(x.count)+'</td><td>'+esc(x.threshold)+'</td></tr>').join("")+'</tbody></table><div class="perk-properties"><div><span>'+esc(stacking.label||"Stacking")+'</span><b>'+esc(stacking.value||"")+'</b></div><div><span>'+esc(diminishing.label||"Diminishing returns")+'</span><b>'+esc(diminishing.value||"")+'</b></div></div><p class="perk-detail-note">'+esc(d.healingNote||"")+'</p><div class="perk-synergy"><h4>LUCIFER INTERACTION</h4><p>'+esc(d.luciferNote||"")+'</p><p class="perk-related">Related artefact: '+lucifer+'</p></div></div>';
 }
-function craftTreeRole(a){const roles={af_compass:"Combat & Mutant Defense",af_oasis_heart:"Health & Recovery",af_monolith:"Anomaly & Mutant Defense"};return roles[a.id]||purposeFor(a).label;}
+function craftTreeRole(a){
+ const positive=(a.stats||[]).filter(s=>Number(s.numeric)>0);
+ const has=labels=>positive.some(s=>labels.includes(s.label));
+ const combat=has(["Ballistic resistance","Impact resistance","Explosive resistance"]);
+ const mutant=has(["Rupture resistance","Psychic resistance"]);
+ const anomaly=has(["Burn resistance","Electrical resistance","Chemical resistance","Radiation resistance"]);
+ const recovery=positive.some(s=>s.group==="Recovery");
+ if(combat&&mutant)return "Combat & Mutant Defense";
+ if(mutant&&anomaly)return "Mutant & Anomaly Defense";
+ if(combat)return "Combat Defense";
+ if(mutant)return "Mutant Defense";
+ if(anomaly)return "Anomaly Resistance";
+ if(recovery)return "Health & Recovery";
+ return purposeFor(a).label;
+}
 function openProfile(a){const dialog=$("#artifact-dialog");dialog.scrollTop=0;document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' · '+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));$("#dialog-content").querySelectorAll("[data-craft-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.craftArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal();dialog.scrollTop=0;requestAnimationFrame(()=>{dialog.scrollTop=0;dialog.querySelector(".profile")?.scrollTo(0,0);});}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){
