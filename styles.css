@@ -848,11 +848,11 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 
 /* Contextual role descriptor beside the selected Tier 4 tree title. */
 .crafting-tree-page .craft-tree-root>h3.craft-tree-title{display:flex;align-items:center;flex-wrap:wrap;gap:9px 13px}
-.crafting-tree-page .craft-tree-role{display:inline-flex;align-items:center;padding:5px 8px;border:1px solid #71824b;background:#273120;color:#d5e4a0;font:600 9px 'Inter';letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.crafting-tree-page .craft-tree-role{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:142px;min-height:28px;padding:3px 6px;border:1px solid #71824b;background:#273120;color:#d5e4a0;font:600 8px/1.2 'Inter';letter-spacing:.07em;text-align:center;text-transform:uppercase;white-space:normal}
 
 
 /* Compact category labels on crafting-tree artefact nodes. */
-.crafting-tree-page .craft-tree-item .craft-tree-role{align-self:flex-start;max-width:100%;padding:3px 5px;font-size:7px;letter-spacing:.07em;white-space:normal;line-height:1.25}
+.crafting-tree-page .craft-tree-item .craft-tree-role{align-self:flex-start;max-width:100%}
 
 /* Crafting tree role badges use distinct, muted category colors. */
 .crafting-tree-page .craft-tree-role--combat{border-color:#986342;background:#38291f;color:#f0bd91}
