@@ -32,6 +32,24 @@ function purposeFor(a){
  scores.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
  return scores[0]||{key:"other",label:"Other effects",stats:[],score:0};
 }
+
+const MUTANT_PART_ICONS={
+ "mutant boar leg":"boar_leg","mutant brain burer":"burer_brain","mutant burer hand":"burer_hand",
+ "mutant cat claw":"cat_claw","mutant cat tail":"cat_tail","mutant cat thyroid":"cat_thyroid",
+ "mutant chimera claw":"chimera_claw","mutant chimera cogot":"chimera_horn",
+ "mutant controller hand":"controller_hand","mutant dog heart":"dog_heart","mutant dog liver":"dog_liver",
+ "mutant fang psevdodog":"pseudodog_fang","mutant flesh eye":"flesh_eye","mutant flesh meat":"flesh_meat",
+ "mutant fracture hand":"fracture_hand","mutant heart chimera":"chimera_heart",
+ "mutant krovosos meat":"bloodsucker_meat","mutant lurker eye":"lurker_eye","mutant lurker tail":"lurker_tail",
+ "mutant part controller brain tissue":"controller_brain_tissue","mutant pseudogigant eye":"pseudogigant_eye",
+ "mutant pseudogigant hand":"pseudogigant_hand","mutant psevdodog meat":"pseudodog_meat",
+ "mutant psysucker hand":"psysucker_hand","mutant snork mask":"snork_mask",
+ "mutant tusk boar":"boar_fang","mutant zombi hand":"zombi_hand"
+};
+function mutantPartIcon(name){
+ const slug=MUTANT_PART_ICONS[String(name||"").trim().toLowerCase()];
+ return slug ? "assets/artifacts/mutant_part_"+slug+".png" : "";
+}
 function ingredientArtifactId(name){
  const aliases={"cristall":"af_cristall","cristall flower":"af_cristall_flower","baloon":"af_baloon","gold fish":"af_gold_fish","night star":"af_night_star","oasis heart":"af_oasis_heart","skull miser":"af_skull_miser","spaika":"af_spaika","vyvert":"af_vyvert","fonar":"af_fonar","zhelch":"af_zhelch","ear":"af_ear","electra sparkler":"af_electra_sparkler","electra moonlight":"af_electra_moonlight","electra flash":"af_electra_flash","medusa":"af_medusa","mincer meat":"af_mincer_meat","glass":"af_glass","fire":"af_fire","fire loop":"af_fire_loop","blood":"af_blood","dummy battery":"af_dummy_battery","dummy dummy":"af_dummy_dummy","dummy glassbeads":"af_dummy_glassbeads","fuzz kolobok":"af_fuzz_kolobok","ice":"af_ice"};
  const key=String(name||"").trim().toLowerCase();
@@ -316,7 +334,7 @@ function craftingProfileMarkup(a){
  const required=recipes.find(r=>r.id===a.id);
  const outputs=recipes.filter(r=>(r.ingredients||[]).some(i=>ingredientArtifactId(i.name)===a.id));
  if(!required&&!outputs.length)return "";
- const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>'<div class="craft-material"><span>'+esc(t(i.name)||i.name)+'</span><b>'+esc(i.amount)+'</b></div>').join("")+'</div></div>':"";
+ const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>{const icon=mutantPartIcon(i.name);return '<div class="craft-material">'+(icon?'<img class="mutant-part-icon" src="'+icon+'" alt="" loading="lazy">':"")+'<span>'+esc(t(i.name)||i.name)+'</span><b>'+esc(i.amount)+'</b></div>'}).join("")+'</div></div>':"";
  const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>'<div class="craft-material"><span>'+esc(recipeName(r))+'</span><b>OUTPUT</b></div>').join("")+'</div></div>':"";
  return '<div class="profile-section"><h3>Crafting</h3>'+requiredMarkup+outputMarkup+'</div>';
 }
@@ -362,7 +380,7 @@ function renderCompare(){
  $("#compare-content").innerHTML='<div class="compare-table" style="--compare-count:'+items.length+'"><div class="compare-headings"><span></span>'+items.map(a=>'<h4>'+esc(artifactName(a))+' / '+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+'</h4>').join("")+'</div>'+rows+metrics+'</div>';
 }
 const recipeName=r=>t(r.name)||r.name;
-function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
+function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>r.name.toLowerCase().includes(q)||r.ingredients.some(i=>(t(i.name)||i.name).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong><small>ARTIFACT MELTER / RECIPE</small><div class="ingredients">'+r.ingredients.map(i=>{const icon=mutantPartIcon(i.name);return '<span class="ingredient">'+(icon?'<img class="mutant-part-icon-small" src="'+icon+'" alt="" loading="lazy">':"")+esc(t(i.name)||i.name)+' '+esc(i.amount)+'</span>'}).join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","tier","sort","purpose"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));
 window.addEventListener("resize",scheduleRouteRedraw);
