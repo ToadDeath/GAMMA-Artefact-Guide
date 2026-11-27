@@ -504,7 +504,8 @@ function craftingTreeArtifactMarkup(id,stack=new Set()){
  if(!artifact)return "";
  const recipe=recipes.find(r=>r.id===id);
  const icon='<img class="craft-tree-logo" src="'+artifactIcon(artifact)+'" alt="" loading="eager" decoding="async" onerror="this.onerror=null;this.src=&#39;'+SOURCE_ICONS+encodeURIComponent(artifact.id)+'.png&#39;">';
- const role=craftTreeRole(artifact);\n const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b>'+(role?'<small class="craft-tree-role">'+esc(role)+'</small>':"")+'</span></button>';
+ const role=craftTreeRole(artifact);
+ const row='<button class="craft-tree-item" type="button" data-craft-tree-artifact="'+esc(artifact.id)+'" aria-label="Open '+esc(artifactName(artifact))+' profile">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b>'+(role?'<small class="craft-tree-role">'+esc(role)+'</small>':"")+'</span></button>';
  if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
  if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
  const nextStack=new Set(stack);nextStack.add(id);
