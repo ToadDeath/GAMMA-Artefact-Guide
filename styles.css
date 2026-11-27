@@ -867,3 +867,17 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .crafting-tree-page .craft-tree-role-list{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
 .crafting-tree-page .craft-tree-title>.craft-tree-role-list{display:inline-flex;vertical-align:middle}
 .crafting-tree-page .craft-tree-item .craft-tree-role-list{align-self:flex-start;max-width:100%}
+
+/* Tighter ending to the artefact catalogue and a subtle source-database action. */
+.catalog{padding-bottom:28px}
+#perk-matrix{padding-bottom:0}
+footer{align-items:center;gap:18px;padding-top:14px;padding-bottom:14px}
+.source-database-link{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:7px 11px;border:1px solid #8c6047;background:linear-gradient(135deg,#241d18,#171813);color:#e2b08c;text-decoration:none;transition:border-color .18s,background .18s,box-shadow .18s}
+.source-database-link img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 0 5px #c8875c55)}
+.source-database-link>span:nth-child(2){display:flex;flex-direction:column;gap:4px}
+.source-database-link small{font:600 7px 'Inter';letter-spacing:.16em;color:#b98769}
+.source-database-link b{font:600 9px 'Inter';letter-spacing:.08em;color:#f0d0b7}
+.source-database-link .source-external{font:14px 'Inter';color:#d89a72;margin-left:5px}
+.source-database-link:hover,.source-database-link:focus-visible{border-color:#c8875c;background:linear-gradient(135deg,#34251d,#1d1915);box-shadow:0 0 9px #c8875c35,0 0 20px #c8875c18;outline:none}
+.footer-note{margin-left:auto}
+@media(max-width:700px){footer{align-items:flex-start;gap:12px}.footer-note{margin-left:0}}
