@@ -817,3 +817,14 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
  .crafting-tree-page .craft-tree-root{padding:14px}
  .crafting-tree-page .craft-tree-item{width:205px}
 }
+
+
+/* Make page-to-page navigation clearly visible, including on narrow screens. */
+.compact-topbar nav{display:flex;align-items:center;gap:10px;margin-left:auto}
+.compact-topbar nav a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 15px;border:1px solid #71824b;background:#273120;color:#d5e4a0;font:600 10px 'Inter';letter-spacing:.12em;text-decoration:none;white-space:nowrap;transition:background .16s,border-color .16s,color .16s}
+.compact-topbar nav a:hover,.compact-topbar nav a.active{background:#354329;border-color:#a0b96a;color:#f0f4dc}
+@media(max-width:700px){
+ .compact-topbar nav{display:flex;gap:6px}
+ .compact-topbar nav a{min-height:34px;padding:0 10px;font-size:8px;letter-spacing:.08em}
+ .compact-topbar .brand b{font-size:9px;letter-spacing:.07em}
+}
