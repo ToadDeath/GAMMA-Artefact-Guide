@@ -592,11 +592,6 @@ dialog{overscroll-behavior:contain}
 .recipe-links path{stroke-linecap:round;stroke-linejoin:round}
 
 
-/* Keep the Tier 1 / Tier 2 divider clearly visible across the full board. */
-.tier-board>.tier-column-head[data-tier="2"],
-.tier-board>.purpose-cell[data-tier="2"]{border-left:2px solid #586545}
-
-
 /* Match the Tier 0 header to the Tier 1-4 column headers. */
 .tier0-area>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;padding:14px 11px;background:#283323;border-bottom:1px solid #586545;}
 .tier0-area>summary:before{display:none}
@@ -735,12 +730,13 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .tier-board>.purpose-label-head span,.tier-board>.tier-column-head span{
  font:9px 'Inter';color:var(--muted);white-space:nowrap;letter-spacing:normal;
 }
-/* Header separators are consistent; the stronger Tier 2 / Tier 3 divider starts below the header. */
-.tier-board>.tier-column-head{border-right:1px solid #394536!important}
+/* Each tier boundary has one border owner, preventing doubled or uneven separators. */
+.tier-board>.tier-column-head{border-left:0!important;border-right:1px solid #394536!important}
 .tier-board>.tier-column-head[data-tier="4"]{border-right:0!important}
-.tier-board>.tier-column-head[data-tier="3"]{border-left:0!important}
-.tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
+.tier-board>.purpose-cell{border-left:0!important;border-right:1px solid #303b2d}
 .tier-board>.purpose-cell[data-tier="2"]{border-right:0!important}
+.tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
+.tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
 .matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
 
 
