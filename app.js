@@ -476,13 +476,25 @@ function statGroupMarkup(a){
  const lines=list=>list.map(s=>'<div class="stat-line"><span class="name">'+esc(s.label)+'</span><strong class="value '+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</strong></div>').join("");
  return (positives.length?'<div class="profile-section"><div class="stat-list positive-list">'+lines(positives)+'</div></div>':"")+(negatives.length?'<div class="profile-section"><div class="stat-list negative-list">'+lines(negatives)+'</div></div>':"");
 }
+function craftArtifactLinkMarkup(artifact,content){
+ return '<button type="button" class="craft-artifact-link" data-craft-artifact="'+esc(artifact.id)+'">'+content+'</button>';
+}
 function craftingProfileMarkup(a){
  const required=recipes.find(r=>r.id===a.id);
  const outputs=recipes.filter(r=>(r.ingredients||[]).some(i=>(i.artifactId||ingredientArtifactId(i.name))===a.id));
  if(!required&&!outputs.length)return "";
  const requirementMarkup=required?'<div class="craft-recipe-info"><div><span>Required tool</span><b class="craft-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt="" loading="lazy">'+esc(required.tool||"Artifact Melter")+'</b></div><div><span>Recipe manual</span><b>'+esc(required.requiredManual||"No manual required")+'</b></div></div>':"";
- const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>'<div class="craft-material">'+craftingIconMarkup(i)+'<span>'+esc(craftingIngredientName(i))+'</span><b>'+esc(i.amount)+'</b></div>').join("")+'</div></div>':"";
- const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>'<div class="craft-material">'+outputArtifactIconMarkup(r)+'<span>'+esc(recipeName(r))+'</span><b>OUTPUT</b></div>').join("")+'</div></div>':"";
+ const requiredMarkup=required?'<div class="crafting-profile-group"><h4>Required materials</h4><div class="craft-material-list">'+required.ingredients.map(i=>{
+  const id=i.artifactId||ingredientArtifactId(i.name),artifact=id?artifacts.find(x=>x.id===id):null;
+  const content=craftingIconMarkup(i)+'<span>'+esc(craftingIngredientName(i))+'</span>';
+  const item=artifact?craftArtifactLinkMarkup(artifact,content):content;
+  return '<div class="craft-material">'+item+'<b>'+esc(i.amount)+'</b></div>';
+ }).join("")+'</div></div>':"";
+ const outputMarkup=outputs.length?'<div class="crafting-profile-group"><h4>Used to craft</h4><div class="craft-material-list">'+outputs.map(r=>{
+  const artifact=artifacts.find(x=>x.id===r.id);
+  const content=outputArtifactIconMarkup(r)+'<span>'+esc(recipeName(r))+'</span>';
+  return '<div class="craft-material">'+(artifact?craftArtifactLinkMarkup(artifact,content):content)+'<b>OUTPUT</b></div>';
+ }).join("")+'</div></div>':"";
  return '<div class="profile-section"><h3>Crafting</h3>'+requirementMarkup+requiredMarkup+outputMarkup+'</div>';
 }
 function perkDetailsMarkup(a){
@@ -494,7 +506,7 @@ function perkDetailsMarkup(a){
  const lucifer=d.relatedArtifactId?'<button type="button" class="related-artifact-link" data-related-artifact="'+esc(d.relatedArtifactId)+'">Lucifer</button>':"";
  return '<div class="perk-detail"><h4>'+esc(d.heading||"ADDITIONAL MECHANICS")+'</h4><table class="perk-thresholds"><thead><tr><th>HEARTS EQUIPPED</th><th>LOW-HEALTH THRESHOLD</th></tr></thead><tbody>'+thresholds.map(x=>'<tr><td>'+esc(x.count)+'</td><td>'+esc(x.threshold)+'</td></tr>').join("")+'</tbody></table><div class="perk-properties"><div><span>'+esc(stacking.label||"Stacking")+'</span><b>'+esc(stacking.value||"")+'</b></div><div><span>'+esc(diminishing.label||"Diminishing returns")+'</span><b>'+esc(diminishing.value||"")+'</b></div></div><p class="perk-detail-note">'+esc(d.healingNote||"")+'</p><div class="perk-synergy"><h4>LUCIFER INTERACTION</h4><p>'+esc(d.luciferNote||"")+'</p><p class="perk-related">Related artefact: '+lucifer+'</p></div></div>';
 }
-function openProfile(a){const dialog=$("#artifact-dialog");document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' · '+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal()}
+function openProfile(a){const dialog=$("#artifact-dialog");document.body.classList.add("dialog-open");$("#dialog-content").dataset.id=a.id;$("#dialog-content").innerHTML='<div class="profile"><div class="profile-hero"><img src="'+artifactIcon(a)+'" alt="" onerror="this.style.opacity=0.15"><div><h2>'+esc(artifactName(a))+'</h2><div class="profile-meta">'+(a.tier===null?"UNCLASSIFIED":"TIER "+a.tier)+' · '+fmt(a.weight)+' KG · '+fmt(a.cost)+' RU</div><p class="profile-desc">'+esc(artifactDesc(a))+'</p></div></div>'+(a.perk?'<div class="profile-section"><div class="profile-perk"><b>'+esc(a.perkTitle||"SPECIAL PERK")+'</b><div class="perk-description">'+esc(perksText(a))+'</div>'+perkDetailsMarkup(a)+'</div></div>':"")+statGroupMarkup(a)+craftingProfileMarkup(a)+'<div class="profile-actions"><button class="action-btn '+(compareIds.has(a.id)?"selected":"")+'" id="compare-toggle">'+(compareIds.has(a.id)?"REMOVE FROM COMPARE":"ADD TO COMPARE")+'</button></div></div>';$("#compare-toggle").addEventListener("click",()=>{toggleCompare(a.id);openProfile(a)});$("#dialog-content").querySelectorAll("[data-related-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.relatedArtifact);if(related)openProfile(related)}));$("#dialog-content").querySelectorAll("[data-craft-artifact]").forEach(button=>button.addEventListener("click",()=>{const related=artifacts.find(x=>x.id===button.dataset.craftArtifact);if(related)openProfile(related)}));if(!dialog.open)dialog.showModal()}
 function toggleCompare(id){if(compareIds.has(id))compareIds.delete(id);else if(compareIds.size<2)compareIds.add(id);else{alert("Compare up to two artifacts at a time.");return}render();renderCompare()}
 function renderCompare(){
  const section=$("#compare");
