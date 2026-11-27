@@ -1,4 +1,4 @@
-const $=s=>document.querySelector(s);let artifacts=[],recipes=[],translations={},activeFilter="all",compareIds=new Set(),statMaxima={};
+const $=s=>document.querySelector(s);let artifacts=[],recipes=[],translations={},compareIds=new Set(),statMaxima={};
 let TIER_NAMES={0:["Atom","Ball","Bat","Beacon","Black Angel","Cell","Chain","Claw","Cocoon","Dragon's Eye","Electron","Fountain","Generator","Grapes","Heart","Knot","Lamp","Lucifer","Medal","Miser's Skull","Moon","Moss","Phantom Star","Sandstone","Scar","Seraphim","Signet","Sourpuss","Spike","Sun","Tapeworm","Thistle"],1:["Battery","Itcher","Jellyfish","Lost Soul","Mama's Beads","Meat Chunk","Nightstar","Soul","Sparkler","Stone Blood","Stone Flower"],2:["Bracelet","Crystal","Empty","Eye","Gravi","Kolobok","Lobster Eyes","Moonlight","Pin","Ring","Shell","Sponge","Wrenched"],3:["Black Spray","Bubble","Fireball","Firefly","Flame","Flash","Full Empty","Goldfish","Prometheus","Snowflake"],4:["Compass","Death Lamp","Heart of the Oasis","Volat Emerald"]};
 function applyUserTiers(){const byName=new Map();for(const [tier,names] of Object.entries(TIER_NAMES))for(const name of names)byName.set(name.toLowerCase(),Number(tier));for(const a of artifacts){const name=artifactName(a).trim().toLowerCase();a.customTier=byName.has(name)?byName.get(name):null;a.tier=a.customTier;}const ids=new Set(),duplicates=[];for(const a of artifacts){if(ids.has(a.id))duplicates.push(a.id);ids.add(a.id)}const names=new Map();for(const a of artifacts){const n=artifactName(a).trim().toLowerCase();if(n){if(!names.has(n))names.set(n,[]);names.get(n).push(a)}}window.artifactAudit={total:artifacts.length,classified:artifacts.filter(a=>a.tier!==null).length,unclassified:artifacts.filter(a=>a.tier===null),duplicateIds:duplicates,duplicateNames:[...names.values()].filter(group=>group.length>1)};}
 const SOURCE_ICONS="https://raw.githubusercontent.com/simonwdev/stalker-anomaly-gamma-db/main/site/public/img/icons/";
@@ -421,7 +421,7 @@ function buildCraftingOrder(){
 }
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),attribute=$("#attribute")?.value||"";
- const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!attribute||(a.stats||[]).some(s=>s.label===attribute&&Number(s.numeric)>0))&&(activeFilter==="all"||(activeFilter==="craftable"&&a.craftable)));
+ const eligible=artifacts.filter(a=>a.tier!==null&&matches(a,q)&&(!attribute||(a.stats||[]).some(s=>s.label===attribute&&Number(s.numeric)>0)));
  const tier0=eligible.filter(a=>Number(a.tier)===0);
  const items=eligible.filter(a=>Number(a.tier)>=1);
  const categories=[{key:"physical",title:"Physical resistance",note:"Ballistic, impact, rupture and explosive protection"},{key:"anomaly",title:"Anomaly resistance",note:"Burn, electrical, chemical, radiation and psychic protection"},{key:"recovery",title:"Healing & recovery",note:"Health, wound, stamina and radiation recovery"},{key:"other",title:"Other effects",note:"Unusual modifiers that do not fit another category"}];
@@ -466,6 +466,42 @@ function renderMatrix(){
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  drawRecipeLinks();
 }
+
+function craftingTreePartMarkup(ingredient){
+ const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
+ const artifact=id?artifacts.find(a=>a.id===id):null;
+ if(artifact)return craftingTreeArtifactMarkup(artifact.id,ingredient.amount,new Set());
+ return '<li class="craft-tree-leaf"><div class="craft-tree-part">'+craftingIconMarkup(ingredient)+'<span><b>'+esc(ingredient.name)+'</b><small>MUTANT PART</small></span><strong>'+esc(ingredient.amount||"")+'</strong></div></li>';
+}
+function craftingTreeArtifactMarkup(id,amount="",stack=new Set(),root=false){
+ const artifact=artifacts.find(a=>a.id===id);
+ if(!artifact)return '<li class="craft-tree-leaf"><div class="craft-tree-part"><span><b>'+esc(id)+'</b></span><strong>'+esc(amount)+'</strong></div></li>';
+ const recipe=recipes.find(r=>r.id===id);
+ const icon='<img src="'+artifactIcon(artifact)+'" alt="" loading="lazy">';
+ const kind=root?"TIER 4 FINAL ARTEFACT":recipe?"CRAFTED ARTEFACT":"BASE ARTEFACT";
+ const row='<div class="craft-tree-item">'+icon+'<span><b>'+esc(artifactName(artifact))+'</b><small>'+kind+'</small></span><strong>'+esc(amount)+'</strong></div>';
+ if(!recipe)return '<li class="craft-tree-leaf">'+row+'</li>';
+ if(stack.has(id))return '<li class="craft-tree-leaf">'+row+'<small class="craft-tree-cycle">Circular recipe reference</small></li>';
+ const nextStack=new Set(stack);nextStack.add(id);
+ const children=(recipe.ingredients||[]).map(i=>craftingTreePartMarkupWithStack(i,nextStack)).join("");
+ const manual=recipe.requiredManual||"No fusion manual required";
+ return '<li class="craft-tree-branch">'+row+'<div class="craft-tree-recipe"><small>ARTIFACT MELTER · '+esc(manual)+'</small><ul>'+children+'</ul></div></li>';
+}
+function craftingTreePartMarkupWithStack(ingredient,stack){
+ const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
+ const artifact=id?artifacts.find(a=>a.id===id):null;
+ if(artifact)return craftingTreeArtifactMarkup(id,ingredient.amount,stack);
+ return '<li class="craft-tree-leaf"><div class="craft-tree-part">'+craftingIconMarkup(ingredient)+'<span><b>'+esc(ingredient.name)+'</b><small>MUTANT PART</small></span><strong>'+esc(ingredient.amount||"")+'</strong></div></li>';
+}
+function openCraftingTree(){
+ const roots=recipes.map(r=>({recipe:r,artifact:artifacts.find(a=>a.id===r.id)}))
+  .filter(x=>x.artifact&&TIER_NAMES[4]?.some(name=>name.toLowerCase()===artifactName(x.artifact).toLowerCase()))
+  .sort((a,b)=>artifactName(a.artifact).localeCompare(artifactName(b.artifact)));
+ const columns=roots.map(({recipe,artifact})=>'<section class="craft-tree-root"><h3>'+esc(artifactName(artifact))+'</h3><ul>'+craftingTreeArtifactMarkup(artifact.id,"",new Set(),true)+'</ul></section>').join("");
+ $("#crafting-tree-content").innerHTML='<header class="craft-tree-heading"><div><span>GAMMA 0.9.5 / RECIPE GUIDE</span><h2>Crafting <em>Tree</em></h2><p>All three craftable Tier 4 artefacts, traced back through every required artefact and mutant part.</p></div><div class="craft-tree-key"><span><i class="artifact-key"></i> Artefact</span><span><i class="part-key"></i> Mutant part</span></div></header><div class="craft-tree-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt=""> Every crafted step requires the Artifact Melter. Recipe manuals are listed at each step.</div><div class="craft-tree-roots">'+(columns||'<p class="tier-empty">No Tier 4 crafting recipes found.</p>')+'</div>';
+ $("#crafting-tree-dialog").showModal();
+}
+
 function statBar(s){const max=100,percent=Math.min(100,Math.abs(s.numeric)/max*100);return '<div class="mini-stat"><span>'+esc(s.label)+'</span><b class="'+(s.numeric<0?"neg":"")+'">'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b><div class="mini-track"><i class="'+(s.numeric<0?"neg":"")+'" style="width:'+Math.max(percent,3)+'%"></i></div></div>'}
 function render(){renderMatrix();renderCompare()}
 const groups=[["Protection","Protection"],["Recovery","Recovery"],["Mobility & utility","Mobility","Utility"]];
@@ -542,6 +578,7 @@ const recipeName=r=>{const a=artifacts.find(x=>x.id===r.id);return a?artifactNam
 function craftingIngredientName(i){const id=i.artifactId||ingredientArtifactId(i.name);const a=id?artifacts.find(x=>x.id===id):null;return a?artifactName(a):i.name;}
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>recipeName(r).toLowerCase().includes(q)||String(r.requiredManual||"").toLowerCase().includes(q)||r.ingredients.some(i=>craftingIngredientName(i).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<div class="recipe-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt="" loading="lazy"><span>ARTIFACT MELTER</span></div><small class="recipe-manual">'+esc(r.requiredManual||"No fusion manual required")+'</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i,true)+esc(craftingIngredientName(i))+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
-$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));activeFilter=b.dataset.filter;render()}));
+$("#crafting-tree-button").addEventListener("click",openCraftingTree);$("#crafting-tree-close").addEventListener("click",()=>$("#crafting-tree-dialog").close());$("#crafting-tree-dialog").addEventListener("click",e=>{if(e.target===$("#crafting-tree-dialog"))$("#crafting-tree-dialog").close()});
+$("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare").addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
 window.addEventListener("resize",scheduleRouteRedraw);
 init();
