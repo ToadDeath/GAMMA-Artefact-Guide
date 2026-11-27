@@ -544,6 +544,35 @@ dialog{overscroll-behavior:contain}
 .matrix-layout .artifact-node.route-ingredient{border-color:#858b82;box-shadow:0 0 0 1px #858b8240}
 .matrix-layout .artifact-node.route-upgrade{border-color:#9dbb70;box-shadow:0 0 0 1px #9dbb7040}
 
+/* Fill the route cards as well as outlining them. The selected artefact is warm orange,
+   ingredients are muted gray, and downstream upgrades are green. */
+.matrix-layout .purpose-card.artifact-node.route-active{
+ background:#38291f!important;
+ border-color:#e0a06b!important;
+ box-shadow:inset 0 0 0 1px #e0a06b55,0 0 14px #d9824322!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-active>.purpose-main{
+ background:linear-gradient(105deg,rgba(196,112,58,.28),rgba(196,112,58,.12))!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-ingredient{
+ background:#292d2a!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-ingredient>.purpose-main{
+ background:rgba(157,165,157,.10)!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-upgrade{
+ background:#273322!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
+ background:rgba(132,174,91,.15)!important;
+}
+.matrix-layout .purpose-card.artifact-node.route-active .effect-tag,
+.matrix-layout .purpose-card.artifact-node.route-ingredient .effect-tag,
+.matrix-layout .purpose-card.artifact-node.route-upgrade .effect-tag{
+ background-color:rgba(0,0,0,.16);
+}
+
+
 
 /* Tier 0 sits beside the progression board on wide screens. */
 @media(min-width:1121px){
