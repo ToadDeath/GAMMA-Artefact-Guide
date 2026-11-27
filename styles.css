@@ -135,8 +135,7 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .purpose-row-label>b{font:600 13px 'Inter';line-height:1.35;color:#dce4d2}
 .purpose-row-label>small{font:9px/1.5 'Inter';color:#899581}
 .purpose-row-label>em{font:8px 'Inter';font-style:normal;color:var(--acid);letter-spacing:.08em;margin-top:2px}
-.purpose-cell{min-width:0;padding:8px;border-right:1px solid #303b2d;border-bottom:1px solid #394536;background:rgba(12,17,12,.25)}
-.purpose-cell:nth-child(6n){border-right:0}
+.purpose-cell{min-width:0;padding:8px;border-bottom:1px solid #394536;background:rgba(12,17,12,.25)}
 .purpose-card{margin:0 0 8px;background:#20291f;border:1px solid rgba(174,174,135,.2);border-radius:3px;overflow:hidden}
 .purpose-main{width:100%;display:grid;grid-template-columns:38px minmax(0,1fr);gap:8px;padding:8px;text-align:left;background:transparent;border:0;color:inherit;cursor:pointer}
 .purpose-main>img{width:36px;height:36px;object-fit:contain}
@@ -230,7 +229,6 @@ footer{padding-left:clamp(20px,2.6vw,64px);padding-right:clamp(20px,2.6vw,64px)}
 .recipe-links path.is-target{stroke:#858b82;stroke-width:2.2}
 .matrix-layout .artifact-node{position:relative;z-index:3}
 .tier-board{position:relative;z-index:1;grid-template-columns:minmax(160px,.78fr) repeat(4,minmax(0,1fr));min-width:980px}
-.tier-board .purpose-cell:nth-child(5n){border-right:0}
 .stat-list.negative-list{margin-top:10px}
 @media(max-width:1120px){.tier-board{grid-template-columns:minmax(145px,.78fr) repeat(4,minmax(0,1fr))}}
 @media(max-width:900px){.tier0-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))}}
@@ -733,9 +731,7 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 /* Each tier boundary has one border owner, preventing doubled or uneven separators. */
 .tier-board>.tier-column-head{border-left:0!important;border-right:1px solid #394536!important}
 .tier-board>.tier-column-head[data-tier="4"]{border-right:0!important}
-.tier-board>.purpose-cell{border-left:0!important;border-right:1px solid #303b2d}
-.tier-board>.purpose-cell[data-tier="2"]{border-right:0!important}
-.tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
+.tier-board>.purpose-cell{border-left:0!important;border-right:1px solid #303b2d!important}
 .tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
 .matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
 
