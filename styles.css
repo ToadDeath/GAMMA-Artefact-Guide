@@ -575,3 +575,11 @@ dialog{overscroll-behavior:contain}
     width:100%;
   }
 }
+
+/* Give Tier 0 a clear visual boundary for its shared connector exit lane. */
+@media(min-width:1121px){
+  .matrix-content>.tier0-area{
+    border-right:1px solid rgba(190,190,150,.24);
+    padding-right:10px;
+  }
+}
