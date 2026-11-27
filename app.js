@@ -328,7 +328,8 @@ function drawRecipeLinks(){
  layout.querySelectorAll(".tier-column:not(:last-child)").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
  const tier0Area=layout.querySelector(".tier0-area"),tierBoard=layout.querySelector(".tier-board");
- const tier0Boundary=tier0Area&&tierBoard?(tier0Area.getBoundingClientRect().right-base.left):null;
+ const tier0Rect=tier0Area?.getBoundingClientRect(),boardRect=tierBoard?.getBoundingClientRect();
+ const tier0Boundary=tier0Rect&&boardRect?(Math.abs(tier0Rect.top-boardRect.top)<20?(tier0Rect.right+boardRect.left)/2-base.left:tier0Rect.right-base.left):null;
  if(tier0Boundary!==null)sharedLanes.x.push(tier0Boundary);
  sharedLanes.x.push(...sharedLanes.dividers);
  layout.querySelectorAll(".artifact-node").forEach(node=>{
