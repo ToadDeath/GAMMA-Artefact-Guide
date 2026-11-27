@@ -653,3 +653,27 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 @media(max-width:1120px){
   .tier0-area>summary{margin:0}
 }
+
+
+/* Final unified header row: Tier 0 and the tier board share the same header geometry. */
+@media(min-width:1121px){
+ .matrix-content{grid-template-columns:minmax(270px,300px) minmax(0,1fr);gap:0;align-items:stretch}
+ .matrix-content>.tier0-area{border:1px solid var(--line);border-right:0;border-bottom:1px solid var(--line);background:rgba(15,20,15,.94)}
+ .matrix-content>.tier-board{border:1px solid var(--line);border-left:0;align-self:stretch}
+}
+.tier0-area>summary{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ height:58px;min-height:58px;max-height:58px;box-sizing:border-box;
+ margin:0;padding:12px 12px;list-style:none;cursor:pointer;
+ background:#283323;border:0;border-bottom:1px solid #586545;
+}
+.tier0-area>summary::-webkit-details-marker{display:none}
+.tier0-area>summary:before{display:none!important;content:none!important}
+.tier0-area>summary b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
+.tier0-area>summary>span:last-child{font:9px 'Inter';color:var(--muted);white-space:nowrap}
+.tier0-area>.tier0-grid{padding:12px}
+@media(max-width:1120px){
+ .matrix-content{gap:12px}
+ .matrix-content>.tier0-area{border:1px solid #586545}
+ .tier0-area>summary{margin:0}
+}
