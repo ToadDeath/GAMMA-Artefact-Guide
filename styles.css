@@ -564,7 +564,7 @@ dialog{overscroll-behavior:contain}
  background:#252b22!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
- background:rgba(132,174,91,.075)!important;
+ background:rgba(132,174,91,.14)!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-active .effect-tag,
 .matrix-layout .purpose-card.artifact-node.route-ingredient .effect-tag,
@@ -962,4 +962,7 @@ footer{justify-content:flex-end}
 
 /* Keep category colors clearly separated from the Tier 0 orange. */
 .craft-tree-role--combat{border-color:#a65355;background:#3a2021;color:#f0b4b5}
+.crafting-tree-page .craft-tree-role--combat{border-color:#a65355;background:#3a2021;color:#f0b4b5}
+
+/* The crafting tree uses the exact same red Combat tag as the catalogue. */
 .crafting-tree-page .craft-tree-role--combat{border-color:#a65355;background:#3a2021;color:#f0b4b5}
