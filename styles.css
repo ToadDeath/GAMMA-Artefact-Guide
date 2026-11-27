@@ -763,14 +763,18 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 @media(max-width:520px){.craft-recipe-info{grid-template-columns:1fr}}
 
 
-/* Unified board dividers and Tier 0 outer edge. */
-.tier-board{border-color:#586545!important}
+/* Unified one-pixel board dividers with clean outer edges. */
+.tier-board{border:1px solid #586545!important}
 .tier-board>.purpose-label-head,
 .tier-board>.tier-column-head:not([data-tier="4"]){border-right:1px solid #586545!important}
 .tier-board>.purpose-row-label{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
 .tier-board>.purpose-cell{border-right:1px solid #586545!important;border-bottom:1px solid #586545!important}
 .tier-board>.purpose-cell[data-tier="4"]{border-right:0!important}
-.matrix-content>.tier0-area{border-color:#586545!important;border-bottom:1px solid #586545!important}
+/* The board's top edge supplies the single divider below Tier 0. */
+.matrix-content>.tier0-area{border-color:#586545!important;border-bottom:0!important}
+/* Let the board's own bottom border be the only line beneath its final row. */
+.tier-board>.purpose-row-label:nth-last-child(5),
+.tier-board>.purpose-cell:nth-last-child(-n+4){border-bottom:0!important}
 @media(min-width:1121px){
  .matrix-content>.tier0-area{border-right:0!important}
  .matrix-content>.tier-board{border-left:0!important}
