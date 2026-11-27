@@ -102,7 +102,8 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
  const width=layout.scrollWidth,height=layout.scrollHeight;
  const rawXs=unique([...(sharedLanes?.x||[]),start[0],end[0],3,width-3]);
  const dividers=sharedLanes?.dividers||[];
- const xs=rawXs.filter(x=>!dividers.some(d=>Math.abs(x-d)>0.05&&Math.abs(x-d)<=2.5));
+ const endpointXs=[round(start[0]),round(end[0])];
+ const xs=rawXs.filter(x=>endpointXs.includes(x)||!dividers.some(d=>Math.abs(x-d)>0.05&&Math.abs(x-d)<=2.5));
  const ys=unique([...(sharedLanes?.y||[]),start[1],end[1],3,height-3]);
  const nx=xs.length,ny=ys.length,total=nx*ny;
  const blocked=new Uint8Array(total);
