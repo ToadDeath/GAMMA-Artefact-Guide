@@ -633,3 +633,23 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .craft-material .artifact-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px;padding:3px;background:#151c15;border:1px solid #354032}
 .ingredient .artifact-icon-small{width:25px;height:25px;object-fit:contain;flex:0 0 25px}
 .recipe>.artifact-icon-small{width:38px;height:38px;object-fit:contain;float:right;margin:-7px 0 4px 10px}
+
+
+/* Join the Tier 0 header to the shared tier-board header row. */
+@media(min-width:1121px){
+  .matrix-content{gap:0}
+  .matrix-content>.tier0-area{border-right:1px solid var(--line)}
+  .matrix-content>.tier-board{border-left:0}
+}
+.tier0-area>summary{
+  height:58px;min-height:58px;max-height:58px;
+  margin:0;padding:12px;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:#283323;border-bottom:1px solid #586545;
+}
+.tier0-area>summary:before{display:none}
+.tier0-area>summary b{font:700 18px 'Barlow Condensed';letter-spacing:.08em;color:var(--acid)}
+.tier0-area>summary>span:last-child{font:9px 'Inter';color:var(--muted);white-space:nowrap}
+@media(max-width:1120px){
+  .tier0-area>summary{margin:0}
+}
