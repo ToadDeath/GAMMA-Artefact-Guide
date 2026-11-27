@@ -91,7 +91,7 @@ function clearRouteSegment(a,b,obstacles){
  return false;
 }
 function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end,sharedLanes=null,existingSegments=[]){
- const clearance=2.25;
+ const clearance=7;
  const allNodes=[...layout.querySelectorAll(".artifact-node")];
  const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
   const r=n.getBoundingClientRect(),tier0=!!n.closest(".tier0-area");return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+(tier0?8:clearance)}:null;
@@ -185,10 +185,13 @@ function drawRecipeLinks(){
  const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
- const clearance=2.25;
+ const clearance=7;
  const sharedLanes={x:[],y:[],dividers:[]};
  layout.querySelectorAll(".purpose-cell:not(:nth-child(5n))").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
+ const tier0Area=layout.querySelector(".tier0-area"),tierBoard=layout.querySelector(".tier-board");
+ const tier0Boundary=tier0Area&&tierBoard?(tier0Area.getBoundingClientRect().right-base.left):null;
+ if(tier0Boundary!==null)sharedLanes.x.push(tier0Boundary);
  sharedLanes.x.push(...sharedLanes.dividers);
  layout.querySelectorAll(".artifact-node").forEach(node=>{
   const r=node.getBoundingClientRect();if(!r.width||!r.height)return;
@@ -210,7 +213,7 @@ function drawRecipeLinks(){
    let sx,sy,tx,ty,startLead,endLead;
    if(source.tier0){
     sx=sx0+sr.width;sy=sy0+sr.height/2;
-    startLead=[sx+8,sy];
+    startLead=[tier0Boundary!==null?tier0Boundary:sx+8,sy];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
@@ -218,7 +221,7 @@ function drawRecipeLinks(){
    }
    if(target.tier0){
     tx=tx0+tr.width;ty=ty0+tr.height/2;
-    endLead=[tx+8,ty];
+    endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
@@ -283,7 +286,7 @@ function renderMatrix(){
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary><span><b>TIER 0 / SPECIAL ARTEFACTS</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER TO PREVIEW CRAFTING · SELECT THE PIN TO KEEP CONNECTIONS VISIBLE</p></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area" open><summary><span><b>TIER 0</b><small>Unique perk artefacts</small></span><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+header+rows+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div><div class="crafting-controls"><p class="crafting-hint">HOVER TO PREVIEW CRAFTING · SELECT THE PIN TO KEEP CONNECTIONS VISIBLE</p></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
