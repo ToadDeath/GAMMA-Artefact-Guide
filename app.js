@@ -482,7 +482,7 @@ function renderMatrix(){
  const rows=visibleCategories.map(c=>{
   const cells=[1,2,3,4].map(t=>{
    const list=sortItems(items.filter(a=>Number(a.tier)===t&&purposeFor(a).key===c.key));
-   return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'<span class="tier-empty">-</span>')+'</div>';
+   return '<div class="purpose-cell" data-purpose="'+c.key+'" data-tier="'+t+'">'+(list.length?list.map(card).join(""):'')+'</div>';
   }).join("");
   const count=items.filter(a=>purposeFor(a).key===c.key).length;
   return '<div class="purpose-row-label"><b>'+c.title+'</b><small>'+c.note+'</small><em>'+count+' ARTEFACTS</em></div>'+cells;
