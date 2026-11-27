@@ -735,9 +735,10 @@ dialog::backdrop{background:#050805e8;backdrop-filter:none}
 .tier-board>.purpose-label-head span,.tier-board>.tier-column-head span{
  font:9px 'Inter';color:var(--muted);white-space:nowrap;letter-spacing:normal;
 }
-/* The Tier 2 / Tier 3 emphasis starts below the header, not through it. */
+/* Header separators are consistent; the stronger Tier 2 / Tier 3 divider starts below the header. */
+.tier-board>.tier-column-head{border-right:1px solid #394536!important}
+.tier-board>.tier-column-head[data-tier="4"]{border-right:0!important}
 .tier-board>.tier-column-head[data-tier="3"]{border-left:0!important}
 .tier-board>.purpose-cell[data-tier="3"]{border-left:2px solid #586545!important}
-.tier-board>.tier-column-head[data-tier="2"]{border-right:1px solid #394536!important}
 .tier-board>.purpose-cell[data-tier="2"]{border-right:0!important}
 .matrix-layout .artifact-node{transition:border-color .15s,filter .15s!important}
