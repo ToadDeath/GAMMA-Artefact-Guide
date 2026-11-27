@@ -541,3 +541,37 @@ body.dialog-open{overflow:hidden}
 dialog{overscroll-behavior:contain}
 .matrix-layout .artifact-node.route-ingredient{border-color:#858b82;box-shadow:0 0 0 1px #858b8240}
 .matrix-layout .artifact-node.route-upgrade{border-color:#9dbb70;box-shadow:0 0 0 1px #9dbb7040}
+
+
+/* Tier 0 sits beside the progression board on wide screens. */
+@media(min-width:1121px){
+  .matrix-content{
+    display:grid;
+    grid-template-columns:minmax(270px,300px) minmax(0,1fr);
+    align-items:start;
+    gap:12px;
+  }
+  .matrix-content>.tier0-area{
+    min-width:0;
+    border-bottom:1px solid #586545;
+  }
+  .matrix-content>.tier0-area .tier0-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .matrix-content>.tier-board{
+    width:100%;
+    min-width:0;
+    margin:0;
+  }
+}
+@media(max-width:1120px){
+  .matrix-content{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .matrix-content>.tier0-area,
+  .matrix-content>.tier-board{
+    width:100%;
+  }
+}
