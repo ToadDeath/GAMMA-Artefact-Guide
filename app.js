@@ -334,7 +334,7 @@ function drawRecipeLinks(){
  const tier0Rect=tier0Area?.getBoundingClientRect(),boardRect=tierBoard?.getBoundingClientRect();
  const tier0Boundary=tier0Rect&&boardRect?(Math.abs(tier0Rect.top-boardRect.top)<20?(tier0Rect.right+boardRect.left)/2-base.left:tier0Rect.right-base.left):null;
  if(tier0Boundary!==null)sharedLanes.x.push(tier0Boundary);
- sharedLanes.x.push(...sharedLanes.dividers);
+ // Tier dividers remain exclusion boundaries, not candidate route lanes.
  const nodeRects=[...layout.querySelectorAll(".artifact-node")].map(node=>({node,r:node.getBoundingClientRect()})).filter(x=>x.r.width&&x.r.height);
  nodeRects.forEach(({r})=>{
   sharedLanes.x.push(r.left-base.left-clearance,r.right-base.left+clearance);
