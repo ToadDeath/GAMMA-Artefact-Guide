@@ -1357,7 +1357,7 @@ footer{justify-content:flex-end}
 .matrix-content.list-view .purpose-cell.artifact-list-stack{
  display:flex!important;
  flex-direction:column!important;
- gap:5px!important;
+ gap:7px!important;
  padding:8px 0!important;
 }
 .matrix-content.list-view .purpose-card{
