@@ -483,6 +483,13 @@ function alignBranchBands(matrix){
   grouped.get(key).push(wrapper);
  });
  for(const [key,wrappers] of grouped){
+  if(key==="unconnected"){
+   wrappers.forEach(wrapper=>{
+    wrapper.classList.remove("is-shared");
+    wrapper.style.minHeight="0px";
+   });
+   continue;
+  }
   let tallest=0;
   for(const wrapper of wrappers){
    const cards=[...wrapper.children].filter(child=>child.classList.contains("artifact-node"));
@@ -492,7 +499,7 @@ function alignBranchBands(matrix){
   const shared=key!=="unassigned"&&key.split("|").length>1;
   // Ordinary bands have no artificial padding. Shared ancestry gets a deliberate,
   // visibly separated band with its padding accounted for in the measured height.
-  const bandHeight=Math.ceil(tallest+(shared?22:0));
+  const bandHeight=Math.ceil(tallest);
   wrappers.forEach(wrapper=>{
    wrapper.classList.toggle("is-shared",shared);
    wrapper.style.minHeight=bandHeight+"px";
