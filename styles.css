@@ -1332,3 +1332,47 @@ footer{justify-content:flex-end}
 .matrix-content .artifact-cluster.is-unconnected .purpose-copy>b{
  font-size:12px!important;
 }
+
+
+/* Catalogue view switch */
+.filter-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.catalogue-view-switch{display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid rgba(174,174,135,.2);background:rgba(12,17,12,.55);border-radius:3px}
+.catalogue-view-switch button{appearance:none;border:0;border-radius:2px;padding:7px 10px;background:transparent;color:var(--muted);font:600 9px 'Inter';letter-spacing:.07em;cursor:pointer}
+.catalogue-view-switch button.active{background:#34452f;color:var(--acid);box-shadow:inset 0 0 0 1px rgba(174,196,122,.24)}
+/* Flat list mode uses the same five tiers and filters, without crafting bands. */
+.matrix-content.list-view{
+ display:grid!important;
+ grid-template-columns:repeat(5,minmax(230px,1fr))!important;
+ min-width:1200px!important;
+ gap:0!important;
+ align-items:start!important;
+}
+.matrix-content.list-view>.tier-column{
+ display:block!important;
+ min-width:0!important;
+ padding:0 8px 10px!important;
+ border:0!important;
+ background:transparent!important;
+}
+.matrix-content.list-view .purpose-cell.artifact-list-stack{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:5px!important;
+ padding:8px 0!important;
+}
+.matrix-content.list-view .purpose-card{
+ margin:0!important;
+ border-color:rgba(174,174,135,.13)!important;
+}
+.matrix-content.list-view .purpose-main{
+ grid-template-columns:34px minmax(0,1fr)!important;
+ gap:7px!important;
+ padding:6px 7px!important;
+}
+.matrix-content.list-view .purpose-main>img{width:32px!important;height:32px!important}
+.matrix-content.list-view .purpose-copy{gap:4px!important}
+.matrix-content.list-view .purpose-copy>b{font-size:12px!important}
+.matrix-content.list-view .effect-tag{font-size:8px!important}
+@media(max-width:1300px){
+ .matrix-content.list-view{grid-template-columns:repeat(5,minmax(230px,1fr))!important;min-width:1200px!important}
+}
