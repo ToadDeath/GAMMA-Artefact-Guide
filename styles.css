@@ -1187,3 +1187,106 @@ footer{justify-content:flex-end}
  min-width:0!important;
  padding:14px 0!important;
 }
+
+
+/* The catalogue is a true five-column tier board. Tier 0 is no longer a
+   collapsible side panel and uses the same width and header as Tiers 1-4. */
+.matrix-content{
+ display:grid!important;
+ grid-template-columns:repeat(5,minmax(230px,1fr))!important;
+ min-width:1200px!important;
+ gap:0!important;
+ align-items:stretch!important;
+}
+.matrix-content>.tier0-area.tier-column{
+ display:block!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ width:auto!important;
+ margin:0!important;
+ padding:0 8px 10px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier0-area>header.tier-column-head{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ margin:0 0 8px!important;
+ padding:12px 10px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:#283323!important;
+}
+.matrix-content>.tier0-area>.tier0-grid{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:0!important;
+ padding:0!important;
+}
+.matrix-content>.tier-board{
+ display:contents!important;
+ width:auto!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+.matrix-content>.tier-board>.tier-column{
+ display:block!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ width:auto!important;
+ margin:0!important;
+ padding:0 8px 10px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.matrix-content>.tier-board>.tier-column>.purpose-cell{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:0!important;
+ min-width:0!important;
+ padding:0!important;
+}
+.matrix-content .artifact-cluster{
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ gap:7px!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+}
+.matrix-content .artifact-cluster.is-shared{
+ padding:10px 5px!important;
+ border-top:1px solid #566b48!important;
+ border-bottom:1px solid #566b48!important;
+ background:rgba(67,91,54,.14)!important;
+}
+.matrix-content .purpose-card{margin:0!important}
+
+/* Keep all five tiers in one aligned row at every viewport width. The board
+   scrolls horizontally on smaller screens rather than turning Tier 0 into a
+   separate stacked panel. */
+@media(max-width:1300px){
+ .matrix-content{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(230px,1fr))!important;
+  min-width:1200px!important;
+  flex-direction:initial!important;
+  row-gap:0!important;
+  column-gap:0!important;
+ }
+ .matrix-content>.tier0-area{width:auto!important;border:0!important}
+ .matrix-content>.tier-board{display:contents!important;width:auto!important;min-width:0!important}
+}
