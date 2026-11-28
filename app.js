@@ -460,9 +460,10 @@ function drawRecipeLinks(){
     endLead=[tx+(right?-6:6),ty];
    }
   }
-  const snapDivider=x=>{let nearest=null,distance=Infinity;for(const divider of sharedLanes.dividers){const delta=Math.abs(divider-x);if(delta<distance){distance=delta;nearest=divider}}return nearest!==null&&distance<=2.5?nearest:x};
-  const routedStart=[source.tier0?startLead[0]:(directGap?startLead[0]:snapDivider(startLead[0])),startLead[1]];
-  const routedEnd=[target.tier0?endLead[0]:(directGap?endLead[0]:snapDivider(endLead[0])),endLead[1]];
+  // Keep connector endpoints tied to the measured card edges.
+  // The tier-column divider is not necessarily the midpoint of the actual card gap.
+  const routedStart=[startLead[0],startLead[1]];
+  const routedEnd=[endLead[0],endLead[1]];
   const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,[]);
   if(!middle)continue;
   const points=[[sx,sy],...middle,[tx,ty]];
