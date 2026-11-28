@@ -346,18 +346,24 @@ function drawRecipeLinks(){
   let left=a,right=b;if(b.left<a.left){left=b;right=a}
   const gapX=right.left-left.right;
   if(overlapY>0&&gapX>=clearance*2){
-   const lo=left.right-base.left+clearance,hi=right.left-base.left-clearance;
-   const mid=(left.right+right.left)/2-base.left;
-   sharedLanes.xGaps.push({lo,hi,mid});
-   sharedLanes.x.push(mid);
+   const blocked=nodeRects.some(({r},k)=>k!==i&&k!==j&&r.left<right.left&&r.right>left.right&&r.top<Math.min(a.bottom,b.bottom)&&r.bottom>Math.max(a.top,b.top));
+   if(!blocked){
+    const lo=left.right-base.left+clearance,hi=right.left-base.left-clearance;
+    const mid=(left.right+right.left)/2-base.left;
+    sharedLanes.xGaps.push({lo,hi,mid});
+    sharedLanes.x.push(mid);
+   }
   }
   let top=a,bottom=b;if(b.top<a.top){top=b;bottom=a}
   const gapY=bottom.top-top.bottom;
   if(overlapX>0&&gapY>=clearance*2){
-   const lo=top.bottom-base.top+clearance,hi=bottom.top-base.top-clearance;
-   const mid=(top.bottom+bottom.top)/2-base.top;
-   sharedLanes.yGaps.push({lo,hi,mid});
-   sharedLanes.y.push(mid);
+   const blocked=nodeRects.some(({r},k)=>k!==i&&k!==j&&r.top<bottom.top&&r.bottom>top.bottom&&r.left<Math.min(a.right,b.right)&&r.right>Math.max(a.left,b.left));
+   if(!blocked){
+    const lo=top.bottom-base.top+clearance,hi=bottom.top-base.top-clearance;
+    const mid=(top.bottom+bottom.top)/2-base.top;
+    sharedLanes.yGaps.push({lo,hi,mid});
+    sharedLanes.y.push(mid);
+   }
   }
  }
  const anchorFor=id=>{
@@ -391,26 +397,43 @@ function drawRecipeLinks(){
   const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
   const sr=source.rect,tr=target.rect;
   const sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
-  let sx,sy,tx,ty,startLead,endLead;
-  if(source.tier0){
-   sx=sx0+sr.width;sy=sy0+sr.height/2;
-   startLead=[tier0Boundary!==null?tier0Boundary:sx+8,sy];
-  }else{
-   const right=tx0+tr.width/2>=sx0+sr.width/2;
-   sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
-   startLead=[sx+(right?6:-6),sy];
+  let sx,sy,tx,ty,startLead,endLead,directGap=false;
+  if(!source.tier0&&!target.tier0){
+   const overlapX=Math.min(sr.right,tr.right)-Math.max(sr.left,tr.left);
+   const overlapY=Math.min(sr.bottom,tr.bottom)-Math.max(sr.top,tr.top);
+   if(overlapX>0&&(sr.bottom<=tr.top||tr.bottom<=sr.top)){
+    const x=(Math.max(sr.left,tr.left)+Math.min(sr.right,tr.right))/2-base.left;
+    if(sr.bottom<=tr.top){sx=x;sy=sr.bottom-base.top;tx=x;ty=tr.top-base.top}
+    else{sx=x;sy=sr.top-base.top;tx=x;ty=tr.bottom-base.top}
+    startLead=[sx,sy];endLead=[tx,ty];directGap=true;
+   }else if(overlapY>0&&(sr.right<=tr.left||tr.right<=sr.left)){
+    const y=(Math.max(sr.top,tr.top)+Math.min(sr.bottom,tr.bottom))/2-base.top;
+    if(sr.right<=tr.left){sx=sr.right-base.left;sy=y;tx=tr.left-base.left;ty=y}
+    else{sx=sr.left-base.left;sy=y;tx=tr.right-base.left;ty=y}
+    startLead=[sx,sy];endLead=[tx,ty];directGap=true;
+   }
   }
-  if(target.tier0){
-   tx=tx0+tr.width;ty=ty0+tr.height/2;
-   endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
-  }else{
-   const right=tx0+tr.width/2>=sx0+sr.width/2;
-   tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
-   endLead=[tx+(right?-6:6),ty];
+  if(!directGap){
+   if(source.tier0){
+    sx=sx0+sr.width;sy=sy0+sr.height/2;
+    startLead=[tier0Boundary!==null?tier0Boundary:sx+8,sy];
+   }else{
+    const right=tx0+tr.width/2>=sx0+sr.width/2;
+    sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
+    startLead=[sx+(right?6:-6),sy];
+   }
+   if(target.tier0){
+    tx=tx0+tr.width;ty=ty0+tr.height/2;
+    endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
+   }else{
+    const right=tx0+tr.width/2>=sx0+sr.width/2;
+    tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
+    endLead=[tx+(right?-6:6),ty];
+   }
   }
   const snapDivider=x=>{let nearest=null,distance=Infinity;for(const divider of sharedLanes.dividers){const delta=Math.abs(divider-x);if(delta<distance){distance=delta;nearest=divider}}return nearest!==null&&distance<=2.5?nearest:x};
-  const routedStart=[source.tier0?startLead[0]:snapDivider(startLead[0]),startLead[1]];
-  const routedEnd=[target.tier0?endLead[0]:snapDivider(endLead[0]),endLead[1]];
+  const routedStart=[source.tier0?startLead[0]:(directGap?startLead[0]:snapDivider(startLead[0])),startLead[1]];
+  const routedEnd=[target.tier0?endLead[0]:(directGap?endLead[0]:snapDivider(endLead[0])),endLead[1]];
   const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,[]);
   if(!middle)continue;
   const points=[[sx,sy],...middle,[tx,ty]];
