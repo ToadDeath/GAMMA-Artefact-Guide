@@ -485,15 +485,16 @@ function renderMatrix(){
  // Shared ingredients retain every final branch they can reach, rather than being
  // forced into one connected component or duplicated across branches.
  const finalArtifacts=artifacts.filter(a=>Number(a.tier)===4);
+ const artifactById=new Map(artifacts.map(a=>[a.id,a]));
  const outputsByIngredient=new Map(artifacts.map(a=>[a.id,new Set()]));
  for(const recipe of recipes){
-  if(!artifacts.some(a=>a.id===recipe.id))continue;
+  if(!artifactById.has(recipe.id))continue;
   for(const ingredient of recipe.ingredients||[]){
    const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
    if(id&&outputsByIngredient.has(id))outputsByIngredient.get(id).add(recipe.id);
   }
  }
- const finalBranchOrder=new Map([...finalArtifacts].sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b))).map((a,i)=>[a.id,i]));
+ const finalBranchBase=[...finalArtifacts].sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
  const finalBranchesByArtifact=new Map();
  for(const artifact of artifacts){
   const branches=new Set(),queue=[artifact.id],visited=new Set();
@@ -501,12 +502,34 @@ function renderMatrix(){
    const id=queue.shift();
    if(visited.has(id))continue;
    visited.add(id);
-   const current=artifacts.find(a=>a.id===id);
+   const current=artifactById.get(id);
    if(current&&Number(current.tier)===4){branches.add(id);continue}
    for(const outputId of outputsByIngredient.get(id)||[])queue.push(outputId);
   }
-  finalBranchesByArtifact.set(artifact.id,[...branches].sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999)));
+  finalBranchesByArtifact.set(artifact.id,[...branches]);
  }
+ // Put final branches that share ingredients beside one another. This makes
+ // shared artefacts, such as Ring, naturally land in the gap between those branches.
+ const sharedCount=(left,right)=>{
+  let count=0;
+  for(const branches of finalBranchesByArtifact.values())if(branches.includes(left)&&branches.includes(right))count++;
+  return count;
+ };
+ const remainingRoots=finalBranchBase.map(a=>a.id),orderedRootIds=[];
+ while(remainingRoots.length){
+  if(!orderedRootIds.length){
+   remainingRoots.sort((a,b)=>{
+    const score=id=>remainingRoots.reduce((sum,other)=>sum+(other===id?0:sharedCount(id,other)),0);
+    return score(b)-score(a)||(finalBranchBase.findIndex(x=>x.id===a)-finalBranchBase.findIndex(x=>x.id===b));
+   });
+  }else{
+   const previous=orderedRootIds[orderedRootIds.length-1];
+   remainingRoots.sort((a,b)=>sharedCount(b,previous)-sharedCount(a,previous)||(finalBranchBase.findIndex(x=>x.id===a)-finalBranchBase.findIndex(x=>x.id===b)));
+  }
+  orderedRootIds.push(remainingRoots.shift());
+ }
+ const finalBranchOrder=new Map(orderedRootIds.map((id,i)=>[id,i]));
+ for(const branches of finalBranchesByArtifact.values())branches.sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999));
  const groupedCards=list=>{
   const groups=new Map();
   for(const artifact of sortItems([...list])){
