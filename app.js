@@ -482,15 +482,21 @@ function alignBranchBands(matrix){
   if(!grouped.has(key))grouped.set(key,[]);
   grouped.get(key).push(wrapper);
  });
- for(const wrappers of grouped.values()){
+ for(const [key,wrappers] of grouped){
   let tallest=0;
   for(const wrapper of wrappers){
    const cards=[...wrapper.children].filter(child=>child.classList.contains("artifact-node"));
    const stack=cards.reduce((sum,card)=>sum+card.getBoundingClientRect().height,0)+Math.max(0,cards.length-1)*7;
    tallest=Math.max(tallest,stack);
   }
-  const bandHeight=Math.ceil(tallest+28);
-  wrappers.forEach(wrapper=>wrapper.style.minHeight=bandHeight+"px");
+  const shared=key!=="unassigned"&&key.split("|").length>1;
+  // Ordinary bands have no artificial padding. Shared ancestry gets a deliberate,
+  // visibly separated band with its padding accounted for in the measured height.
+  const bandHeight=Math.ceil(tallest+(shared?22:0));
+  wrappers.forEach(wrapper=>{
+   wrapper.classList.toggle("is-shared",shared);
+   wrapper.style.minHeight=bandHeight+"px";
+  });
  }
 }
 function renderMatrix(){
