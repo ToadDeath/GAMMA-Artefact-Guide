@@ -1052,14 +1052,14 @@ footer{justify-content:flex-end}
  .matrix-content>.tier-board{width:100%!important;min-width:980px!important}
 }
 
-/* The upgrade path needs a clearly green interior, not just a green outline. */
+/* Keep the downstream upgrade cue green, but subtle enough to avoid overpowering the card. */
 .matrix-layout .purpose-card.artifact-node.route-upgrade{
- background:#344b2e!important;
- border-color:#b0d27a!important;
- box-shadow:0 0 0 1px #9dbb7066!important;
+ background:#2d3b2a!important;
+ border-color:#9dbb70!important;
+ box-shadow:0 0 0 1px #9dbb7026!important;
 }
 .matrix-layout .purpose-card.artifact-node.route-upgrade>.purpose-main{
- background:#405b35!important;
+ background:#354630!important;
  background-image:none!important;
 }
 
