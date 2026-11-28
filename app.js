@@ -392,13 +392,35 @@ function drawRecipeLinks(){
    for(const edge of recipeAdjacency.get(routeId)||[])activeEdges.set(edge.from+">"+edge.to,edge);
   }
  }
+ // Give each incoming recipe edge its own attachment point on the output card.
+ // Without this, multiple ingredients converge on the same center point and
+ // their connector paths overlap at the destination.
+ const incomingPorts=new Map(),incomingGroups=new Map();
+ for(const edge of activeEdges.values()){
+  const source=anchorFor(edge.from),target=anchorFor(edge.to);
+  if(!source||!target||target.tier0)continue;
+  const side=source.rect.left+source.rect.width/2<target.rect.left+target.rect.width/2?"left":"right";
+  const groupKey=edge.to+":"+side;
+  if(!incomingGroups.has(groupKey))incomingGroups.set(groupKey,[]);
+  incomingGroups.get(groupKey).push({edge,source,target,side});
+ }
+ for(const group of incomingGroups.values()){
+  if(group.length<2)continue;
+  group.sort((a,b)=>a.source.rect.top+a.source.rect.height/2-(b.source.rect.top+b.source.rect.height/2));
+  group.forEach((item,index)=>{
+   const {edge,target,side}=item;
+   const y=target.rect.top+target.rect.height*(index+1)/(group.length+1);
+   incomingPorts.set(edge.from+">"+edge.to,{side,y});
+  });
+ }
  for(const edge of [...activeEdges.values()].sort((a,b)=>(a.from+">"+a.to).localeCompare(b.from+">"+b.to))){
   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
   const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
+  const targetPort=incomingPorts.get(key);
   const sr=source.rect,tr=target.rect;
   const sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
   let sx,sy,tx,ty,startLead,endLead,directGap=false;
-  if(!source.tier0&&!target.tier0){
+  if(!source.tier0&&!target.tier0&&!targetPort){
    const overlapX=Math.min(sr.right,tr.right)-Math.max(sr.left,tr.left);
    const overlapY=Math.min(sr.bottom,tr.bottom)-Math.max(sr.top,tr.top);
    if(overlapX>0&&(sr.bottom<=tr.top||tr.bottom<=sr.top)){
@@ -425,6 +447,10 @@ function drawRecipeLinks(){
    if(target.tier0){
     tx=tx0+tr.width;ty=ty0+tr.height/2;
     endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
+   }else if(targetPort){
+    tx=tx0+(targetPort.side==="left"?0:tr.width);
+    ty=targetPort.y-base.top;
+    endLead=[tx+(targetPort.side==="left"?-6:6),ty];
    }else{
     const right=tx0+tr.width/2>=sx0+sr.width/2;
     tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
