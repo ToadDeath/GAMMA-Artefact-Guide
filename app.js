@@ -321,7 +321,7 @@ function drawRecipeLinks(){
  if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related","route-ingredient","route-upgrade"));return}
  recipeEdges();
  const width=layout.scrollWidth,height=layout.scrollHeight;
- svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
+ svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("preserveAspectRatio","none");svg.style.width=width+"px";svg.style.height=height+"px";
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=2.5;
  const sharedLanes={x:[],y:[],dividers:[],xGaps:[],yGaps:[]};
@@ -545,7 +545,7 @@ function renderMatrix(){
  const craftingRank=buildCraftingOrder();
  const sortItems=list=>list.sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
- const card=(a,listMode=false)=>{
+ const card=a=>{
   const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s)&&!/^stopped bonus$/i.test(String(s.label||"")));
   const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
@@ -554,18 +554,29 @@ function renderMatrix(){
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
   const tags=craftTreeRoleMarkup(a);
   const tagMarkup=tags?'<span class="craft-tree-role-list artifact-role-list">'+tags+'</span>':"";
-  const pin=listMode?"":'<button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button>';
+  const pin='<button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button>';
   return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'">'+pin+'<button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
  };
  if(catalogueView==="list"){
   const columns=[0,1,2,3,4].map(t=>{
-   const list=eligible.filter(a=>Number(a.tier)===t).sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
-   return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell artifact-list-stack">'+(list.map(a=>card(a,true)).join("")||'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
+   const list=eligible.filter(a=>Number(a.tier)===t).sort((a,b)=>artifactName(a).localeCompare(artifactName(b)));
+   return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell artifact-list-stack">'+(list.map(a=>card(a)).join("")||'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
   }).join("");
   $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
-  $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content list-view">'+columns+'</div></div>';
-  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(button=>button.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===button.dataset.id);if(a)openProfile(a)}));
+  $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content list-view">'+columns+'</div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+  const matrix=$("#perk-matrix");
+  matrix.querySelectorAll(".purpose-card").forEach(card=>{
+   const id=card.dataset.artifactId;
+   card.addEventListener("mouseenter",()=>selectHoverRoute(id));
+   card.addEventListener("mouseleave",()=>selectHoverRoute(""));
+   card.addEventListener("focusin",()=>selectHoverRoute(id));
+   card.addEventListener("focusout",event=>{if(!card.contains(event.relatedTarget))selectHoverRoute("")});
+  });
+  matrix.querySelectorAll(".purpose-main").forEach(button=>button.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===button.dataset.id);if(a)openProfile(a)}));
+  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
+  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
   document.querySelectorAll("[data-catalogue-view]").forEach(button=>button.classList.toggle("active",button.dataset.catalogueView===catalogueView));
+  drawRecipeLinks();
   return;
  }
  // Build each artefact's ancestry toward the user's custom Tier 4 end products.
