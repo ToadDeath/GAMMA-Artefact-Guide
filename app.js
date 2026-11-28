@@ -526,14 +526,23 @@ function renderMatrix(){
  const finalArtifacts=artifacts.filter(a=>Number(a.tier)===4);
  const artifactById=new Map(artifacts.map(a=>[a.id,a]));
  const outputsByIngredient=new Map(artifacts.map(a=>[a.id,new Set()]));
+ const recipeNeighbors=new Map(artifacts.map(a=>[a.id,new Set()]));
  for(const recipe of recipes){
   if(!artifactById.has(recipe.id))continue;
   for(const ingredient of recipe.ingredients||[]){
    const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
-   if(id&&outputsByIngredient.has(id))outputsByIngredient.get(id).add(recipe.id);
+   if(id&&outputsByIngredient.has(id)){
+    outputsByIngredient.get(id).add(recipe.id);
+    if(id!==recipe.id){recipeNeighbors.get(id).add(recipe.id);recipeNeighbors.get(recipe.id).add(id)}
+   }
   }
  }
- const finalBranchBase=[...finalArtifacts].sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
+ // Connected final products lead the layout. Products with no recipe links
+ // are deliberately placed after the connected crafting trees.
+ const finalBranchBase=[...finalArtifacts].sort((a,b)=>{
+  const aConnected=recipeNeighbors.get(a.id)?.size?0:1,bConnected=recipeNeighbors.get(b.id)?.size?0:1;
+  return aConnected-bConnected||(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b));
+ });
  const finalBranchesByArtifact=new Map();
  for(const artifact of artifacts){
   const branches=new Set(),queue=[artifact.id],visited=new Set();
@@ -582,12 +591,49 @@ function renderMatrix(){
   const x=groupOrder(a),y=groupOrder(b);
   return x.average-y.average||x.first-y.first||x.last-y.last||a.localeCompare(b);
  });
+ // Calculate a separate connection-aware vertical order inside each branch.
+ // Cross-branch links (especially shared ingredients) use the global order as
+ // an anchor, while links within the branch iteratively pull cards together.
+ const globalPosition=new Map();
+ for(const tier of [0,1,2,3,4]){
+  const layer=artifacts.filter(a=>Number(a.tier)===tier).sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999));
+  layer.forEach((a,index)=>globalPosition.set(a.id,layer.length<2?0:index/(layer.length-1)));
+ }
+ const branchRanks=new Map();
+ for(const key of groupKeys){
+  const members=artifacts.filter(a=>branchKey(a)===key);
+  const layers=new Map([0,1,2,3,4].map(t=>[t,members.filter(a=>Number(a.tier)===t)]));
+  const positions=new Map(members.map(a=>[a.id,globalPosition.get(a.id)??0]));
+  const update=()=>{for(const list of layers.values())list.forEach((a,index)=>positions.set(a.id,list.length<2?0:index/(list.length-1)))};
+  update();
+  for(let pass=0;pass<16;pass++){
+   const order=pass%2?[4,3,2,1,0]:[0,1,2,3,4];
+   for(const tier of order){
+    const list=layers.get(tier);
+    const scored=list.map((a,index)=>{
+     const linked=[...(recipeNeighbors.get(a.id)||[])];
+     const score=linked.length?linked.reduce((sum,id)=>sum+(positions.has(id)?positions.get(id):(globalPosition.get(id)??0)),0)/linked.length:null;
+     return {a,index,score};
+    });
+    scored.sort((x,y)=>{
+     if(x.score===null&&y.score!==null)return 1;
+     if(y.score===null&&x.score!==null)return -1;
+     if(x.score!==null&&y.score!==null&&Math.abs(x.score-y.score)>1e-7)return x.score-y.score;
+     return (craftingRank.get(x.a.id)??999)-(craftingRank.get(y.a.id)??999)||artifactName(x.a).localeCompare(artifactName(y.a));
+    });
+    layers.set(tier,scored.map(x=>x.a));
+    update();
+   }
+  }
+  for(const list of layers.values())list.forEach((a,index)=>branchRanks.set(a.id,index));
+ }
  const groupedCards=list=>{
   const groups=new Map(groupKeys.map(key=>[key,[]]));
-  for(const artifact of sortItems([...list])){
+  for(const artifact of list){
    const key=branchKey(artifact);
    if(groups.has(key))groups.get(key).push(artifact);
   }
+  for(const group of groups.values())group.sort((a,b)=>(branchRanks.get(a.id)??999)-(branchRanks.get(b.id)??999)||(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
   return groupKeys.map(key=>'<div class="artifact-cluster" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>').join("");
  };
  const tier0Cards=groupedCards(tier0);
