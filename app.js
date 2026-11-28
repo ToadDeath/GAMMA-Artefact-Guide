@@ -618,6 +618,12 @@ function renderMatrix(){
  // are kept in the final unassigned band instead of interrupting a recipe tree.
  const membersByGroup=new Map(groupKeys.map(key=>[key,eligible.filter(a=>branchKey(a)===key)]));
  const layersByGroup=new Map(groupKeys.map(key=>[key,new Map([0,1,2,3,4].map(t=>[t,membersByGroup.get(key).filter(a=>Number(a.tier)===t)]))]));
+ // Preserve the previous stable crafting order as the initial position reference.
+ const globalPosition=new Map();
+ for(const tier of [0,1,2,3,4]){
+  const baseline=eligible.filter(a=>Number(a.tier)===tier).sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
+  baseline.forEach((a,index)=>globalPosition.set(a.id,baseline.length<2?0:index/(baseline.length-1)));
+ }
  const positions=new Map(globalPosition);
  const refreshPositions=()=>{
   for(const tier of [0,1,2,3,4]){
