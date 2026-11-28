@@ -321,8 +321,10 @@ function drawRecipeLinks(){
  if(!routeIds.length){svg.innerHTML="";svg.classList.remove("is-visible");layout.querySelectorAll(".artifact-node").forEach(node=>node.classList.remove("route-active","route-related","route-ingredient","route-upgrade"));return}
  recipeEdges();
  const width=layout.scrollWidth,height=layout.scrollHeight;
- svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("preserveAspectRatio","none");svg.style.width=width+"px";svg.style.height=height+"px";
- const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
+ svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);svg.setAttribute("preserveAspectRatio","none");svg.style.left="0px";svg.style.top="0px";svg.style.right="auto";svg.style.bottom="auto";svg.style.width=width+"px";svg.style.height=height+"px";
+ // Measure every card against the SVG itself, not its containing layout. This keeps
+ // card borders, scroll offsets, and the SVG viewBox in one coordinate space.
+ const base=svg.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
  const clearance=2.5;
  const sharedLanes={x:[],y:[],dividers:[],xGaps:[],yGaps:[]};
  layout.querySelectorAll(".tier-column:not(:last-child)").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
