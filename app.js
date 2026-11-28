@@ -229,7 +229,7 @@ function clearRouteSegment(a,b,obstacles){
  return false;
 }
 function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=start,endAnchor=end,sharedLanes=null,existingSegments=[]){
- const clearance=4.5;
+ const clearance=2.5;
  const allNodes=[...layout.querySelectorAll(".artifact-node")];
  const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
   const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+clearance}:null;
@@ -241,9 +241,9 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
  const dividers=sharedLanes?.dividers||[];
  const endpointXs=[round(start[0]),round(end[0])],endpointYs=[round(start[1]),round(end[1])];
  const rawXs=unique([...(sharedLanes?.x||[]),start[0],end[0],3,width-3]);
- const xs=rawXs.filter(x=>endpointXs.includes(x)||(!dividers.some(d=>Math.abs(x-d)>0.05&&Math.abs(x-d)<=2.5)&&!(sharedLanes?.xGaps||[]).some(g=>x>g.lo+.05&&x<g.hi-.05&&Math.abs(x-g.mid)>.05)));
+ const xs=rawXs.filter(x=>endpointXs.includes(x)||(!dividers.some(d=>Math.abs(x-d)>0.05&&Math.abs(x-d)<=2.5)&&!(sharedLanes?.xGaps||[]).some(g=>x>=g.lo-.05&&x<=g.hi+.05&&Math.abs(x-g.mid)>.05)));
  const rawYs=unique([...(sharedLanes?.y||[]),start[1],end[1],3,height-3]);
- const ys=rawYs.filter(y=>endpointYs.includes(y)||!(sharedLanes?.yGaps||[]).some(g=>y>g.lo+.05&&y<g.hi-.05&&Math.abs(y-g.mid)>.05));
+ const ys=rawYs.filter(y=>endpointYs.includes(y)||!(sharedLanes?.yGaps||[]).some(g=>y>=g.lo-.05&&y<=g.hi+.05&&Math.abs(y-g.mid)>.05));
  const nx=xs.length,ny=ys.length,total=nx*ny;
  const blocked=new Uint8Array(total);
  const inside=(x,y,r)=>x>r.left+.01&&x<r.right-.01&&y>r.top+.01&&y<r.bottom-.01;
@@ -323,7 +323,7 @@ function drawRecipeLinks(){
  const width=layout.scrollWidth,height=layout.scrollHeight;
  svg.setAttribute("width",width);svg.setAttribute("height",height);svg.setAttribute("viewBox","0 0 "+width+" "+height);
  const base=layout.getBoundingClientRect(),paths=[],related=new Set(),ingredients=new Set(),upgrades=new Set(),selected=new Set(routeIds),unique=new Set(),existingSegments=[];
- const clearance=4.5;
+ const clearance=2.5;
  const sharedLanes={x:[],y:[],dividers:[],xGaps:[],yGaps:[]};
  layout.querySelectorAll(".tier-column:not(:last-child)").forEach(cell=>{const r=cell.getBoundingClientRect();if(r.width)sharedLanes.dividers.push(r.right-base.left-.5)});
  sharedLanes.dividers=[...new Set(sharedLanes.dividers.map(x=>Math.round(x*100)/100))];
@@ -347,15 +347,17 @@ function drawRecipeLinks(){
   const gapX=right.left-left.right;
   if(overlapY>0&&gapX>=clearance*2){
    const lo=left.right-base.left+clearance,hi=right.left-base.left-clearance;
-   sharedLanes.xGaps.push({lo,hi,mid:(lo+hi)/2});
-   sharedLanes.x.push((lo+hi)/2);
+   const mid=(left.right+right.left)/2-base.left;
+   sharedLanes.xGaps.push({lo,hi,mid});
+   sharedLanes.x.push(mid);
   }
   let top=a,bottom=b;if(b.top<a.top){top=b;bottom=a}
   const gapY=bottom.top-top.bottom;
   if(overlapX>0&&gapY>=clearance*2){
    const lo=top.bottom-base.top+clearance,hi=bottom.top-base.top-clearance;
-   sharedLanes.yGaps.push({lo,hi,mid:(lo+hi)/2});
-   sharedLanes.y.push((lo+hi)/2);
+   const mid=(top.bottom+bottom.top)/2-base.top;
+   sharedLanes.yGaps.push({lo,hi,mid});
+   sharedLanes.y.push(mid);
   }
  }
  const anchorFor=id=>{
