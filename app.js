@@ -557,7 +557,10 @@ function renderMatrix(){
    if(visited.has(id))continue;
    visited.add(id);
    const current=artifactById.get(id);
-   if(current&&Number(current.tier)===4){branches.add(id);continue}
+   if(current&&Number(current.tier)===4){
+    if(recipeNeighbors.get(id)?.size)branches.add(id);
+    continue;
+   }
    for(const outputId of outputsByIngredient.get(id)||[])queue.push(outputId);
   }
   finalBranchesByArtifact.set(artifact.id,[...branches]);
