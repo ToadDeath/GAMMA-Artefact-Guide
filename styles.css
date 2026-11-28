@@ -1290,3 +1290,45 @@ footer{justify-content:flex-end}
  .matrix-content>.tier0-area{width:auto!important;border:0!important}
  .matrix-content>.tier-board{display:contents!important;width:auto!important;min-width:0!important}
 }
+
+
+/* Final catalogue polish: keep all tier headings typographically identical. */
+.matrix-content>.tier0-area>header.tier-column-head>b{
+ font:700 18px 'Barlow Condensed'!important;
+ letter-spacing:.08em!important;
+}
+
+/* Shared ingredients remain grouped by their branch position, without
+   decorative boxes that can be mistaken for recipe connections. */
+.matrix-content .artifact-cluster.is-shared{
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+}
+
+/* Recipe-connected side branches keep their own aligned groups. Artefacts
+   with no recipe links become a compact, ordinary list at the bottom. */
+.matrix-content .artifact-cluster.is-unconnected{
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:flex-start!important;
+ gap:4px!important;
+ padding:2px 0!important;
+}
+.matrix-content .artifact-cluster.is-unconnected .purpose-card{
+ background:rgba(32,41,31,.62)!important;
+ border-color:rgba(174,174,135,.09)!important;
+ border-radius:2px!important;
+}
+.matrix-content .artifact-cluster.is-unconnected .purpose-main{
+ grid-template-columns:30px minmax(0,1fr)!important;
+ gap:7px!important;
+ padding:5px 7px!important;
+}
+.matrix-content .artifact-cluster.is-unconnected .purpose-main>img{
+ width:28px!important;
+ height:28px!important;
+}
+.matrix-content .artifact-cluster.is-unconnected .purpose-copy>b{
+ font-size:12px!important;
+}
