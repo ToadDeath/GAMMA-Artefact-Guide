@@ -465,11 +465,22 @@ function drawRecipeLinks(){
   }
   // Keep connector endpoints tied to the measured card edges.
   // The tier-column divider is not necessarily the midpoint of the actual card gap.
-  const routedStart=[startLead[0],startLead[1]];
-  const routedEnd=[endLead[0],endLead[1]];
-  const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,[]);
-  if(!middle)continue;
-  const points=[[sx,sy],...middle,[tx,ty]];
+  const sourceColumn=source.node.closest(".tier-column"),targetColumn=target.node.closest(".tier-column");
+  const tierColumns=[...layout.querySelectorAll(".tier-column")];
+  const sourceColumnIndex=tierColumns.indexOf(sourceColumn),targetColumnIndex=tierColumns.indexOf(targetColumn);
+  let points;
+  if(!source.tier0&&!target.tier0&&sourceColumnIndex>=0&&targetColumnIndex>=0&&Math.abs(sourceColumnIndex-targetColumnIndex)===1){
+   // Adjacent tiers have an empty gutter. Route every connector through its
+   // exact card-edge midpoint, even when the two cards are vertically staggered.
+   const midX=sr.left<tr.left?(sr.right+tr.left)/2-base.left:(tr.right+sr.left)/2-base.left;
+   points=[[sx,sy],[midX,sy],[midX,ty],[tx,ty]];
+  }else{
+   const routedStart=[startLead[0],startLead[1]];
+   const routedEnd=[endLead[0],endLead[1]];
+   const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,[]);
+   if(!middle)continue;
+   points=[[sx,sy],...middle,[tx,ty]];
+  }
   const forward=selected.has(edge.from);
   paths.push('<path class="'+(forward?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
   if(forward)upgrades.add(edge.to);
