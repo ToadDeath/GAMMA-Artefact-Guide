@@ -1378,5 +1378,32 @@ footer{justify-content:flex-end}
 }
 
  
+/* Keep List View tier headers visually identical to the headers in Crafting View. */
+.matrix-content.list-view>.tier-column>.tier-column-head{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ margin:0 0 8px!important;
+ padding:12px 10px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:#283323!important;
+}
+.matrix-content.list-view>.tier-column>.tier-column-head>b{
+ font:700 18px 'Barlow Condensed'!important;
+ letter-spacing:.08em!important;
+ color:var(--acid)!important;
+}
+.matrix-content.list-view>.tier-column>.tier-column-head>span{
+ font:9px 'Inter'!important;
+ color:var(--muted)!important;
+ white-space:nowrap!important;
+}
+
 /* Connector geometry uses each card's measured border box. Keep its box model and border width stable across route states. */
 .matrix-layout .purpose-card{box-sizing:border-box;border-width:1px}
