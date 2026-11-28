@@ -232,7 +232,7 @@ function findClearRoute(start,end,sourceNode,targetNode,layout,base,startAnchor=
  const clearance=3.5;
  const allNodes=[...layout.querySelectorAll(".artifact-node")];
  const obstacles=allNodes.filter(n=>n!==sourceNode&&n!==targetNode).map(n=>{
-  const r=n.getBoundingClientRect(),tier0=!!n.closest(".tier0-area");return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+(tier0?8:clearance)}:null;
+  const r=n.getBoundingClientRect();return r.width&&r.height?{left:r.left-base.left-clearance,right:r.right-base.left+clearance,top:r.top-base.top-clearance,bottom:r.bottom-base.top+clearance}:null;
  }).filter(Boolean);
  if(!clearRouteSegment(startAnchor,start,obstacles)||!clearRouteSegment(end,endAnchor,obstacles))return null;
  const round=n=>Math.round(n*100)/100;
@@ -339,9 +339,9 @@ function drawRecipeLinks(){
  });
  const anchorFor=id=>{
   const node=layout.querySelector('[data-artifact-id="'+CSS.escape(id)+'"]');if(!node)return null;
-  const tier0=node.closest(".tier0-area"),collapsed=!!(tier0&&!tier0.open),anchor=collapsed?tier0.querySelector(":scope > summary"):node;
-  if(!anchor)return null;const rect=anchor.getBoundingClientRect();if(!rect.width||!rect.height)return null;
-  return {node,rect,tier0:!!tier0,collapsed};
+  const tier0=!!node.closest(".tier0-area"),rect=node.getBoundingClientRect();
+  if(!rect.width||!rect.height)return null;
+  return {node,rect,tier0,collapsed:false};
  };
  const activeEdges=new Map(),recursiveIngredients=new Set();
  for(const routeId of routeIds){
@@ -556,26 +556,39 @@ function renderMatrix(){
   }
   finalBranchesByArtifact.set(artifact.id,[...branches]);
  }
- // Put final branches that share ingredients beside one another. This makes
- // shared artefacts, such as Ring, naturally land in the gap between those branches.
- const sharedCount=(left,right)=>{
-  let count=0;
-  for(const branches of finalBranchesByArtifact.values())if(branches.includes(left)&&branches.includes(right))count++;
-  return count;
+ // Choose the Tier 4 order by minimizing the total distance between roots
+ // that share ingredients. Evaluate every possible order (only four roots).
+ // Ties preserve the stable crafting order, with unconnected roots last.
+ const rootIndex=new Map(finalBranchBase.map((a,i)=>[a.id,i]));
+ const rootOrders=[];
+ const permute=(remaining,prefix=[])=>{
+  if(!remaining.length){rootOrders.push(prefix);return}
+  for(let i=0;i<remaining.length;i++)permute(remaining.filter((_,j)=>j!==i),[...prefix,remaining[i]]);
  };
- const remainingRoots=finalBranchBase.map(a=>a.id),orderedRootIds=[];
- while(remainingRoots.length){
-  if(!orderedRootIds.length){
-   remainingRoots.sort((a,b)=>{
-    const score=id=>remainingRoots.reduce((sum,other)=>sum+(other===id?0:sharedCount(id,other)),0);
-    return score(b)-score(a)||(finalBranchBase.findIndex(x=>x.id===a)-finalBranchBase.findIndex(x=>x.id===b));
-   });
-  }else{
-   const previous=orderedRootIds[orderedRootIds.length-1];
-   remainingRoots.sort((a,b)=>sharedCount(b,previous)-sharedCount(a,previous)||(finalBranchBase.findIndex(x=>x.id===a)-finalBranchBase.findIndex(x=>x.id===b)));
+ permute(finalBranchBase.map(a=>a.id));
+ const rootOrderCost=order=>{
+  const positions=new Map(order.map((id,i)=>[id,i]));
+  let cost=0;
+  for(const branches of finalBranchesByArtifact.values()){
+   if(branches.length<2)continue;
+   const indexes=branches.map(id=>positions.get(id)).filter(Number.isFinite);
+   if(indexes.length<2)continue;
+   const span=Math.max(...indexes)-Math.min(...indexes);
+   // Strongly discourage splitting a shared ingredient across distant roots.
+   cost+=span*span*3+span*(indexes.length-1);
   }
-  orderedRootIds.push(remainingRoots.shift());
- }
+  return cost;
+ };
+ rootOrders.sort((a,b)=>{
+  const delta=rootOrderCost(a)-rootOrderCost(b);
+  if(Math.abs(delta)>1e-7)return delta;
+  for(let i=0;i<a.length;i++){
+   const tie=(rootIndex.get(a[i])??999)-(rootIndex.get(b[i])??999);
+   if(tie)return tie;
+  }
+  return 0;
+ });
+ const orderedRootIds=rootOrders[0]||finalBranchBase.map(a=>a.id);
  const finalBranchOrder=new Map(orderedRootIds.map((id,i)=>[id,i]));
  for(const branches of finalBranchesByArtifact.values())branches.sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999));
  const branchKey=artifact=>{
@@ -591,42 +604,42 @@ function renderMatrix(){
   const x=groupOrder(a),y=groupOrder(b);
   return x.average-y.average||x.first-y.first||x.last-y.last||a.localeCompare(b);
  });
- // Calculate a separate connection-aware vertical order inside each branch.
- // Cross-branch links (especially shared ingredients) use the global order as
- // an anchor, while links within the branch iteratively pull cards together.
- const globalPosition=new Map();
- for(const tier of [0,1,2,3,4]){
-  const layer=artifacts.filter(a=>Number(a.tier)===tier).sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999));
-  layer.forEach((a,index)=>globalPosition.set(a.id,layer.length<2?0:index/(layer.length-1)));
- }
- const branchRanks=new Map();
- for(const key of groupKeys){
-  const members=artifacts.filter(a=>branchKey(a)===key);
-  const layers=new Map([0,1,2,3,4].map(t=>[t,members.filter(a=>Number(a.tier)===t)]));
-  const positions=new Map(members.map(a=>[a.id,globalPosition.get(a.id)??0]));
-  const update=()=>{for(const list of layers.values())list.forEach((a,index)=>positions.set(a.id,list.length<2?0:index/(list.length-1)))};
-  update();
-  for(let pass=0;pass<16;pass++){
-   const order=pass%2?[4,3,2,1,0]:[0,1,2,3,4];
-   for(const tier of order){
-    const list=layers.get(tier);
+ // Order each branch's cards by the actual recipe connections around them.
+ // Shared nodes use the positions of every connected branch; unconnected nodes
+ // are kept in the final unassigned band instead of interrupting a recipe tree.
+ const membersByGroup=new Map(groupKeys.map(key=>[key,eligible.filter(a=>branchKey(a)===key)]));
+ const layersByGroup=new Map(groupKeys.map(key=>[key,new Map([0,1,2,3,4].map(t=>[t,membersByGroup.get(key).filter(a=>Number(a.tier)===t)]))]));
+ const positions=new Map(globalPosition);
+ const refreshPositions=()=>{
+  for(const tier of [0,1,2,3,4]){
+   const ordered=groupKeys.flatMap(key=>layersByGroup.get(key).get(tier));
+   ordered.forEach((a,index)=>positions.set(a.id,ordered.length<2?0:index/(ordered.length-1)));
+  }
+ };
+ refreshPositions();
+ for(let pass=0;pass<24;pass++){
+  const order=pass%2?[4,3,2,1,0]:[0,1,2,3,4];
+  for(const tier of order){
+   for(const key of groupKeys){
+    const list=layersByGroup.get(key).get(tier);
     const scored=list.map((a,index)=>{
      const linked=[...(recipeNeighbors.get(a.id)||[])];
-     const score=linked.length?linked.reduce((sum,id)=>sum+(positions.has(id)?positions.get(id):(globalPosition.get(id)??0)),0)/linked.length:null;
+     const score=linked.length?linked.reduce((sum,id)=>sum+(positions.get(id)??globalPosition.get(id)??0),0)/linked.length:null;
      return {a,index,score};
     });
     scored.sort((x,y)=>{
      if(x.score===null&&y.score!==null)return 1;
      if(y.score===null&&x.score!==null)return -1;
      if(x.score!==null&&y.score!==null&&Math.abs(x.score-y.score)>1e-7)return x.score-y.score;
-     return (craftingRank.get(x.a.id)??999)-(craftingRank.get(y.a.id)??999)||artifactName(x.a).localeCompare(artifactName(y.a));
+     return x.index-y.index||(craftingRank.get(x.a.id)??999)-(craftingRank.get(y.a.id)??999)||artifactName(x.a).localeCompare(artifactName(y.a));
     });
-    layers.set(tier,scored.map(x=>x.a));
-    update();
+    layersByGroup.get(key).set(tier,scored.map(x=>x.a));
    }
   }
-  for(const list of layers.values())list.forEach((a,index)=>branchRanks.set(a.id,index));
+  refreshPositions();
  }
+ const branchRanks=new Map();
+ for(const key of groupKeys)for(const list of layersByGroup.get(key).values())list.forEach((a,index)=>branchRanks.set(a.id,index));
  const groupedCards=list=>{
   const groups=new Map(groupKeys.map(key=>[key,[]]));
   for(const artifact of list){
@@ -634,7 +647,7 @@ function renderMatrix(){
    if(groups.has(key))groups.get(key).push(artifact);
   }
   for(const group of groups.values())group.sort((a,b)=>(branchRanks.get(a.id)??999)-(branchRanks.get(b.id)??999)||(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
-  return groupKeys.map(key=>'<div class="artifact-cluster" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>').join("");
+  return groupKeys.map(key=>{const shared=key!=="unassigned"&&key.split("|").length>1;return '<div class="artifact-cluster'+(shared?' is-shared':'')+'" data-shared="'+shared+'" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>'}).join("");
  };
  const tier0Cards=groupedCards(tier0);
  const tierColumns=[1,2,3,4].map(t=>{
@@ -642,7 +655,7 @@ function renderMatrix(){
   return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+groupedCards(list)+(list.length?'':'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
- $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area tier-column" data-tier="0" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
+ $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><section class="tier0-area tier-column" data-tier="0"><header class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></header><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></section><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
  const matrix=$("#perk-matrix"),layout=matrix.querySelector(".matrix-layout");
  matrix.querySelectorAll(".purpose-card").forEach(card=>{
   const id=card.dataset.artifactId;
@@ -653,7 +666,7 @@ function renderMatrix(){
  });
  matrix.querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
- matrix.querySelector(".tier0-area").addEventListener("toggle",()=>{if(matrix.querySelector(".tier0-area").open)alignBranchBands(matrix);scheduleRouteRedraw()});
+
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  alignBranchBands(matrix);
  drawRecipeLinks();
