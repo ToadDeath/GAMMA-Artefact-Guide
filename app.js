@@ -343,41 +343,62 @@ function drawRecipeLinks(){
   if(!anchor)return null;const rect=anchor.getBoundingClientRect();if(!rect.width||!rect.height)return null;
   return {node,rect,tier0:!!tier0,collapsed};
  };
+ const activeEdges=new Map(),recursiveIngredients=new Set();
  for(const routeId of routeIds){
-  for(const edge of [...(recipeAdjacency.get(routeId)||[])].sort((a,b)=>(a.from+">"+a.to).localeCompare(b.from+">"+b.to))){
-   const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
-   const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
-   const sr=source.rect,tr=target.rect;
-   const sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
-   let sx,sy,tx,ty,startLead,endLead;
-   if(source.tier0){
-    sx=sx0+sr.width;sy=sy0+sr.height/2;
-    startLead=[tier0Boundary!==null?tier0Boundary:sx+8,sy];
-   }else{
-    const right=tx0+tr.width/2>=sx0+sr.width/2;
-    sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
-    startLead=[sx+(right?6:-6),sy];
+  const selectedArtifact=artifacts.find(a=>a.id===routeId);
+  if(Number(selectedArtifact?.tier)===4){
+   const queue=[routeId],visited=new Set();
+   while(queue.length){
+    const outputId=queue.shift();
+    if(visited.has(outputId))continue;
+    visited.add(outputId);
+    for(const edge of recipeAdjacency.get(outputId)||[]){
+     if(edge.to!==outputId)continue;
+     activeEdges.set(edge.from+">"+edge.to,edge);
+     recursiveIngredients.add(edge.from);
+     queue.push(edge.from);
+    }
    }
-   if(target.tier0){
-    tx=tx0+tr.width;ty=ty0+tr.height/2;
-    endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
-   }else{
-    const right=tx0+tr.width/2>=sx0+sr.width/2;
-    tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
-    endLead=[tx+(right?-6:6),ty];
-   }
-   const snapDivider=x=>{let nearest=null,distance=Infinity;for(const divider of sharedLanes.dividers){const delta=Math.abs(divider-x);if(delta<distance){distance=delta;nearest=divider}}return nearest!==null&&distance<=2.5?nearest:x};
-   const routedStart=[source.tier0?startLead[0]:snapDivider(startLead[0]),startLead[1]];
-   const routedEnd=[target.tier0?endLead[0]:snapDivider(endLead[0]),endLead[1]];
-   const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,existingSegments);
-   if(!middle)continue;
-   const points=[[sx,sy],...middle,[tx,ty]];
-   for(let i=1;i<points.length;i++)existingSegments.push({a:points[i-1],b:points[i]});
-   const forward=selected.has(edge.from);paths.push('<path class="'+(forward?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
-   if(forward)upgrades.add(edge.to);else ingredients.add(edge.from);
-   related.add(edge.from);related.add(edge.to);
+  }else{
+   for(const edge of recipeAdjacency.get(routeId)||[])activeEdges.set(edge.from+">"+edge.to,edge);
   }
  }
+ for(const edge of [...activeEdges.values()].sort((a,b)=>(a.from+">"+a.to).localeCompare(b.from+">"+b.to))){
+  const key=edge.from+">"+edge.to;if(unique.has(key))continue;unique.add(key);
+  const source=anchorFor(edge.from),target=anchorFor(edge.to);if(!source||!target)continue;
+  const sr=source.rect,tr=target.rect;
+  const sx0=sr.left-base.left,sy0=sr.top-base.top,tx0=tr.left-base.left,ty0=tr.top-base.top;
+  let sx,sy,tx,ty,startLead,endLead;
+  if(source.tier0){
+   sx=sx0+sr.width;sy=sy0+sr.height/2;
+   startLead=[tier0Boundary!==null?tier0Boundary:sx+8,sy];
+  }else{
+   const right=tx0+tr.width/2>=sx0+sr.width/2;
+   sx=sx0+(right?sr.width:0);sy=sy0+sr.height/2;
+   startLead=[sx+(right?6:-6),sy];
+  }
+  if(target.tier0){
+   tx=tx0+tr.width;ty=ty0+tr.height/2;
+   endLead=[tier0Boundary!==null?tier0Boundary:tx+8,ty];
+  }else{
+   const right=tx0+tr.width/2>=sx0+sr.width/2;
+   tx=tx0+(right?0:tr.width);ty=ty0+tr.height/2;
+   endLead=[tx+(right?-6:6),ty];
+  }
+  const snapDivider=x=>{let nearest=null,distance=Infinity;for(const divider of sharedLanes.dividers){const delta=Math.abs(divider-x);if(delta<distance){distance=delta;nearest=divider}}return nearest!==null&&distance<=2.5?nearest:x};
+  const routedStart=[source.tier0?startLead[0]:snapDivider(startLead[0]),startLead[1]];
+  const routedEnd=[target.tier0?endLead[0]:snapDivider(endLead[0]),endLead[1]];
+  const middle=findClearRoute(routedStart,routedEnd,source.node,target.node,layout,base,[sx,sy],[tx,ty],sharedLanes,existingSegments);
+  if(!middle)continue;
+  const points=[[sx,sy],...middle,[tx,ty]];
+  for(let i=1;i<points.length;i++)existingSegments.push({a:points[i-1],b:points[i]});
+  const forward=selected.has(edge.from);
+  paths.push('<path class="'+(forward?"is-source":"is-target")+'" d="'+roundedOrthogonalPath(points,1.5)+'"/>');
+  if(forward)upgrades.add(edge.to);
+  else ingredients.add(edge.from);
+  related.add(edge.from);related.add(edge.to);
+ }
+ for(const id of recursiveIngredients)ingredients.add(id);
  layout.querySelectorAll(".artifact-node").forEach(node=>{const id=node.dataset.artifactId;node.classList.toggle("route-active",selected.has(id));node.classList.toggle("route-related",related.has(id)&&!selected.has(id));node.classList.toggle("route-ingredient",ingredients.has(id)&&!selected.has(id));node.classList.toggle("route-upgrade",upgrades.has(id)&&!selected.has(id))});
  svg.innerHTML=paths.join("");svg.classList.toggle("is-visible",!!paths.length);
 }
@@ -454,6 +475,24 @@ const TAG_DEFINITIONS=[
  
 ];
 let selectedTagFilters=new Set();
+function alignBranchBands(matrix){
+ const grouped=new Map();
+ matrix.querySelectorAll(".artifact-cluster").forEach(wrapper=>{
+  const key=wrapper.dataset.branches||"unassigned";
+  if(!grouped.has(key))grouped.set(key,[]);
+  grouped.get(key).push(wrapper);
+ });
+ for(const wrappers of grouped.values()){
+  let tallest=0;
+  for(const wrapper of wrappers){
+   const cards=[...wrapper.children].filter(child=>child.classList.contains("artifact-node"));
+   const stack=cards.reduce((sum,card)=>sum+card.getBoundingClientRect().height,0)+Math.max(0,cards.length-1)*7;
+   tallest=Math.max(tallest,stack);
+  }
+  const bandHeight=Math.ceil(tallest+28);
+  wrappers.forEach(wrapper=>wrapper.style.minHeight=bandHeight+"px");
+ }
+}
 function renderMatrix(){
  const q=$("#search").value.trim().toLowerCase(),attribute=$("#attribute")?.value||"";
  const tagFilters=$("#tag-filters");
@@ -530,28 +569,31 @@ function renderMatrix(){
  }
  const finalBranchOrder=new Map(orderedRootIds.map((id,i)=>[id,i]));
  for(const branches of finalBranchesByArtifact.values())branches.sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999));
+ const branchKey=artifact=>{
+  const branches=finalBranchesByArtifact.get(artifact.id)||[];
+  return branches.length?branches.join("|"):"unassigned";
+ };
+ const groupOrder=key=>{
+  if(key==="unassigned")return {average:Infinity,first:Infinity,last:Infinity};
+  const positions=key.split("|").map(id=>finalBranchOrder.get(id)??999);
+  return {average:positions.reduce((sum,n)=>sum+n,0)/positions.length,first:Math.min(...positions),last:Math.max(...positions)};
+ };
+ const groupKeys=[...new Set(eligible.map(branchKey))].sort((a,b)=>{
+  const x=groupOrder(a),y=groupOrder(b);
+  return x.average-y.average||x.first-y.first||x.last-y.last||a.localeCompare(b);
+ });
  const groupedCards=list=>{
-  const groups=new Map();
+  const groups=new Map(groupKeys.map(key=>[key,[]]));
   for(const artifact of sortItems([...list])){
-   const branches=finalBranchesByArtifact.get(artifact.id)||[];
-   const key=branches.length?branches.join("|"):"unassigned";
-   if(!groups.has(key))groups.set(key,[]);
-   groups.get(key).push(artifact);
+   const key=branchKey(artifact);
+   if(groups.has(key))groups.get(key).push(artifact);
   }
-  const groupOrder=key=>{
-   if(key==="unassigned")return {average:Infinity,first:Infinity,last:Infinity};
-   const positions=key.split("|").map(id=>finalBranchOrder.get(id)??999);
-   return {average:positions.reduce((sum,n)=>sum+n,0)/positions.length,first:Math.min(...positions),last:Math.max(...positions)};
-  };
-  return [...groups.entries()].sort((a,b)=>{
-   const x=groupOrder(a[0]),y=groupOrder(b[0]);
-   return x.average-y.average||x.first-y.first||x.last-y.last||a[0].localeCompare(b[0]);
-  }).map(([key,items])=>'<div class="artifact-cluster" data-branches="'+esc(key)+'">'+items.map(card).join("")+'</div>').join("");
+  return groupKeys.map(key=>'<div class="artifact-cluster" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>').join("");
  };
  const tier0Cards=groupedCards(tier0);
  const tierColumns=[1,2,3,4].map(t=>{
   const list=eligible.filter(a=>Number(a.tier)===t);
-  return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+(list.length?groupedCards(list):'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
+  return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell" data-tier="'+t+'">'+groupedCards(list)+(list.length?'':'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
  }).join("");
  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
  $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content"><details class="tier0-area tier-column" data-tier="0" open><summary class="tier-column-head tier0-header"><b>TIER 0</b><span>'+tier0.length+' ARTEFACTS</span></summary><div class="tier0-grid">'+(tier0Cards||'<span class="tier-empty">No Tier 0 artefacts match these filters.</span>')+'</div></details><div class="tier-board">'+tierColumns+'</div></div><svg class="recipe-links" aria-hidden="true"></svg></div>';
@@ -565,9 +607,11 @@ function renderMatrix(){
  });
  matrix.querySelectorAll(".purpose-main").forEach(b=>b.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===b.dataset.id);if(a)openProfile(a)}));
  matrix.querySelectorAll(".route-pin").forEach(button=>button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();togglePinnedRoute(button.dataset.pinId)}));
- matrix.querySelector(".tier0-area").addEventListener("toggle",scheduleRouteRedraw);
+ matrix.querySelector(".tier0-area").addEventListener("toggle",()=>{if(matrix.querySelector(".tier0-area").open)alignBranchBands(matrix);scheduleRouteRedraw()});
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
+ alignBranchBands(matrix);
  drawRecipeLinks();
+ if(document.fonts?.ready)document.fonts.ready.then(()=>{if(matrix.isConnected){alignBranchBands(matrix);if(activeRoutes().length)drawRecipeLinks()}});
 }
 function craftingTreeArtifactMarkup(id,stack=new Set()){
  const artifact=artifacts.find(a=>a.id===id);
@@ -726,8 +770,21 @@ $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remov
 $("#tag-filters")?.addEventListener("click",event=>{const clear=event.target.closest("[data-clear-tag-filters]");if(clear){selectedTagFilters.clear();render();return}const button=event.target.closest("[data-tag-filter]");if(!button)return;const key=button.dataset.tagFilter;if(selectedTagFilters.has(key))selectedTagFilters.delete(key);else selectedTagFilters.add(key);render()});
 
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare")?.addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id)?.addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
+let branchLayoutPending=false;
+function scheduleBranchLayout(){
+ if(branchLayoutPending)return;
+ branchLayoutPending=true;
+ requestAnimationFrame(()=>{
+  branchLayoutPending=false;
+  const matrix=$("#perk-matrix");
+  if(!matrix)return;
+  alignBranchBands(matrix);
+  if(activeRoutes().length)drawRecipeLinks();
+ });
+}
 let craftTreeResizeTimer=0;
 window.addEventListener("resize",()=>{
+ scheduleBranchLayout();
  scheduleRouteRedraw();
  if(document.body.dataset.page==="crafting-tree"){
   clearTimeout(craftTreeResizeTimer);
