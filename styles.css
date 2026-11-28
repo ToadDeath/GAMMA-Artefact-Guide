@@ -1167,3 +1167,23 @@ footer{justify-content:flex-end}
  gap:18px!important;
 }
 .matrix-content .purpose-card{margin:0!important}
+
+/* Branch bands align all custom tiers to the same final-artefact ancestry groups.
+   Each band's height is calculated from the tallest real card stack in that branch. */
+.matrix-content>.tier0-area>.tier0-grid,
+.matrix-content>.tier-board>.tier-column>.purpose-cell{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:0!important;
+}
+.matrix-content .artifact-cluster,
+.matrix-content>.tier0-area .artifact-cluster{
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:center!important;
+ gap:7px!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ padding:14px 0!important;
+}
