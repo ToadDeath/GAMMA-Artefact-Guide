@@ -475,6 +475,7 @@ const TAG_DEFINITIONS=[
  
 ];
 let selectedTagFilters=new Set();
+let catalogueView="crafting";
 function alignBranchBands(matrix){
  const grouped=new Map();
  matrix.querySelectorAll(".artifact-cluster").forEach(wrapper=>{
@@ -522,7 +523,7 @@ function renderMatrix(){
  const craftingRank=buildCraftingOrder();
  const sortItems=list=>list.sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
  const effectMarkup=list=>list.length?'<div class="effect-stack">'+list.map(s=>'<span class="effect-tag '+(Number(s.numeric)<0?"negative":"positive")+'">'+esc(s.label)+' <b>'+(s.numeric>0?"+":"")+fmt(s.numeric)+esc(s.unit)+'</b></span>').join("")+'</div>':"";
- const card=a=>{
+ const card=(a,listMode=false)=>{
   const stats=a.stats.filter(s=>Number(s.numeric)!==0&&isVisibleStat(s)&&!/^stopped bonus$/i.test(String(s.label||"")));
   const positives=stats.filter(s=>Number(s.numeric)>0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
   const negatives=stats.filter(s=>Number(s.numeric)<0).sort((x,y)=>Math.abs(Number(y.numeric))-Math.abs(Number(x.numeric)));
@@ -531,8 +532,20 @@ function renderMatrix(){
   const traitGap=positives.length&&negatives.length?'<span class="trait-gap"></span>':"";
   const tags=craftTreeRoleMarkup(a);
   const tagMarkup=tags?'<span class="craft-tree-role-list artifact-role-list">'+tags+'</span>':"";
-  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
+  const pin=listMode?"":'<button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button>';
+  return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'">'+pin+'<button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
  };
+ if(catalogueView==="list"){
+  const columns=[0,1,2,3,4].map(t=>{
+   const list=eligible.filter(a=>Number(a.tier)===t).sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
+   return '<section class="tier-column" data-tier="'+t+'"><header class="tier-column-head"><b>TIER '+t+'</b><span>'+list.length+' ARTEFACTS</span></header><div class="purpose-cell artifact-list-stack">'+(list.map(a=>card(a,true)).join("")||'<span class="tier-empty">No Tier '+t+' artefacts match these filters.</span>')+'</div></section>';
+  }).join("");
+  $("#matrix-count").textContent=eligible.length+" ARTEFACTS";
+  $("#perk-matrix").innerHTML='<div class="matrix-layout"><div class="matrix-content list-view">'+columns+'</div></div>';
+  $("#perk-matrix").querySelectorAll(".purpose-main").forEach(button=>button.addEventListener("click",()=>{const a=artifacts.find(x=>x.id===button.dataset.id);if(a)openProfile(a)}));
+  document.querySelectorAll("[data-catalogue-view]").forEach(button=>button.classList.toggle("active",button.dataset.catalogueView===catalogueView));
+  return;
+ }
  // Build each artefact's ancestry toward the user's custom Tier 4 end products.
  // Shared ingredients retain every final branch they can reach, rather than being
  // forced into one connected component or duplicated across branches.
@@ -720,6 +733,7 @@ function renderMatrix(){
 
  matrix.querySelectorAll(".route-pin").forEach(button=>{const pinned=pinnedRouteIds.has(button.dataset.pinId);button.classList.toggle("is-pinned",pinned);button.setAttribute("aria-pressed",String(pinned))});
  alignBranchBands(matrix);
+ document.querySelectorAll("[data-catalogue-view]").forEach(button=>button.classList.toggle("active",button.dataset.catalogueView===catalogueView));
  drawRecipeLinks();
  if(document.fonts?.ready)document.fonts.ready.then(()=>{if(matrix.isConnected){alignBranchBands(matrix);if(activeRoutes().length)drawRecipeLinks()}});
 }
@@ -877,6 +891,7 @@ const recipeName=r=>{const a=artifacts.find(x=>x.id===r.id);return a?artifactNam
 function craftingIngredientName(i){const id=i.artifactId||ingredientArtifactId(i.name);const a=id?artifacts.find(x=>x.id===id):null;return a?artifactName(a):i.name;}
 function renderRecipes(){const q=$("#recipe-search").value.toLowerCase();const list=recipes.filter(r=>recipeName(r).toLowerCase().includes(q)||String(r.requiredManual||"").toLowerCase().includes(q)||r.ingredients.some(i=>craftingIngredientName(i).toLowerCase().includes(q)));$("#recipe-list").innerHTML=list.map(r=>'<div class="recipe"><strong>'+esc(recipeName(r))+'</strong>'+outputArtifactIconMarkup(r,true)+'<div class="recipe-tool"><img src="assets/artifacts/itm_artefact_melter.png" alt="" loading="lazy"><span>ARTIFACT MELTER</span></div><small class="recipe-manual">'+esc(r.requiredManual||"No fusion manual required")+'</small><div class="ingredients">'+r.ingredients.map(i=>'<span class="ingredient">'+craftingIconMarkup(i,true)+esc(craftingIngredientName(i))+' '+esc(i.amount)+'</span>').join("")+'</div></div>').join("")||'<div class="empty">NO RECIPES FOUND</div>'}
 $("#artifact-dialog").addEventListener("close",()=>document.body.classList.remove("dialog-open"));
+document.querySelectorAll("[data-catalogue-view]").forEach(button=>button.addEventListener("click",()=>{const next=button.dataset.catalogueView;if(next===catalogueView)return;catalogueView=next;pinnedRouteIds.clear();hoverRouteId="";render()}));
 $("#tag-filters")?.addEventListener("click",event=>{const clear=event.target.closest("[data-clear-tag-filters]");if(clear){selectedTagFilters.clear();render();return}const button=event.target.closest("[data-tag-filter]");if(!button)return;const key=button.dataset.tagFilter;if(selectedTagFilters.has(key))selectedTagFilters.delete(key);else selectedTagFilters.add(key);render()});
 
 $("#artifact-dialog").addEventListener("click",e=>{if(e.target===$("#artifact-dialog"))$("#artifact-dialog").close()});$(".dialog-close").addEventListener("click",()=>$("#artifact-dialog").close());$("#clear-compare")?.addEventListener("click",()=>{compareIds.clear();renderCompare()});["search","attribute"].forEach(id=>$("#"+id)?.addEventListener(id==="search"?"input":"change",render));document.querySelectorAll(".chip[data-filter]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
