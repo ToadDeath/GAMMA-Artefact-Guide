@@ -600,12 +600,41 @@ function renderMatrix(){
  const orderedRootIds=rootOrders[0]||finalBranchBase.map(a=>a.id);
  const finalBranchOrder=new Map(orderedRootIds.map((id,i)=>[id,i]));
  for(const branches of finalBranchesByArtifact.values())branches.sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999));
- const branchKey=artifact=>{
+ const tier4BranchKey=artifact=>{
   const branches=finalBranchesByArtifact.get(artifact.id)||[];
-  return branches.length?branches.join("|"):"unassigned";
+  return branches.length?branches.join("|"):"";
  };
+ // Keep recipe-connected side branches distinct from artefacts that have no
+ // crafting connections at all. Truly isolated artefacts share one compact list.
+ const unassignedEligible=eligible.filter(a=>!tier4BranchKey(a));
+ const unassignedById=new Map(unassignedEligible.map(a=>[a.id,a]));
+ const sideGroupById=new Map(),unassignedVisited=new Set();
+ for(const artifact of unassignedEligible){
+  if(unassignedVisited.has(artifact.id))continue;
+  const component=[],queue=[artifact.id];unassignedVisited.add(artifact.id);
+  while(queue.length){
+   const id=queue.shift(),current=unassignedById.get(id);
+   if(!current)continue;
+   component.push(current);
+   for(const neighborId of recipeNeighbors.get(id)||[]){
+    if(unassignedById.has(neighborId)&&!unassignedVisited.has(neighborId)){
+     unassignedVisited.add(neighborId);queue.push(neighborId);
+    }
+   }
+  }
+  const hasRecipeLinks=component.some(a=>(recipeNeighbors.get(a.id)||new Set()).size>0);
+  if(component.length>1||hasRecipeLinks){
+   const key="side:"+component.map(a=>a.id).sort().join(",");
+   component.forEach(a=>sideGroupById.set(a.id,key));
+  }
+ }
+ const branchKey=artifact=>tier4BranchKey(artifact)||sideGroupById.get(artifact.id)||"unconnected";
  const groupOrder=key=>{
-  if(key==="unassigned")return {average:Infinity,first:Infinity,last:Infinity};
+  if(key==="unconnected")return {average:Infinity,first:Infinity,last:Infinity};
+  if(key.startsWith("side:")){
+   const rank=Math.min(...key.slice(5).split(",").map(id=>craftingRank.get(id)??999));
+   return {average:Infinity,first:rank,last:rank};
+  }
   const positions=key.split("|").map(id=>finalBranchOrder.get(id)??999);
   return {average:positions.reduce((sum,n)=>sum+n,0)/positions.length,first:Math.min(...positions),last:Math.max(...positions)};
  };
@@ -662,7 +691,7 @@ function renderMatrix(){
    if(groups.has(key))groups.get(key).push(artifact);
   }
   for(const group of groups.values())group.sort((a,b)=>(branchRanks.get(a.id)??999)-(branchRanks.get(b.id)??999)||(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b)));
-  return groupKeys.map(key=>{const shared=key!=="unassigned"&&key.split("|").length>1;return '<div class="artifact-cluster'+(shared?' is-shared':'')+'" data-shared="'+shared+'" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>'}).join("");
+  return groupKeys.map(key=>{const shared=!key.startsWith("side:")&&key!=="unconnected"&&key.split("|").length>1;const kind=key==="unconnected"?" is-unconnected":key.startsWith("side:")?" is-side-branch":"";return '<div class="artifact-cluster'+(shared?' is-shared':'')+kind+'" data-shared="'+shared+'" data-branches="'+esc(key)+'">'+groups.get(key).map(card).join("")+'</div>'}).join("");
  };
  const tier0Cards=groupedCards(tier0);
  const tierColumns=[1,2,3,4].map(t=>{
