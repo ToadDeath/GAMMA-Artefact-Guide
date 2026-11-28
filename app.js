@@ -348,8 +348,11 @@ function drawRecipeLinks(){
   const overlapX=Math.min(a.right,b.right)-Math.max(a.left,b.left);
   let left=a,right=b;if(b.left<a.left){left=b;right=a}
   const gapX=right.left-left.right;
-  if(overlapY>0&&gapX>=clearance*2){
-   const blocked=nodeRects.some(({r},k)=>k!==i&&k!==j&&r.left<right.left&&r.right>left.right&&r.top<Math.min(a.bottom,b.bottom)&&r.bottom>Math.max(a.top,b.top));
+  // A tier gutter is a real routing channel even when the two cards
+  // connected by a recipe do not overlap vertically. Define its center from
+  // the measured card edges, and keep off-center lanes out of that corridor.
+  if(gapX>=clearance*2){
+   const blocked=nodeRects.some(({r},k)=>k!==i&&k!==j&&r.left<right.left&&r.right>left.right);
    if(!blocked){
     const lo=left.right-base.left+clearance,hi=right.left-base.left-clearance;
     const mid=(left.right+right.left)/2-base.left;
