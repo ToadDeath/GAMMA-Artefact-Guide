@@ -481,14 +481,49 @@ function renderMatrix(){
   const tagMarkup=tags?'<span class="craft-tree-role-list artifact-role-list">'+tags+'</span>':"";
   return '<article class="purpose-card artifact-node" data-artifact-id="'+esc(a.id)+'"><button class="route-pin" data-pin-id="'+esc(a.id)+'" type="button" aria-label="Pin crafting connections" aria-pressed="false" title="Pin crafting connections"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z"/></svg></button><button class="purpose-main" data-id="'+esc(a.id)+'" type="button"><img loading="lazy" src="'+artifactIcon(a)+'" alt=""><div class="purpose-copy"><span class="artifact-title-line"><b>'+esc(artifactName(a))+'</b>'+value+'</span>'+tagMarkup+perk+effectMarkup(positives)+traitGap+effectMarkup(negatives)+'</div></button></article>';
  };
- const clusterParent=new Map(eligible.map(a=>[a.id,a.id]));
- const findCluster=id=>{let root=id;while(clusterParent.get(root)!==root)root=clusterParent.get(root);while(clusterParent.get(id)!==id){const next=clusterParent.get(id);clusterParent.set(id,root);id=next}return root};
- const joinCluster=(a,b)=>{if(!clusterParent.has(a)||!clusterParent.has(b))return;const ra=findCluster(a),rb=findCluster(b);if(ra!==rb)clusterParent.set(rb,ra)};
- for(const recipe of recipes){if(!clusterParent.has(recipe.id))continue;for(const ingredient of recipe.ingredients||[]){const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);if(id)joinCluster(recipe.id,id)}}
+ // Build each artefact's ancestry toward the user's custom Tier 4 end products.
+ // Shared ingredients retain every final branch they can reach, rather than being
+ // forced into one connected component or duplicated across branches.
+ const finalArtifacts=artifacts.filter(a=>Number(a.tier)===4);
+ const outputsByIngredient=new Map(artifacts.map(a=>[a.id,new Set()]));
+ for(const recipe of recipes){
+  if(!artifacts.some(a=>a.id===recipe.id))continue;
+  for(const ingredient of recipe.ingredients||[]){
+   const id=ingredient.artifactId||ingredientArtifactId(ingredient.name);
+   if(id&&outputsByIngredient.has(id))outputsByIngredient.get(id).add(recipe.id);
+  }
+ }
+ const finalBranchOrder=new Map([...finalArtifacts].sort((a,b)=>(craftingRank.get(a.id)??999)-(craftingRank.get(b.id)??999)||artifactName(a).localeCompare(artifactName(b))).map((a,i)=>[a.id,i]));
+ const finalBranchesByArtifact=new Map();
+ for(const artifact of artifacts){
+  const branches=new Set(),queue=[artifact.id],visited=new Set();
+  while(queue.length){
+   const id=queue.shift();
+   if(visited.has(id))continue;
+   visited.add(id);
+   const current=artifacts.find(a=>a.id===id);
+   if(current&&Number(current.tier)===4){branches.add(id);continue}
+   for(const outputId of outputsByIngredient.get(id)||[])queue.push(outputId);
+  }
+  finalBranchesByArtifact.set(artifact.id,[...branches].sort((a,b)=>(finalBranchOrder.get(a)??999)-(finalBranchOrder.get(b)??999)));
+ }
  const groupedCards=list=>{
   const groups=new Map();
-  for(const artifact of sortItems([...list])){const key=findCluster(artifact.id);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(artifact)}
-  return [...groups.entries()].sort((a,b)=>(craftingRank.get(a[1][0].id)??999)-(craftingRank.get(b[1][0].id)??999)).map(([key,items])=>'<div class="artifact-cluster" data-cluster="'+esc(key)+'">'+items.map(card).join("")+'</div>').join("");
+  for(const artifact of sortItems([...list])){
+   const branches=finalBranchesByArtifact.get(artifact.id)||[];
+   const key=branches.length?branches.join("|"):"unassigned";
+   if(!groups.has(key))groups.set(key,[]);
+   groups.get(key).push(artifact);
+  }
+  const groupOrder=key=>{
+   if(key==="unassigned")return {average:Infinity,first:Infinity,last:Infinity};
+   const positions=key.split("|").map(id=>finalBranchOrder.get(id)??999);
+   return {average:positions.reduce((sum,n)=>sum+n,0)/positions.length,first:Math.min(...positions),last:Math.max(...positions)};
+  };
+  return [...groups.entries()].sort((a,b)=>{
+   const x=groupOrder(a[0]),y=groupOrder(b[0]);
+   return x.average-y.average||x.first-y.first||x.last-y.last||a[0].localeCompare(b[0]);
+  }).map(([key,items])=>'<div class="artifact-cluster" data-branches="'+esc(key)+'">'+items.map(card).join("")+'</div>').join("");
  };
  const tier0Cards=groupedCards(tier0);
  const tierColumns=[1,2,3,4].map(t=>{
